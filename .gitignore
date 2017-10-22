@@ -1,0 +1,7 @@
+/bin
+/mp_left.csv
+/*.ini
+*.ini
+/mp_right.csv
+/mp_right_detailed.csv
+/mp_left_detailed.csv
