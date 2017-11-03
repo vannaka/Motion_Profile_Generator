@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PathFinder"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/Blake/wpilib/user/java/lib/Pathfinder-Java.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Blake/eclipse-workspace/PathGenerator/src/pathGenerator/pathfinder.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

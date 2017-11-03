@@ -72,6 +72,7 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
     private String yLabel;
     private String titleLabel;
     protected static int count = 0;
+    protected static int count1 = 0;
     
     JPopupMenu menu = new JPopupMenu("Popup");
     
@@ -168,15 +169,19 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
     	
     	addData(xData, yData, lineColor,markerColor);
     	
-    	count ++;
-    	JFrame g = new JFrame("Figure " + count);
-        g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	//count = count + 1;
+    	count1 = count1 + 600;
+    	
+    	JPanel g = new JPanel();
         g.add(this);
-        g.setSize(700,700);
-        g.setLocationByPlatform(true);
-        g.setVisible(true);
+        //g.setBounds(460 + count1, 0, 600, 600);
+        //g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //g.setSize(600,600);
+        //g.setLocation(count1, 100);
+        //g.setLocationByPlatform(true);
+        //g.setVisible(true);
          
-        menu(g,this);	
+        //menu(g,this);	
     }
     
     /**
