@@ -80,47 +80,47 @@ public class Gui2 {
 		trajecPanel.setLayout(null);
 		
 		JLabel lblTimeStep = new JLabel("Time Step");
-		lblTimeStep.setBounds(113, 63, 61, 14);
+		lblTimeStep.setBounds(142, 60, 80, 20);
 		trajecPanel.add(lblTimeStep);
 		
 		JLabel lblVelocity = new JLabel("Velocity");
-		lblVelocity.setBounds(113, 94, 46, 14);
+		lblVelocity.setBounds(142, 90, 80, 20);
 		trajecPanel.add(lblVelocity);
 		
 		JLabel lblAcceleration = new JLabel("Acceleration");
-		lblAcceleration.setBounds(113, 125, 77, 14);
+		lblAcceleration.setBounds(142, 120, 80, 20);
 		trajecPanel.add(lblAcceleration);
 		
 		JLabel lblJerk = new JLabel("Jerk");
-		lblJerk.setBounds(113, 156, 46, 14);
+		lblJerk.setBounds(142, 150, 80, 20);
 		trajecPanel.add(lblJerk);
 		
 		txtTime = new JTextField();
 		txtTime.setText("0.05");
-		txtTime.setBounds(212, 60, 86, 20);
+		txtTime.setBounds(222, 60, 86, 20);
 		trajecPanel.add(txtTime);
 		txtTime.setColumns(10);
 		
 		txtVelocity = new JTextField();
 		txtVelocity.setText("4");
-		txtVelocity.setBounds(212, 91, 86, 20);
+		txtVelocity.setBounds(222, 90, 86, 20);
 		trajecPanel.add(txtVelocity);
 		txtVelocity.setColumns(10);
 		
 		txtAcceleration = new JTextField();
 		txtAcceleration.setText("3");
-		txtAcceleration.setBounds(212, 122, 86, 20);
+		txtAcceleration.setBounds(222, 120, 86, 20);
 		trajecPanel.add(txtAcceleration);
 		txtAcceleration.setColumns(10);
 		
 		txtJerk = new JTextField();
 		txtJerk.setText("60");
-		txtJerk.setBounds(212, 153, 86, 20);
+		txtJerk.setBounds(222, 150, 86, 20);
 		trajecPanel.add(txtJerk);
 		txtJerk.setColumns(10);
 		
 		JButton btnGeneratePath = new JButton("Generate Path");
-		btnGeneratePath.setBounds(158, 566, 130, 23);
+		btnGeneratePath.setBounds(160, 566, 130, 23);
 		trajecPanel.add(btnGeneratePath);
 		
 		btnGeneratePath.addActionListener(new java.awt.event.ActionListener() {
