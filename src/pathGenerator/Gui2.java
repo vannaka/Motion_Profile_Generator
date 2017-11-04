@@ -135,38 +135,42 @@ public class Gui2 {
 		
 		JLabel lblMotionVariables = new JLabel("Motion Variables");
 		lblMotionVariables.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		lblMotionVariables.setBounds(131, 11, 188, 41);
+		lblMotionVariables.setBounds(137, 11, 176, 40);
 		trajecPanel.add(lblMotionVariables);
 		
 		JLabel lblWaypoints = new JLabel("Waypoints");
 		lblWaypoints.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		lblWaypoints.setBounds(158, 235, 130, 29);
+		lblWaypoints.setBounds(170, 220, 110, 40);
 		trajecPanel.add(lblWaypoints);
 		
 		txtWheelBase = new JTextField();
 		txtWheelBase.setText("1.464");
-		txtWheelBase.setBounds(212, 191, 86, 20);
+		txtWheelBase.setBounds(222, 180, 86, 20);
 		trajecPanel.add(txtWheelBase);
 		txtWheelBase.setColumns(10);
 		
 		JLabel lblWheelBase = new JLabel(" Wheel Base       ");
-		lblWheelBase.setHorizontalAlignment(SwingConstants.LEFT);
-		lblWheelBase.setFont(new Font("Times New Roman", Font.PLAIN, 12));
-		lblWheelBase.setBounds(113, 194, 90, 14);
+		lblWheelBase.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		lblWheelBase.setBounds(142, 180, 80, 20);
 		trajecPanel.add(lblWheelBase);
 		
 		txtAngle = new JTextField();
-		txtAngle.setBounds(254, 325, 34, 20);
+		txtAngle.setBounds(252, 298, 34, 20);
 		trajecPanel.add(txtAngle);
 		txtAngle.setColumns(10);
 		
 		txtAreaWaypoints = new JTextArea();
-		txtAreaWaypoints.setText(" X         Y      Angle\r\n______________\n");
-		txtAreaWaypoints.setBounds(131, 406, 188, 133);
+		txtAreaWaypoints.setEditable(false);
+		txtAreaWaypoints.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		String format = "%1$4s %2$6s %3$9s";
+    	String line = String.format(format, "X", "Y", "Angle");
+		txtAreaWaypoints.append(line + "\n");
+		txtAreaWaypoints.append("_____________________" + "\n");
+		txtAreaWaypoints.setBounds(131, 363, 188, 176);
 		trajecPanel.add(txtAreaWaypoints);
 		
 		JButton btnAddPoint = new JButton("Add Point");
-		btnAddPoint.setBounds(179, 372, 89, 23);
+		btnAddPoint.setBounds(180, 329, 90, 20);
 		trajecPanel.add(btnAddPoint);
 		
 		btnAddPoint.addActionListener(new java.awt.event.ActionListener() {
@@ -176,28 +180,28 @@ public class Gui2 {
         });
 		
 		txtXValue = new JTextField();
-		txtXValue.setBounds(156, 325, 34, 20);
+		txtXValue.setBounds(164, 298, 34, 20);
 		trajecPanel.add(txtXValue);
 		txtXValue.setColumns(10);
 		
 		txtYValue = new JTextField();
-		txtYValue.setBounds(202, 325, 34, 20);
+		txtYValue.setBounds(208, 298, 34, 20);
 		trajecPanel.add(txtYValue);
 		txtYValue.setColumns(10);
 		
 		JLabel lblX = new JLabel("X");
 		lblX.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblX.setBounds(168, 306, 19, 14);
+		lblX.setBounds(176, 275, 10, 20);
 		trajecPanel.add(lblX);
 		
 		JLabel lblY = new JLabel("Y");
 		lblY.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblY.setBounds(217, 306, 19, 14);
+		lblY.setBounds(220, 275, 10, 20);
 		trajecPanel.add(lblY);
 		
 		JLabel lblAngle = new JLabel("Angle");
 		lblAngle.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAngle.setBounds(254, 302, 34, 23);
+		lblAngle.setBounds(252, 275, 34, 20);
 		trajecPanel.add(lblAngle);
 		
 		motionGraph();
@@ -326,8 +330,10 @@ public class Gui2 {
 			JOptionPane.showMessageDialog(null, "The Angle value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
-				
-		txtAreaWaypoints.append(Double.toString(xValue) + "     " + Double.toString(yValue) + "     " + Double.toString(angle) + "\n");
+		
+    	String format = "%1$6.2f %2$6.2f %3$7.2f";
+    	String line = String.format(format, xValue, yValue, angle);
+    	txtAreaWaypoints.append(line + "\n");
 		
 		// add new point to points list
 		points.add( new Waypoint(xValue, yValue, Pathfinder.d2r(angle)));
