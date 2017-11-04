@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+
 import java.awt.Font;
 import java.io.File;
 import java.io.FileWriter;
@@ -23,7 +25,6 @@ import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.Trajectory.Segment;
 import jaci.pathfinder.modifiers.TankModifier;
 
-import javax.swing.SwingConstants;
 import javax.swing.JTextArea;
 
 public class Gui2 {
@@ -43,6 +44,9 @@ public class Gui2 {
 	private JTextField txtYValue;
 	
 	private JTextArea txtAreaWaypoints;
+	
+	private JFileChooser fileChooser;
+	private File directory;
 	
 	// Path Waypoints 
 	//private Waypoint[] points;
@@ -120,7 +124,7 @@ public class Gui2 {
 		txtJerk.setColumns(10);
 		
 		JButton btnGeneratePath = new JButton("Generate Path");
-		btnGeneratePath.setBounds(160, 566, 130, 23);
+		btnGeneratePath.setBounds(90, 566, 130, 23);
 		trajecPanel.add(btnGeneratePath);
 		
 		btnGeneratePath.addActionListener(new java.awt.event.ActionListener() {
@@ -132,6 +136,26 @@ public class Gui2 {
 				}
             }
         });
+		
+		JButton btnAddPoint = new JButton("Add Point");
+		btnAddPoint.setBounds(180, 329, 90, 20);
+		trajecPanel.add(btnAddPoint);
+		
+		btnAddPoint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	btnAddPointActionPerformed(evt);
+            }
+        });
+		
+		JButton btnFilePath = new JButton("Save File Path");
+		btnFilePath.setBounds(230, 566, 130, 23);
+		trajecPanel.add(btnFilePath);
+		
+		btnFilePath.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	btnFilePathActionPerformed(evt);
+            }
+		});
 		
 		JLabel lblMotionVariables = new JLabel("Motion Variables");
 		lblMotionVariables.setFont(new Font("Tahoma", Font.PLAIN, 24));
@@ -168,17 +192,7 @@ public class Gui2 {
 		txtAreaWaypoints.append("_____________________" + "\n");
 		txtAreaWaypoints.setBounds(131, 363, 188, 176);
 		trajecPanel.add(txtAreaWaypoints);
-		
-		JButton btnAddPoint = new JButton("Add Point");
-		btnAddPoint.setBounds(180, 329, 90, 20);
-		trajecPanel.add(btnAddPoint);
-		
-		btnAddPoint.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	btnAddPointActionPerformed(evt);
-            }
-        });
-		
+					
 		txtXValue = new JTextField();
 		txtXValue.setBounds(164, 298, 34, 20);
 		trajecPanel.add(txtXValue);
@@ -203,7 +217,7 @@ public class Gui2 {
 		lblAngle.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblAngle.setBounds(252, 275, 34, 20);
 		trajecPanel.add(lblAngle);
-		
+				
 		motionGraph();
 		velocityGraph();
 	};
@@ -290,7 +304,7 @@ public class Gui2 {
 			JOptionPane.showMessageDialog(null, "We need at least two points to generate a profile.", "Insufficient Points.", JOptionPane.INFORMATION_MESSAGE);
 		}
 		
-    };
+    }
     
     private void btnAddPointActionPerformed(java.awt.event.ActionEvent evt)
     {
@@ -344,10 +358,23 @@ public class Gui2 {
 		        
     }
     
+    private void btnFilePathActionPerformed(java.awt.event.ActionEvent evt)
+    {
+    	fileChooser = new JFileChooser(); 
+        fileChooser.setCurrentDirectory(new java.io.File("."));
+        fileChooser.setDialogTitle("Choose a Directory to save");
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        
+        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+        	directory = fileChooser.getCurrentDirectory();
+        }
+    }
+    
     private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points) throws IOException
     {
-    	File lFile = new File("mp_left.csv");
-		File rFile = new File("mp_right.csv");
+    	File lFile = new File(directory, "mp_left.csv");
+    	File rFile = new File(directory, "mp_right.csv");
 		FileWriter lfw = new FileWriter( lFile );
 		FileWriter rfw = new FileWriter( rFile );
 		PrintWriter lpw = new PrintWriter( lfw );
@@ -404,10 +431,10 @@ public class Gui2 {
       	fig4.repaint();
       	      	     	 	
      	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-        File leftFile = new File("mp_left_detailed.csv");
+        File leftFile = new File(directory, "mp_left_detailed.csv");
         Pathfinder.writeToCSV(leftFile, left);
         
-        File rightFile = new File("mp_right_detailed.csv");
+        File rightFile = new File(directory, "mp_right_detailed.csv");
         Pathfinder.writeToCSV(rightFile, right);
         
 		// CSV with position and velocity. To be used with your robot. 
