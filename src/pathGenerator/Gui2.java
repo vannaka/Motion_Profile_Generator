@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
@@ -40,6 +42,10 @@ public class Gui2 {
 	private JTextField txtYValue;
 	
 	private JTextArea txtAreaWaypoints;
+	
+	// Path Waypoints 
+	//private Waypoint[] points;
+	private List<Waypoint> points = new ArrayList<Waypoint>();			// can be variable length after creation
 	
 	/**
 	 * Create the application.
@@ -265,19 +271,23 @@ public class Gui2 {
 		
 	private void btnActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-		double timeStep = Double.parseDouble(txtTime.getText()); //default 0.05
-		double velocity = Double.parseDouble(txtVelocity.getText()); //default 4
-		double acceleration = Double.parseDouble(txtAcceleration.getText()); // default 3	
-		double jerk = Double.parseDouble(txtJerk.getText()); // default 60
-		double wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
+		double timeStep = Double.parseDouble(txtTime.getText()); 				//default 0.05
+		double velocity = Double.parseDouble(txtVelocity.getText()); 			//default 4
+		double acceleration = Double.parseDouble(txtAcceleration.getText()); 	// default 3	
+		double jerk = Double.parseDouble(txtJerk.getText()); 					// default 60
+		double wheelBase = Double.parseDouble(txtWheelBase.getText());  		//default 1.464
 		
-		// Path Waypoints 
-		Waypoint[] points = new Waypoint[] {
-		        new Waypoint(2, 23, 0),
-		        new Waypoint(11, 16, Pathfinder.d2r(-60))
-		};
-		
-		trajectory(timeStep, velocity, acceleration, jerk, wheelBase, points);
+		// If waypoints exist
+		if( !points.isEmpty() ) 
+		{
+			Waypoint tmp[] = new Waypoint[ points.size() ];
+			points.toArray( tmp );
+			trajectory( timeStep, velocity, acceleration, jerk, wheelBase, tmp );
+		}
+		else
+		{
+			// display error box here.
+		}
 		
     };
     
@@ -289,11 +299,8 @@ public class Gui2 {
 				
 		txtAreaWaypoints.append(Double.toString(xValue) + "     " + Double.toString(yValue) + "     " + Double.toString(angle) + "\n");
 		
-		int i = 1;
-		
-		Waypoint[] oldpoints = new Waypoint[i];
-		
-		new Waypoint(xValue, yValue, angle);
+		// add new point to points list
+		points.add( new Waypoint(xValue, yValue, angle) );
 		        
     }
     
