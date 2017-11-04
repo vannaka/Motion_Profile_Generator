@@ -331,6 +331,10 @@ public class Gui2 {
 		
 		// add new point to points list
 		points.add( new Waypoint(xValue, yValue, Pathfinder.d2r(angle)));
+		
+		txtXValue.setText("");
+		txtYValue.setText("");
+		txtAngle.setText("");
 		        
     }
     
