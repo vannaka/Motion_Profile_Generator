@@ -300,7 +300,7 @@ public class Gui2 {
 		txtAreaWaypoints.append(Double.toString(xValue) + "     " + Double.toString(yValue) + "     " + Double.toString(angle) + "\n");
 		
 		// add new point to points list
-		points.add( new Waypoint(xValue, yValue, angle) );
+		points.add( new Waypoint(xValue, yValue, Pathfinder.d2r(angle)));
 		        
     }
     
