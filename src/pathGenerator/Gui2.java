@@ -275,7 +275,7 @@ public class Gui2 {
 		double wheelBase = Double.parseDouble(txtWheelBase.getText());  		//default 1.464
 		
 		// If waypoints exist
-		if( !points.isEmpty() ) 
+		if( points.size() > 1 )
 		{
 			Waypoint tmp[] = new Waypoint[ points.size() ];
 			points.toArray( tmp );
@@ -283,7 +283,7 @@ public class Gui2 {
 		}
 		else
 		{
-			// TODO: display error box here.
+			JOptionPane.showMessageDialog(null, "We need at least two points to generate a profile.", "Insufficient Points.", JOptionPane.INFORMATION_MESSAGE);
 		}
 		
     };
