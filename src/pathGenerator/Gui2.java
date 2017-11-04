@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.Font;
@@ -170,11 +171,7 @@ public class Gui2 {
 		
 		btnAddPoint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	try {
-					btnAddPointActionPerformed(evt);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+            	btnAddPointActionPerformed(evt);
             }
         });
 		
@@ -286,16 +283,49 @@ public class Gui2 {
 		}
 		else
 		{
-			// display error box here.
+			// TODO: display error box here.
 		}
 		
     };
     
-    private void btnAddPointActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+    private void btnAddPointActionPerformed(java.awt.event.ActionEvent evt)
     {
-    	double xValue = Double.parseDouble(txtXValue.getText());
-		double yValue = Double.parseDouble(txtYValue.getText());
-		double angle = Double.parseDouble(txtAngle.getText());
+    	double xValue = 0;
+    	double yValue = 0;
+    	double angle = 0;
+    	
+    	// get x value
+    	try
+    	{
+    		xValue = Double.parseDouble(txtXValue.getText());   		
+    	}
+    	catch ( Exception e )
+    	{
+    		JOptionPane.showMessageDialog(null, "The X value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+    		return;
+    	}
+    	
+    	// get y value
+    	try
+    	{
+			yValue = Double.parseDouble(txtYValue.getText());
+	    }
+		catch ( Exception e )
+		{
+			JOptionPane.showMessageDialog(null, "The Y value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+		
+		// get angle value
+    	try
+    	{
+			angle = Double.parseDouble(txtAngle.getText());
+	    }
+		catch ( Exception e )
+		{
+			JOptionPane.showMessageDialog(null, "The Angle value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
 				
 		txtAreaWaypoints.append(Double.toString(xValue) + "     " + Double.toString(yValue) + "     " + Double.toString(angle) + "\n");
 		
