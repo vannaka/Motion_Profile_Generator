@@ -425,6 +425,12 @@ public class Gui2 {
     
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt)
     {
+    	// clear graphs
+    	fig3.clearGraph();
+    	fig3.repaint();
+    	fig4.clearGraph();
+    	fig4.repaint();
+		    	
     	points.clear();
     	
     	txtAreaWaypoints.setText(null);
@@ -437,7 +443,6 @@ public class Gui2 {
     private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points) throws IOException
     {
     	
-		
 		// Configure the trajectory with the time step, velocity, acceleration, jerk
 		Trajectory.Config config = new Trajectory.Config( Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, timeStep, velocity, acceleration, jerk );
              
