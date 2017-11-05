@@ -27,12 +27,11 @@ import jaci.pathfinder.modifiers.TankModifier;
 
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
 public class Gui2 {
 
-	private JFrame frame;
+	private JFrame frmMotionProfileGenerator;
 	private JTextField txtTime;
 	private JTextField txtVelocity;
 	private JTextField txtAcceleration;
@@ -73,24 +72,26 @@ public class Gui2 {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
+		frmMotionProfileGenerator = new JFrame();
+		frmMotionProfileGenerator.setResizable(false);
+		frmMotionProfileGenerator.setTitle("Motion Profile Generator");
 		//frame.setBounds(100, 100, 463, 600);
-		frame.setLocation(150, 100);
-		frame.setSize(1693, 645);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		frmMotionProfileGenerator.setLocation(150, 100);
+		frmMotionProfileGenerator.setSize(1693, 645);
+		frmMotionProfileGenerator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmMotionProfileGenerator.getContentPane().setLayout(null);
 		
 		fig3.setSize(600, 600);
 		fig3.setLocation(460, 0);
-		frame.getContentPane().add(fig3);
+		frmMotionProfileGenerator.getContentPane().add(fig3);
 		
 		fig4.setSize(600, 600);
 		fig4.setLocation(1070, 0);
-		frame.getContentPane().add(fig4);
+		frmMotionProfileGenerator.getContentPane().add(fig4);
 		
 		JPanel trajecPanel = new JPanel();
 		trajecPanel.setBounds(0, 0, 450, 600);
-		frame.getContentPane().add(trajecPanel);
+		frmMotionProfileGenerator.getContentPane().add(trajecPanel);
 		trajecPanel.setLayout(null);
 		
 		JLabel lblTimeStep = new JLabel("Time Step");
@@ -247,13 +248,13 @@ public class Gui2 {
 		trajecPanel.add(scrollPane);
 		
 		txtFileName = new JTextField();
-		txtFileName.setBounds(134, 524, 186, 20);
+		txtFileName.setBounds(177, 524, 186, 20);
 		trajecPanel.add(txtFileName);
 		txtFileName.setColumns(10);
 		
 		JLabel lblLeftFileName = new JLabel("File Name");
 		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLeftFileName.setBounds(44, 524, 90, 20);
+		lblLeftFileName.setBounds(87, 524, 90, 20);
 		trajecPanel.add(lblLeftFileName);
 								
 		motionGraph();
@@ -324,11 +325,66 @@ public class Gui2 {
 		
 	private void btnGeneratePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-		double timeStep = Double.parseDouble(txtTime.getText()); 				//default 0.05
-		double velocity = Double.parseDouble(txtVelocity.getText()); 			//default 4
-		double acceleration = Double.parseDouble(txtAcceleration.getText()); 	// default 3	
-		double jerk = Double.parseDouble(txtJerk.getText()); 					// default 60
-		double wheelBase = Double.parseDouble(txtWheelBase.getText());  		//default 1.464
+		double timeStep = 0; 
+		double velocity = 0;
+		double acceleration = 0;
+		double jerk = 0;
+		double wheelBase = 0;
+		
+		//get time step value
+		try
+		{
+			timeStep = Double.parseDouble(txtTime.getText()); //default 0.05
+		}
+		catch ( Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "The Time Step value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+    		return;
+		}
+		
+		//get velocity value
+		try
+		{
+			velocity = Double.parseDouble(txtVelocity.getText()); //default 4
+		}
+		catch ( Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "The Velocity value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+    		return;
+		}
+		
+		//get acceleration value
+		try
+		{
+			acceleration = Double.parseDouble(txtAcceleration.getText()); // default 3
+		}
+		catch ( Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "The Acceleration value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+	   		return;
+		}
+		
+		//get jerk value
+		try
+		{
+			jerk = Double.parseDouble(txtJerk.getText()); // default 60
+		}
+		catch ( Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "The Jerk value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+	   		return;
+		}
+		
+		//get wheel base value
+		try
+		{
+			wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
+		}
+		catch ( Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "The Wheel Base value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+	  		return;
+		}
 		
 		// If waypoints exist
 		if( points.size() > 1 )
@@ -536,7 +592,7 @@ public class Gui2 {
 			public void run() {
 				try {
 					Gui2 window = new Gui2();
-					window.frame.setVisible(true);
+					window.frmMotionProfileGenerator.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
