@@ -52,6 +52,12 @@ public class Gui2 {
 	//private Waypoint[] points;
 	private List<Waypoint> points = new ArrayList<Waypoint>();			// can be variable length after creation
 	
+	Trajectory left;
+	Trajectory right;
+	
+	File lFile;
+	File rFile;
+	
 	/**
 	 * Create the application.
 	 */
@@ -130,7 +136,7 @@ public class Gui2 {
 		btnGeneratePath.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 try {
-					btnActionPerformed(evt);
+					btnGeneratePathActionPerformed(evt);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -147,13 +153,18 @@ public class Gui2 {
             }
         });
 		
-		JButton btnFilePath = new JButton("Save File Path");
+		JButton btnFilePath = new JButton("Save File");
 		btnFilePath.setBounds(230, 566, 130, 23);
 		trajecPanel.add(btnFilePath);
 		
 		btnFilePath.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	btnFilePathActionPerformed(evt);
+            	try {
+					btnFilePathActionPerformed(evt);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
 		});
 		
@@ -284,7 +295,7 @@ public class Gui2 {
       	fig4.setTitle("Velocity Profile for Left and Right Wheels \n Left = Cyan, Right = Magenta");
 	}
 		
-	private void btnActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+	private void btnGeneratePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
 		double timeStep = Double.parseDouble(txtTime.getText()); 				//default 0.05
 		double velocity = Double.parseDouble(txtVelocity.getText()); 			//default 4
@@ -358,7 +369,7 @@ public class Gui2 {
 		        
     }
     
-    private void btnFilePathActionPerformed(java.awt.event.ActionEvent evt)
+    private void btnFilePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
@@ -369,16 +380,43 @@ public class Gui2 {
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
         	directory = fileChooser.getCurrentDirectory();
         }
+                        
+        lFile = new File(directory, "mp_left.csv");
+    	rFile = new File(directory, "mp_right.csv");
+    	FileWriter lfw = new FileWriter( lFile );
+		FileWriter rfw = new FileWriter( rFile );
+		PrintWriter lpw = new PrintWriter( lfw );
+		PrintWriter rpw = new PrintWriter( rfw );
+		
+    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+        File leftFile = new File(directory, "mp_left_detailed.csv");
+        Pathfinder.writeToCSV(leftFile, left);
+        
+        File rightFile = new File(directory, "mp_right_detailed.csv");
+        Pathfinder.writeToCSV(rightFile, right);
+        
+    	// CSV with position and velocity. To be used with your robot. 
+    	// save left path to CSV
+    	for (int i = 0; i < left.length(); i++) 
+    	{			
+    		Segment seg = left.get(i);
+    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+    	}
+    			
+    	// save right path to CSV
+    	for (int i = 0; i < right.length(); i++) 
+    	{			
+    		Segment seg = right.get(i);
+    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+    	}
+    			
+    	lpw.close();
+    	rpw.close();
     }
     
     private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points) throws IOException
     {
-    	File lFile = new File(directory, "mp_left.csv");
-    	File rFile = new File(directory, "mp_right.csv");
-		FileWriter lfw = new FileWriter( lFile );
-		FileWriter rfw = new FileWriter( rFile );
-		PrintWriter lpw = new PrintWriter( lfw );
-		PrintWriter rpw = new PrintWriter( rfw );
+    	
 		
 		// Configure the trajectory with the time step, velocity, acceleration, jerk
 		Trajectory.Config config = new Trajectory.Config( Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, timeStep, velocity, acceleration, jerk );
@@ -390,8 +428,8 @@ public class Gui2 {
         TankModifier modifier = new TankModifier(trajectory).modify(wheelBase);
 
         // Separate the trajectory into left and right
-        Trajectory left = modifier.getLeftTrajectory();
-        Trajectory right = modifier.getRightTrajectory();
+        left = modifier.getLeftTrajectory();
+        right = modifier.getRightTrajectory();
         
         // Left and Right paths to display on the Field Graph
         double[][] leftPath = new double[left.length()][2];
@@ -429,31 +467,9 @@ public class Gui2 {
       	fig4.addData(rightVelocity, Color.cyan);
       	fig4.addData(middleVelocity, Color.blue);
       	fig4.repaint();
-      	      	     	 	
-     	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-        File leftFile = new File(directory, "mp_left_detailed.csv");
-        Pathfinder.writeToCSV(leftFile, left);
-        
-        File rightFile = new File(directory, "mp_right_detailed.csv");
-        Pathfinder.writeToCSV(rightFile, right);
-        
-		// CSV with position and velocity. To be used with your robot. 
-		// save left path to CSV
-		for (int i = 0; i < left.length(); i++) 
-		{			
-			Segment seg = left.get(i);
-			lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-		}
+      	      	 	
+     	    
 		
-		// save right path to CSV
-		for (int i = 0; i < right.length(); i++) 
-		{			
-			Segment seg = right.get(i);
-			rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-		}
-		
-		lpw.close();
-		rpw.close();
     }
 	
 	/**
