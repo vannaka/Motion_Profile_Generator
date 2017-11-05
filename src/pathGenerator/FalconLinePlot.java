@@ -248,6 +248,11 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
     	}
     	link.add(Data);
     }
+    
+    public void clearGraph()
+    {
+    	link.clear();
+    }
  
     /**
      * Main method which paints the panel and shows the figure.
