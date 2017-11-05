@@ -28,6 +28,7 @@ import jaci.pathfinder.modifiers.TankModifier;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 
 public class Gui2 {
 
@@ -59,6 +60,8 @@ public class Gui2 {
 	
 	File lFile;
 	File rFile;
+	private JTextField txtLeftName;
+	private JTextField txtRightName;
 	
 	/**
 	 * Create the application.
@@ -241,8 +244,28 @@ public class Gui2 {
 		trajecPanel.add(lblAngle);
 		
 		JScrollPane scrollPane = new JScrollPane(txtAreaWaypoints, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(130, 360, 190, 176);
+		scrollPane.setBounds(130, 360, 190, 134);
 		trajecPanel.add(scrollPane);
+		
+		txtLeftName = new JTextField();
+		txtLeftName.setBounds(134, 524, 86, 20);
+		trajecPanel.add(txtLeftName);
+		txtLeftName.setColumns(10);
+		
+		txtRightName = new JTextField();
+		txtRightName.setBounds(320, 524, 86, 20);
+		trajecPanel.add(txtRightName);
+		txtRightName.setColumns(10);
+		
+		JLabel lblLeftFileName = new JLabel("Left File Name");
+		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
+		lblLeftFileName.setBounds(44, 524, 90, 20);
+		trajecPanel.add(lblLeftFileName);
+		
+		JLabel lblRightFileName = new JLabel("Right File Name");
+		lblRightFileName.setHorizontalAlignment(SwingConstants.CENTER);
+		lblRightFileName.setBounds(230, 524, 90, 20);
+		trajecPanel.add(lblRightFileName);
 								
 		motionGraph();
 		velocityGraph();
@@ -393,6 +416,15 @@ public class Gui2 {
     
     private void btnFilePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
+    	String leftName = txtLeftName.getText();
+    	String rightName = txtRightName.getText();
+    	
+    	if(leftName == rightName)
+        {
+        	JOptionPane.showMessageDialog(null, "The File Names Match", "Invalid File Names", JOptionPane.INFORMATION_MESSAGE);
+			return;
+        }
+    	
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
         fileChooser.setDialogTitle("Choose a Directory to Save");
@@ -402,19 +434,19 @@ public class Gui2 {
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
         	directory = fileChooser.getCurrentDirectory();
         }
-                        
-        lFile = new File(directory, "mp_left.csv");
-    	rFile = new File(directory, "mp_right.csv");
+                
+        lFile = new File(directory, leftName + ".csv");
+        rFile = new File(directory, rightName + ".csv");    	
     	FileWriter lfw = new FileWriter( lFile );
 		FileWriter rfw = new FileWriter( rFile );
 		PrintWriter lpw = new PrintWriter( lfw );
 		PrintWriter rpw = new PrintWriter( rfw );
 		
     	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-        File leftFile = new File(directory, "mp_left_detailed.csv");
+        File leftFile = new File(directory, leftName + "_detailed.csv");
         Pathfinder.writeToCSV(leftFile, left);
         
-        File rightFile = new File(directory, "mp_right_detailed.csv");
+        File rightFile = new File(directory, rightName + "_detailed.csv");
         Pathfinder.writeToCSV(rightFile, right);
         
     	// CSV with position and velocity. To be used with your robot. 
