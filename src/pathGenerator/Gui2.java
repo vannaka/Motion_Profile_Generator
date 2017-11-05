@@ -443,6 +443,9 @@ public class Gui2 {
     	fig3.repaint();
     	fig4.clearGraph();
     	fig4.repaint();
+    	
+    	velocityGraph();
+    	motionGraph();
 		    	
     	points.clear();
     	
