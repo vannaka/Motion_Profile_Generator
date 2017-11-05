@@ -60,8 +60,7 @@ public class Gui2 {
 	
 	File lFile;
 	File rFile;
-	private JTextField txtLeftName;
-	private JTextField txtRightName;
+	private JTextField txtFileName;
 	
 	/**
 	 * Create the application.
@@ -247,25 +246,15 @@ public class Gui2 {
 		scrollPane.setBounds(130, 360, 190, 134);
 		trajecPanel.add(scrollPane);
 		
-		txtLeftName = new JTextField();
-		txtLeftName.setBounds(134, 524, 86, 20);
-		trajecPanel.add(txtLeftName);
-		txtLeftName.setColumns(10);
+		txtFileName = new JTextField();
+		txtFileName.setBounds(134, 524, 186, 20);
+		trajecPanel.add(txtFileName);
+		txtFileName.setColumns(10);
 		
-		txtRightName = new JTextField();
-		txtRightName.setBounds(320, 524, 86, 20);
-		trajecPanel.add(txtRightName);
-		txtRightName.setColumns(10);
-		
-		JLabel lblLeftFileName = new JLabel("Left File Name");
+		JLabel lblLeftFileName = new JLabel("File Name");
 		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLeftFileName.setBounds(44, 524, 90, 20);
 		trajecPanel.add(lblLeftFileName);
-		
-		JLabel lblRightFileName = new JLabel("Right File Name");
-		lblRightFileName.setHorizontalAlignment(SwingConstants.CENTER);
-		lblRightFileName.setBounds(230, 524, 90, 20);
-		trajecPanel.add(lblRightFileName);
 								
 		motionGraph();
 		velocityGraph();
@@ -416,15 +405,8 @@ public class Gui2 {
     
     private void btnFilePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-    	String leftName = txtLeftName.getText();
-    	String rightName = txtRightName.getText();
-    	
-    	if(leftName == rightName)
-        {
-        	JOptionPane.showMessageDialog(null, "The File Names Match", "Invalid File Names", JOptionPane.INFORMATION_MESSAGE);
-			return;
-        }
-    	
+    	String fileName = txtFileName.getText();
+    	    	    	
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
         fileChooser.setDialogTitle("Choose a Directory to Save");
@@ -435,18 +417,18 @@ public class Gui2 {
         	directory = fileChooser.getCurrentDirectory();
         }
                 
-        lFile = new File(directory, leftName + ".csv");
-        rFile = new File(directory, rightName + ".csv");    	
+        lFile = new File(directory, fileName + "_left.csv");
+        rFile = new File(directory, fileName + "_right.csv");    	
     	FileWriter lfw = new FileWriter( lFile );
 		FileWriter rfw = new FileWriter( rFile );
 		PrintWriter lpw = new PrintWriter( lfw );
 		PrintWriter rpw = new PrintWriter( rfw );
 		
     	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-        File leftFile = new File(directory, leftName + "_detailed.csv");
+        File leftFile = new File(directory, fileName + "_left_detailed.csv");
         Pathfinder.writeToCSV(leftFile, left);
         
-        File rightFile = new File(directory, rightName + "_detailed.csv");
+        File rightFile = new File(directory, fileName + "_right_detailed.csv");
         Pathfinder.writeToCSV(rightFile, right);
         
     	// CSV with position and velocity. To be used with your robot. 
