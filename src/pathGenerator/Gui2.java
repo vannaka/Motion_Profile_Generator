@@ -144,7 +144,7 @@ public class Gui2 {
         });
 		
 		JButton btnAddPoint = new JButton("Add Point");
-		btnAddPoint.setBounds(180, 329, 90, 20);
+		btnAddPoint.setBounds(130, 329, 90, 20);
 		trajecPanel.add(btnAddPoint);
 		
 		btnAddPoint.addActionListener(new java.awt.event.ActionListener() {
@@ -162,11 +162,20 @@ public class Gui2 {
             	try {
 					btnFilePathActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }
 		});
+		
+		JButton btnClear = new JButton("Clear");
+		btnClear.setBounds(230, 328, 90, 20);
+		trajecPanel.add(btnClear);
+		
+		btnClear.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	btnClearActionPerformed(evt);
+            }
+        });
 		
 		JLabel lblMotionVariables = new JLabel("Motion Variables");
 		lblMotionVariables.setFont(new Font("Tahoma", Font.PLAIN, 24));
@@ -228,7 +237,7 @@ public class Gui2 {
 		lblAngle.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblAngle.setBounds(252, 275, 34, 20);
 		trajecPanel.add(lblAngle);
-				
+								
 		motionGraph();
 		velocityGraph();
 	};
@@ -412,6 +421,17 @@ public class Gui2 {
     			
     	lpw.close();
     	rpw.close();
+    }
+    
+    private void btnClearActionPerformed(java.awt.event.ActionEvent evt)
+    {
+    	points.clear();
+    	
+    	txtAreaWaypoints.setText(null);
+    	String format = "%1$4s %2$6s %3$9s";
+    	String line = String.format(format, "X", "Y", "Angle");
+		txtAreaWaypoints.append(line + "\n");
+		txtAreaWaypoints.append("_____________________" + "\n");
     }
     
     private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points) throws IOException

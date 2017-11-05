@@ -169,19 +169,8 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
     	
     	addData(xData, yData, lineColor,markerColor);
     	
-    	//count = count + 1;
-    	count1 = count1 + 600;
-    	
     	JPanel g = new JPanel();
         g.add(this);
-        //g.setBounds(460 + count1, 0, 600, 600);
-        //g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //g.setSize(600,600);
-        //g.setLocation(count1, 100);
-        //g.setLocationByPlatform(true);
-        //g.setVisible(true);
-         
-        //menu(g,this);	
     }
     
     /**
