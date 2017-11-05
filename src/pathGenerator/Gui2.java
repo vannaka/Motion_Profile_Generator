@@ -317,7 +317,14 @@ public class Gui2 {
 		{
 			Waypoint tmp[] = new Waypoint[ points.size() ];
 			points.toArray( tmp );
+			try
+			{
 			trajectory( timeStep, velocity, acceleration, jerk, wheelBase, tmp );
+			}
+			catch ( Exception e )
+			{
+				JOptionPane.showMessageDialog(null, "The trajectory provided was invalid! Invalid trajectory could not be generated", "Invalid Points.", JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 		else
 		{
