@@ -26,6 +26,8 @@ import jaci.pathfinder.Trajectory.Segment;
 import jaci.pathfinder.modifiers.TankModifier;
 
 import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 public class Gui2 {
 
@@ -211,7 +213,7 @@ public class Gui2 {
 		txtAreaWaypoints.append(line + "\n");
 		txtAreaWaypoints.append("_____________________" + "\n");
 		txtAreaWaypoints.setBounds(131, 363, 188, 176);
-		trajecPanel.add(txtAreaWaypoints);
+		//trajecPanel.add(txtAreaWaypoints);
 					
 		txtXValue = new JTextField();
 		txtXValue.setBounds(164, 298, 34, 20);
@@ -237,6 +239,10 @@ public class Gui2 {
 		lblAngle.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblAngle.setBounds(252, 275, 34, 20);
 		trajecPanel.add(lblAngle);
+		
+		JScrollPane scrollPane = new JScrollPane(txtAreaWaypoints, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setBounds(130, 360, 190, 176);
+		trajecPanel.add(scrollPane);
 								
 		motionGraph();
 		velocityGraph();
@@ -389,7 +395,7 @@ public class Gui2 {
     {
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
-        fileChooser.setDialogTitle("Choose a Directory to save");
+        fileChooser.setDialogTitle("Choose a Directory to Save");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
         
