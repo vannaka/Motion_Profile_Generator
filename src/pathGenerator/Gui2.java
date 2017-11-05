@@ -414,7 +414,8 @@ public class Gui2 {
         fileChooser.setAcceptAllFileFilterUsed(false);
         
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-        	directory = fileChooser.getCurrentDirectory();
+        	//directory = fileChooser.getCurrentDirectory();
+        	directory = fileChooser.getSelectedFile();
         }
                 
         lFile = new File(directory, fileName + "_left.csv");
