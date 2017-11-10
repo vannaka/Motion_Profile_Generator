@@ -37,4 +37,20 @@ Generate motion profiles to follow with a Talon SRX
 - **Angle**
 	- This is the **ending** angle after the robot reaches the point
 	- The first point should **always** have an angle of Zero
+	
+## Save File
+---
  
+![alt text][logo1]
+
+[logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/ChooseDirectory.PNG "Directory Window"
+
+- Click the button "Save File" and the Directory window will appear
+- Choose the directory you want to save your motion profiles in then click open and they will be saved
+- The motion profiles are saved as CSV files. One for each left and right
+	- Detailed CSV
+		- This file contains more information than the normal CSV
+		- It contains Time Step, X, Y, Position, Velocity, Acceleration, Jerk, and Heading
+	- Normal CSV
+		- Only position, velocity, and time step are output to this file
+		- This is the file you will put on your RoboRio
