@@ -28,23 +28,32 @@ import jaci.pathfinder.modifiers.TankModifier;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.JTabbedPane;
+import javax.swing.JCheckBox;
 
 public class Gui2 {
 
 	private JFrame frmMotionProfileGenerator;
+	
 	private JTextField txtTime;
 	private JTextField txtVelocity;
 	private JTextField txtAcceleration;
 	private JTextField txtJerk;
 	private JTextField txtWheelBase;
-	
-	FalconLinePlot fig3 = new FalconLinePlot(new double[][]{{0.0,0.0}});
-	FalconLinePlot fig4 = new FalconLinePlot(new double[][]{{0.0,0.0}});
-	
 	private JTextField txtAngle;
 	private JTextField txtXValue;
 	private JTextField txtYValue;
+	private JTextField txtFileName;
 	
+	private JCheckBox chckbxRedAlliance;
+	private JCheckBox chckbxblueAllianceGraph;
+	
+	private JTabbedPane tabbedPane;
+	
+	FalconLinePlot blueAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
+	FalconLinePlot velocityGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
+	FalconLinePlot redAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
+			
 	private JTextArea txtAreaWaypoints;
 	
 	private JFileChooser fileChooser;
@@ -52,15 +61,14 @@ public class Gui2 {
 	
 	// Path Waypoints 
 	//private Waypoint[] points;
-	private List<Waypoint> points = new ArrayList<Waypoint>();			// can be variable length after creation
+	private List<Waypoint> points = new ArrayList<Waypoint>(); // can be variable length after creation
 	
 	Trajectory left;
 	Trajectory right;
 	
 	File lFile;
 	File rFile;
-	private JTextField txtFileName;
-	
+		
 	/**
 	 * Create the application.
 	 */
@@ -75,19 +83,18 @@ public class Gui2 {
 		frmMotionProfileGenerator = new JFrame();
 		frmMotionProfileGenerator.setResizable(false);
 		frmMotionProfileGenerator.setTitle("Motion Profile Generator");
-		//frame.setBounds(100, 100, 463, 600);
 		frmMotionProfileGenerator.setLocation(150, 100);
 		frmMotionProfileGenerator.setSize(1693, 645);
 		frmMotionProfileGenerator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMotionProfileGenerator.getContentPane().setLayout(null);
 		
-		fig3.setSize(600, 600);
-		fig3.setLocation(460, 0);
-		frmMotionProfileGenerator.getContentPane().add(fig3);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBounds(460, 0, 600, 600);
+		frmMotionProfileGenerator.getContentPane().add(tabbedPane);
 		
-		fig4.setSize(600, 600);
-		fig4.setLocation(1070, 0);
-		frmMotionProfileGenerator.getContentPane().add(fig4);
+		velocityGraph.setSize(600, 600);
+		velocityGraph.setLocation(1070, 0);
+		frmMotionProfileGenerator.getContentPane().add(velocityGraph);
 		
 		JPanel trajecPanel = new JPanel();
 		trajecPanel.setBounds(0, 0, 450, 600);
@@ -189,7 +196,7 @@ public class Gui2 {
 		
 		JLabel lblWaypoints = new JLabel("Waypoints");
 		lblWaypoints.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		lblWaypoints.setBounds(170, 220, 110, 40);
+		lblWaypoints.setBounds(170, 200, 110, 40);
 		trajecPanel.add(lblWaypoints);
 		
 		txtWheelBase = new JTextField();
@@ -214,7 +221,7 @@ public class Gui2 {
 		String format = "%1$4s %2$6s %3$9s";
     	String line = String.format(format, "X", "Y", "Angle");
 		txtAreaWaypoints.append(line + "\n");
-		txtAreaWaypoints.append("_____________________" + "\n");
+		txtAreaWaypoints.append("_______________________" + "\n");
 		txtAreaWaypoints.setBounds(131, 363, 188, 176);
 		//trajecPanel.add(txtAreaWaypoints);
 					
@@ -256,25 +263,35 @@ public class Gui2 {
 		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLeftFileName.setBounds(87, 524, 90, 20);
 		trajecPanel.add(lblLeftFileName);
+		
+		chckbxRedAlliance = new JCheckBox("Red Alliance");
+		chckbxRedAlliance.setBounds(130, 245, 110, 24);
+		trajecPanel.add(chckbxRedAlliance);
+		
+		chckbxblueAllianceGraph = new JCheckBox("Blue Alliance");
+		chckbxblueAllianceGraph.setBounds(240, 245, 110, 24);
+		trajecPanel.add(chckbxblueAllianceGraph);
 								
-		motionGraph();
+		motionGraphBlue();
+		motionGraphRed();
 		velocityGraph();
 	};
 	
-	private void motionGraph()
+	private void motionGraphBlue()
 	{
+		tabbedPane.addTab("Blue Alliance", null, blueAllianceGraph, null);
 		// Create a blank grid for the field graph
-		fig3.yGridOn();
-		fig3.xGridOn();
-		fig3.setYLabel("Y (feet)");
-		fig3.setXLabel("X (feet)");
-		fig3.setTitle("Top Down View of FRC Field (30ft x 27ft) \n shows global position of robot path, along with left and right wheel trajectories");
+		blueAllianceGraph.yGridOn();
+		blueAllianceGraph.xGridOn();
+		blueAllianceGraph.setYLabel("Y (feet)");
+		blueAllianceGraph.setXLabel("X (feet)");
+		blueAllianceGraph.setTitle("Top Down View of FRC Field - Blue Alliance (30ft x 27ft) \n shows global position of robot path with left and right wheel trajectories");
 			
 					
 		//force graph to show field dimensions of 30ft x 27 feet
 		double fieldWidth = 27.0;
-		fig3.setXTic(0, 30, 1);
-		fig3.setYTic(0, fieldWidth, 1);
+		blueAllianceGraph.setXTic(0, 30, 1);
+		blueAllianceGraph.setYTic(0, fieldWidth, 1);
 					
 					
 		//lets add field markers to help visual
@@ -287,40 +304,94 @@ public class Gui2 {
 				{9.443, 15.195},
 				{9.443, 11.805},
 			};
-		fig3.addData(airShip, Color.black);
+		blueAllianceGraph.addData(airShip, Color.black);
 					
 		// Auto Line
 		double[][] baseLine = new double[][] {{7.77,0}, {7.77, fieldWidth}};
-		fig3.addData(baseLine, Color.black);
+		blueAllianceGraph.addData(baseLine, Color.black);
 						
 		// Mid Field
 		double[][] midLine = new double[][] {{27.3,0}, {27.3, fieldWidth}};
-		fig3.addData(midLine, Color.black);
+		blueAllianceGraph.addData(midLine, Color.black);
 						
 		// Boiler
 		double[][] blueSideBoiler = new double[][] {{0,24.79}, {2.479,27}};
-		fig3.addData(blueSideBoiler, Color.black);
+		blueAllianceGraph.addData(blueSideBoiler, Color.black);
 						
 		// Boiler Line
 		double[][] blueSideBoilerLine = new double[][] {{0,18.61}, {8.39,27}};
-		fig3.addData(blueSideBoilerLine, Color.blue);
+		blueAllianceGraph.addData(blueSideBoilerLine, Color.blue);
 						
 		// Retrieval Zone
 		double[][] blueSideRetrieval = new double[][] {{0,3.166}, {5.45,0}};
-		fig3.addData(blueSideRetrieval, Color.black);
+		blueAllianceGraph.addData(blueSideRetrieval, Color.black);
 						
 		// Retrieval Zone Line
 		double[][] blueSideRetrievalLine = new double[][] {{0,7}, {13.75,0}};
-		fig3.addData(blueSideRetrievalLine, Color.red);
+		blueAllianceGraph.addData(blueSideRetrievalLine, Color.red);
+	}
+	
+	private void motionGraphRed()
+	{
+		tabbedPane.addTab("Red Alliance", null, redAllianceGraph, null);
+		// Create a blank grid for the field graph
+		redAllianceGraph.yGridOn();
+		redAllianceGraph.xGridOn();
+		redAllianceGraph.setYLabel("Y (feet)");
+		redAllianceGraph.setXLabel("X (feet)");
+		redAllianceGraph.setTitle("Top Down View of FRC Field - Red Alliance (30ft x 27ft) \n shows global position of robot path with left and right wheel trajectories");
+			
+					
+		//force graph to show field dimensions of 30ft x 27 feet
+		double fieldWidth = 27.0;
+		redAllianceGraph.setXTic(0, 30, 1);
+		redAllianceGraph.setYTic(0, fieldWidth, 1);
+					
+					
+		//lets add field markers to help visual
+		double[][] airShip = new double[][]{
+				{9.443, 11.805},
+				{12.381, 10.11},
+				{15.318, 11.805},
+				{15.318, 15.195},
+				{12.381, 16.89},
+				{9.443, 15.195},
+				{9.443, 11.805},
+			};
+		redAllianceGraph.addData(airShip, Color.black);
+					
+		// Auto Line
+		double[][] baseLine = new double[][] {{7.77,0}, {7.77, fieldWidth}};
+		redAllianceGraph.addData(baseLine, Color.black);
+						
+		// Mid Field
+		double[][] midLine = new double[][] {{27.3,0}, {27.3, fieldWidth}};
+		redAllianceGraph.addData(midLine, Color.black);
+						
+		// Boiler
+		double[][] redSideBoiler = new double[][] {{0,2.21}, {2.479,0}};
+		redAllianceGraph.addData(redSideBoiler, Color.black);
+						
+		// Boiler Line
+		double[][] redSideBoilerLine = new double[][] {{0,8.39}, {8.39,0}};
+		redAllianceGraph.addData(redSideBoilerLine, Color.red);
+						
+		// Retrieval Zone
+		double[][] blueSideRetrieval = new double[][] {{0,23.834}, {5.45,27}};
+		redAllianceGraph.addData(blueSideRetrieval, Color.black);
+						
+		// Retrieval Zone Line
+		double[][] redSideRetrievalLine = new double[][] {{0,20}, {13.75,27}};
+		redAllianceGraph.addData(redSideRetrievalLine, Color.blue);
 	}
 	
 	private void velocityGraph()
 	{
-		fig4.yGridOn();
-      	fig4.xGridOn();
-      	fig4.setYLabel("Velocity (ft/sec)");
-      	fig4.setXLabel("time (seconds)");
-      	fig4.setTitle("Velocity Profile for Left and Right Wheels \n Left = Cyan, Right = Magenta");
+		velocityGraph.yGridOn();
+      	velocityGraph.xGridOn();
+      	velocityGraph.setYLabel("Velocity (ft/sec)");
+      	velocityGraph.setXLabel("time (seconds)");
+      	velocityGraph.setTitle("Velocity Profile for Left and Right Wheels \n Left = Cyan, Right = Magenta");
 	}
 		
 	private void btnGeneratePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
@@ -510,13 +581,16 @@ public class Gui2 {
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt)
     {
     	// clear graphs
-    	fig3.clearGraph();
-    	fig3.repaint();
-    	fig4.clearGraph();
-    	fig4.repaint();
+    	blueAllianceGraph.clearGraph();
+    	blueAllianceGraph.repaint();
+    	velocityGraph.clearGraph();
+    	velocityGraph.repaint();
+    	redAllianceGraph.clearGraph();
+    	redAllianceGraph.repaint();
     	
     	velocityGraph();
-    	motionGraph();
+    	motionGraphBlue();
+    	motionGraphRed();
 		    	
     	points.clear();
     	
@@ -524,7 +598,7 @@ public class Gui2 {
     	String format = "%1$4s %2$6s %3$9s";
     	String line = String.format(format, "X", "Y", "Angle");
 		txtAreaWaypoints.append(line + "\n");
-		txtAreaWaypoints.append("_____________________" + "\n");
+		txtAreaWaypoints.append("_______________________" + "\n");
     }
     
     private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points) throws IOException
@@ -555,10 +629,19 @@ public class Gui2 {
         	rightPath[i][1] = right.get(i).y;
         }
       	
-       	fig3.addData(leftPath, Color.magenta);
-     	fig3.addData(rightPath, Color.magenta);
-     	fig3.repaint();
-      	
+        if(chckbxRedAlliance.isSelected())
+        {
+        	redAllianceGraph.addData(leftPath, Color.magenta);
+         	redAllianceGraph.addData(rightPath, Color.magenta);
+         	redAllianceGraph.repaint();
+        }
+        if(chckbxblueAllianceGraph.isSelected())
+        {
+        	blueAllianceGraph.addData(leftPath, Color.magenta);
+        	blueAllianceGraph.addData(rightPath, Color.magenta);
+        	blueAllianceGraph.repaint();
+        }
+       	      	
      	// Velocity to be used in the Velocity graph
      	double[][] leftVelocity = new double[left.length()][2];
      	double[][] rightVelocity = new double[right.length()][2];
@@ -575,10 +658,10 @@ public class Gui2 {
      	}
      	
       	// Velocity Graph
-       	fig4.addData(leftVelocity, Color.magenta);
-      	fig4.addData(rightVelocity, Color.cyan);
-      	fig4.addData(middleVelocity, Color.blue);
-      	fig4.repaint();
+       	velocityGraph.addData(leftVelocity, Color.magenta);
+      	velocityGraph.addData(rightVelocity, Color.cyan);
+      	velocityGraph.addData(middleVelocity, Color.blue);
+      	velocityGraph.repaint();
       	      	 	
      	    
 		
