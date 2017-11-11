@@ -1,5 +1,5 @@
 # Motion Profile Generator
-Generate motion profiles to follow with a Talon SRX
+Generate Motion Profiles to follow with a Talon SRX
  
 ![alt text][logo]
 
@@ -41,11 +41,12 @@ Generate motion profiles to follow with a Talon SRX
 ## Save File
 ---
  
-![alt text][logo1]
+![alt text][logo2] ![alt text][logo1] 
 
 [logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/ChooseDirectory.PNG "Directory Window"
+[logo2]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/FileMenu.PNG "File Menu"
 
-- Click the button "Save File" and the Directory window will appear
+- Click "File/Save Profile" and the Directory window will appear
 - Choose the directory you want to save your motion profiles in then click open and they will be saved
 - The motion profiles are saved as CSV files. One for each left and right
 	- Detailed CSV
@@ -54,3 +55,25 @@ Generate motion profiles to follow with a Talon SRX
 	- Normal CSV
 		- Only position, velocity, and time step are output to this file
 		- This is the file you will put on your RoboRio
+
+## Menu Bar
+---
+
+![alt text][logo3] ![alt text][logo4] ![alt text][logo5] 
+
+[logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/FileMenu.PNG "File Menu"
+[logo4]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/HelpMenu.PNG "Help Menu"
+[logo5]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/About.PNG "About Page"
+
+- **File Menu**
+	- New Profile
+		- Clears all your waypoints and graphs allowing you to start over
+	- Save Profile
+		- The directory chooser is brought up allowing you to save your profiles
+	- Exit
+		- Exit the application
+- **Help Menu**
+	- Help
+		- Opens a browser window to this github
+	- About
+		- Displays a window with information about the app. ie: The app version and the developers
