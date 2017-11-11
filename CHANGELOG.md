@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.1] - 2017-11-11
 ### Added
 - Originaly only had the blue alliance graph. Added red alliance graph
 - Tabbed view to switch between red and blue graphs
