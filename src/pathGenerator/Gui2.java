@@ -544,6 +544,11 @@ public class Gui2 {
         	//directory = fileChooser.getCurrentDirectory();
         	directory = fileChooser.getSelectedFile();
         }
+        
+        else
+        {
+        	return;
+        }
                 
         lFile = new File(directory, fileName + "_left.csv");
         rFile = new File(directory, fileName + "_right.csv");    	
