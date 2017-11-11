@@ -1,6 +1,7 @@
 package pathGenerator;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -12,10 +13,13 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
 import java.awt.Font;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +33,10 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.JTabbedPane;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.UIManager;
 
 public class Gui2 {
 
@@ -138,7 +146,7 @@ public class Gui2 {
 		txtJerk.setColumns(10);
 		
 		JButton btnGeneratePath = new JButton("Generate Path");
-		btnGeneratePath.setBounds(90, 566, 130, 23);
+		btnGeneratePath.setBounds(160, 566, 130, 23);
 		trajecPanel.add(btnGeneratePath);
 		
 		btnGeneratePath.addActionListener(new java.awt.event.ActionListener() {
@@ -160,20 +168,6 @@ public class Gui2 {
             	btnAddPointActionPerformed(evt);
             }
         });
-		
-		JButton btnFilePath = new JButton("Save File");
-		btnFilePath.setBounds(230, 566, 130, 23);
-		trajecPanel.add(btnFilePath);
-		
-		btnFilePath.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	try {
-					btnFilePathActionPerformed(evt);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-            }
-		});
 		
 		JButton btnClear = new JButton("Clear");
 		btnClear.setBounds(230, 328, 90, 20);
@@ -259,11 +253,132 @@ public class Gui2 {
 		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLeftFileName.setBounds(87, 524, 90, 20);
 		trajecPanel.add(lblLeftFileName);
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBackground(UIManager.getColor("Menu.background"));
+		menuBar.setBounds(0, 0, 60, 31);
+		trajecPanel.add(menuBar);
+		
+		JMenu mnFile = new JMenu("File");
+		menuBar.add(mnFile);
+		
+		JMenuItem mntmNewProfile = new JMenuItem("New Profile");
+		mnFile.add(mntmNewProfile);
+		
+		mntmNewProfile.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				btnClearActionPerformed(evt);
+            }
+		});
+		
+		JMenuItem mntmSaveFile = new JMenuItem("Save Profile");
+		mnFile.add(mntmSaveFile);
+		
+		mntmSaveFile.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	try {
+					btnFilePathActionPerformed(evt);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+            }
+		});
+		
+		JMenuItem mntmExit = new JMenuItem("Exit");
+		mnFile.add(mntmExit);
+		
+		mntmExit.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				System.exit(0);
+            }
+		});
+		
+		
+		
+		JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);
+		
+		JMenuItem mntmHelp = new JMenuItem("Help");
+		mnHelp.add(mntmHelp);
+		
+		mntmHelp.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				  if (Desktop.isDesktopSupported()) {
+					  Desktop desktop = Desktop.getDesktop();
+		              try {
+		            	  URI uri = new URI("https://github.com/vannaka/Motion_Profile_Generator");
+		                  desktop.browse(uri);
+		              } catch (IOException ex) {
+		                  return;
+		              } catch (URISyntaxException ex) {
+		            	  return;
+		              }
+				  } 
+				  else {
+					  return;
+				  }
+		    }
+		});
+		
+		JMenuItem mntmAbout = new JMenuItem("About");
+		mnHelp.add(mntmAbout);
+		
+		mntmAbout.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				aboutPage();
+            }
+		});
 								
 		motionGraphBlue();
 		motionGraphRed();
 		velocityGraph();
 	};
+	
+	private void aboutPage()
+	{
+		JFrame about = new JFrame();
+        about.setLocationByPlatform(true);
+        about.setVisible(true);
+		about.setTitle("About");
+		about.setBounds(100, 100, 600, 400);
+		about.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		about.getContentPane().setLayout(null);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(0, 0, 584, 361);
+		about.getContentPane().add(panel);
+		panel.setLayout(null);
+		
+		JLabel lblMotionProfileGenerator = new JLabel("Motion Profile Generator");
+		lblMotionProfileGenerator.setFont(new Font("Arial", Font.PLAIN, 34));
+		lblMotionProfileGenerator.setBounds(109, 29, 365, 64);
+		panel.add(lblMotionProfileGenerator);
+		
+		JLabel lblVersion = new JLabel("Version 1.0.0");
+		lblVersion.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblVersion.setBounds(82, 104, 85, 14);
+		panel.add(lblVersion);
+		
+		JLabel lblThisProductIs = new JLabel("This product is licensed under the MIT license");
+		lblThisProductIs.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblThisProductIs.setBounds(82, 128, 296, 14);
+		panel.add(lblThisProductIs);
+		
+		JLabel lblDevelopers = new JLabel("Developers");
+		lblDevelopers.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblDevelopers.setBounds(82, 152, 85, 14);
+		panel.add(lblDevelopers);
+		
+		JLabel lblLukeMammen = new JLabel("Luke Mammen");
+		lblLukeMammen.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblLukeMammen.setBounds(109, 176, 110, 14);
+		panel.add(lblLukeMammen);
+		
+		JLabel lblBlakeMammen = new JLabel("Blake Mammen");
+		lblBlakeMammen.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblBlakeMammen.setBounds(109, 200, 110, 14);
+		panel.add(lblBlakeMammen);
+	}
 	
 	private void motionGraphBlue()
 	{
