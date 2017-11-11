@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Originaly only had the blue alliance side. Added red alliance
-- Tabbed view to switch between red and blue
-- Check boxes to choose on which graphs to display the data
+- Originaly only had the blue alliance graph. Added red alliance graph
+- Tabbed view to switch between red and blue graphs
+- Motion Profile displays based on chosen tab
+- Menu bar with various items
+
+### Removed
+- Save Button (moved action to menu bar)
 
 ## [1.0.0] - 2017-11-05
 ### Added
