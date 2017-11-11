@@ -3,7 +3,7 @@ Generate Motion Profiles to follow with a Talon SRX
  
 ![alt text][logo]
 
-[logo]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/MotionWindow.PNG "Motion Window"
+[logo]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/MotionWindow.PNG
 
 ## Motion Variables
 ---
@@ -43,7 +43,7 @@ Generate Motion Profiles to follow with a Talon SRX
  
 ![alt text][logo1]
 
-[logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/ChooseDirectory.PNG "Directory Window"
+[logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/ChooseDirectory.PNG
 
 - Click "File/Save Profile" and the Directory window will appear
 - Choose the directory you want to save your motion profiles in then click open and they will be saved
@@ -58,9 +58,9 @@ Generate Motion Profiles to follow with a Talon SRX
 ## Menu Bar
 ---
 
-![alt text][logo3]
+![alt text][logo2]
 
-[logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/MenuBar.png "File Menu"
+[logo2]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/MenuBar.PNG
 
 - **File Menu**
 	- New Profile
@@ -75,6 +75,6 @@ Generate Motion Profiles to follow with a Talon SRX
 	- About
 		- Displays a window with information about the app. ie: The app version and the developers
 		
-![alt text][logo4]
+![alt text][logo3]
 
-[logo4]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/About.png "About Window"
+[logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/About.PNG
