@@ -41,7 +41,8 @@ Generate Motion Profiles to follow with a Talon SRX
 ## Save File
 ---
  
-![alt text][logo2] ![alt text][logo1] 
+![alt text][logo2] 
+![alt text][logo1] 
 
 [logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/ChooseDirectory.PNG "Directory Window"
 [logo2]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/FileMenu.PNG "File Menu"
@@ -59,7 +60,9 @@ Generate Motion Profiles to follow with a Talon SRX
 ## Menu Bar
 ---
 
-![alt text][logo3] ![alt text][logo4] ![alt text][logo5] 
+![alt text][logo3] 
+![alt text][logo4] 
+![alt text][logo5] 
 
 [logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/FileMenu.PNG "File Menu"
 [logo4]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/HelpMenu.PNG "Help Menu"
