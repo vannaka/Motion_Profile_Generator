@@ -29,7 +29,6 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.JTabbedPane;
-import javax.swing.JCheckBox;
 
 public class Gui2 {
 
@@ -44,9 +43,6 @@ public class Gui2 {
 	private JTextField txtXValue;
 	private JTextField txtYValue;
 	private JTextField txtFileName;
-	
-	private JCheckBox chckbxRedAlliance;
-	private JCheckBox chckbxblueAllianceGraph;
 	
 	private JTabbedPane tabbedPane;
 	
@@ -196,7 +192,7 @@ public class Gui2 {
 		
 		JLabel lblWaypoints = new JLabel("Waypoints");
 		lblWaypoints.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		lblWaypoints.setBounds(170, 200, 110, 40);
+		lblWaypoints.setBounds(170, 230, 110, 40);
 		trajecPanel.add(lblWaypoints);
 		
 		txtWheelBase = new JTextField();
@@ -263,14 +259,6 @@ public class Gui2 {
 		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLeftFileName.setBounds(87, 524, 90, 20);
 		trajecPanel.add(lblLeftFileName);
-		
-		chckbxRedAlliance = new JCheckBox("Red Alliance");
-		chckbxRedAlliance.setBounds(130, 245, 110, 24);
-		trajecPanel.add(chckbxRedAlliance);
-		
-		chckbxblueAllianceGraph = new JCheckBox("Blue Alliance");
-		chckbxblueAllianceGraph.setBounds(240, 245, 110, 24);
-		trajecPanel.add(chckbxblueAllianceGraph);
 								
 		motionGraphBlue();
 		motionGraphRed();
@@ -536,7 +524,7 @@ public class Gui2 {
     	    	    	
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
-        fileChooser.setDialogTitle("Choose a Directory to Save");
+        fileChooser.setDialogTitle("Choose a Directory to Save Files In");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
         
@@ -633,20 +621,21 @@ public class Gui2 {
         	rightPath[i][0] = right.get(i).x;
         	rightPath[i][1] = right.get(i).y;
         }
-      	
-        if(chckbxRedAlliance.isSelected())
-        {
-        	redAllianceGraph.addData(leftPath, Color.magenta);
-         	redAllianceGraph.addData(rightPath, Color.magenta);
-         	redAllianceGraph.repaint();
-        }
-        if(chckbxblueAllianceGraph.isSelected())
+       	
+        if(tabbedPane.getSelectedIndex() == 0)
         {
         	blueAllianceGraph.addData(leftPath, Color.magenta);
         	blueAllianceGraph.addData(rightPath, Color.magenta);
         	blueAllianceGraph.repaint();
         }
-       	      	
+        
+        if(tabbedPane.getSelectedIndex() == 1)
+        {
+        	redAllianceGraph.addData(leftPath, Color.magenta);
+         	redAllianceGraph.addData(rightPath, Color.magenta);
+         	redAllianceGraph.repaint();
+        }
+        
      	// Velocity to be used in the Velocity graph
      	double[][] leftVelocity = new double[left.length()][2];
      	double[][] rightVelocity = new double[right.length()][2];
