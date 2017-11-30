@@ -78,3 +78,9 @@ Generate Motion Profiles to follow with a Talon SRX
 ![alt text][logo3]
 
 [logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/About.PNG
+
+## Acknowledgments
+---
+
+- [Jaci](https://github.com/JacisNonsense/Pathfinder) for her Pathfinder class
+- [KHEngineering](https://github.com/KHEngineering/SmoothPathPlanner) for his graphing class
