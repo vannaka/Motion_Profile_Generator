@@ -87,20 +87,19 @@ public class Gui2 {
 		frmMotionProfileGenerator.setResizable(false);
 		frmMotionProfileGenerator.setTitle("Motion Profile Generator");
 		frmMotionProfileGenerator.setLocation(150, 100);
-		frmMotionProfileGenerator.setSize(1693, 645);
+		frmMotionProfileGenerator.setSize(1075, 677);
 		frmMotionProfileGenerator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmMotionProfileGenerator.getContentPane().setLayout(null);
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		tabbedPane.setBounds(460, 0, 600, 600);
+		tabbedPane.setBounds(460, 22, 600, 617);
 		frmMotionProfileGenerator.getContentPane().add(tabbedPane);
 		
 		velocityGraph.setSize(600, 600);
 		velocityGraph.setLocation(1070, 0);
-		frmMotionProfileGenerator.getContentPane().add(velocityGraph);
 		
 		JPanel trajecPanel = new JPanel();
-		trajecPanel.setBounds(0, 0, 450, 600);
+		trajecPanel.setBounds(0, 22, 450, 617);
 		frmMotionProfileGenerator.getContentPane().add(trajecPanel);
 		trajecPanel.setLayout(null);
 		
@@ -254,9 +253,9 @@ public class Gui2 {
 		trajecPanel.add(lblLeftFileName);
 		
 		JMenuBar menuBar = new JMenuBar();
+		menuBar.setBounds(0, 0, 1075, 21);
+		frmMotionProfileGenerator.getContentPane().add(menuBar);
 		menuBar.setBackground(UIManager.getColor("Menu.background"));
-		menuBar.setBounds(0, 0, 60, 31);
-		trajecPanel.add(menuBar);
 		
 		JMenu mnFile = new JMenu("File");
 		menuBar.add(mnFile);
@@ -353,7 +352,7 @@ public class Gui2 {
 		lblMotionProfileGenerator.setBounds(109, 29, 365, 64);
 		panel.add(lblMotionProfileGenerator);
 		
-		JLabel lblVersion = new JLabel("Version 1.0.0");
+		JLabel lblVersion = new JLabel("Version 1.0.1");
 		lblVersion.setFont(new Font("Arial", Font.PLAIN, 14));
 		lblVersion.setBounds(82, 104, 85, 14);
 		panel.add(lblVersion);
@@ -381,7 +380,7 @@ public class Gui2 {
 	
 	private void motionGraphBlue()
 	{
-		tabbedPane.addTab("Blue Alliance", null, blueAllianceGraph, null);
+		tabbedPane.insertTab("Blue Alliance", null, blueAllianceGraph, null, 0);
 		// Create a blank grid for the field graph
 		blueAllianceGraph.yGridOn();
 		blueAllianceGraph.xGridOn();
@@ -435,7 +434,7 @@ public class Gui2 {
 	
 	private void motionGraphRed()
 	{
-		tabbedPane.addTab("Red Alliance", null, redAllianceGraph, null);
+		tabbedPane.insertTab("Red Alliance", null, redAllianceGraph, null, 1);
 		// Create a blank grid for the field graph
 		redAllianceGraph.yGridOn();
 		redAllianceGraph.xGridOn();
@@ -489,6 +488,7 @@ public class Gui2 {
 	
 	private void velocityGraph()
 	{
+		tabbedPane.insertTab("Velocity", null, velocityGraph, null, 2);
 		velocityGraph.yGridOn();
       	velocityGraph.xGridOn();
       	velocityGraph.setYLabel("Velocity (ft/sec)");
