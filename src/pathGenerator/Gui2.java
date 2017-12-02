@@ -71,6 +71,8 @@ public class Gui2 {
 	
 	File lFile;
 	File rFile;
+	
+	String fileName;
 		
 	/**
 	 * Create the application.
@@ -144,7 +146,7 @@ public class Gui2 {
 		txtJerk.setColumns(10);
 		
 		JButton btnGeneratePath = new JButton("Generate Path");
-		btnGeneratePath.setBounds(160, 566, 130, 23);
+		btnGeneratePath.setBounds(90, 566, 130, 24);
 		trajecPanel.add(btnGeneratePath);
 		
 		btnGeneratePath.addActionListener(new java.awt.event.ActionListener() {
@@ -174,6 +176,31 @@ public class Gui2 {
 		btnClear.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
             	btnClearActionPerformed(evt);
+            }
+        });
+		
+		JButton btnBrowse = new JButton("Browse");
+		btnBrowse.setBounds(334, 522, 89, 24);
+		trajecPanel.add(btnBrowse);
+		
+		btnBrowse.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	btnBrowseActionPerformed(evt);
+            }
+        });
+		
+		JButton btnSave = new JButton("Save");
+		btnSave.setBounds(230, 566, 130, 24);
+		trajecPanel.add(btnSave);
+		
+		btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	try {
+					btnSaveActionPerformed(evt);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
 		
@@ -243,15 +270,15 @@ public class Gui2 {
 		trajecPanel.add(scrollPane);
 		
 		txtFileName = new JTextField();
-		txtFileName.setBounds(177, 524, 186, 20);
+		txtFileName.setBounds(117, 524, 216, 20);
 		trajecPanel.add(txtFileName);
 		txtFileName.setColumns(10);
 		
 		JLabel lblLeftFileName = new JLabel("File Name");
 		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLeftFileName.setBounds(87, 524, 90, 20);
+		lblLeftFileName.setBounds(27, 524, 90, 20);
 		trajecPanel.add(lblLeftFileName);
-		
+								
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 1075, 21);
 		frmMotionProfileGenerator.getContentPane().add(menuBar);
@@ -275,7 +302,7 @@ public class Gui2 {
 		mntmSaveFile.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
             	try {
-					btnFilePathActionPerformed(evt);
+					btnMenuSaveActionPerformed(evt);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -632,10 +659,60 @@ public class Gui2 {
 		        
     }
     
-    private void btnFilePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+    private void btnMenuSaveActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-    	String fileName = txtFileName.getText();
-    	    	    	
+    	if(txtFileName.getText().equals(""))
+    	{
+    		JOptionPane.showMessageDialog(null, "The File Name/directory field is empty! \nPlease enter a file name and click Browse for a destination!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
+    		return;
+    	}
+    	else
+    	{
+    		try
+    		{
+		    	lFile = new File(directory, fileName + "_left.csv");
+		        rFile = new File(directory, fileName + "_right.csv");    	
+		    	FileWriter lfw = new FileWriter( lFile );
+				FileWriter rfw = new FileWriter( rFile );
+				PrintWriter lpw = new PrintWriter( lfw );
+				PrintWriter rpw = new PrintWriter( rfw );
+				
+		    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+		        File leftFile = new File(directory, fileName + "_left_detailed.csv");
+		        Pathfinder.writeToCSV(leftFile, left);
+		        
+		        File rightFile = new File(directory, fileName + "_right_detailed.csv");
+		        Pathfinder.writeToCSV(rightFile, right);
+		        
+		    	// CSV with position and velocity. To be used with your robot. 
+		    	// save left path to CSV
+		    	for (int i = 0; i < left.length(); i++) 
+		    	{			
+		    		Segment seg = left.get(i);
+		    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+		    	}
+		    			
+		    	// save right path to CSV
+		    	for (int i = 0; i < right.length(); i++) 
+		    	{			
+		    		Segment seg = right.get(i);
+		    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+		    	}
+		    			
+		    	lpw.close();
+		    	rpw.close();
+    		}
+    		catch ( Exception e )
+    		{
+    			JOptionPane.showMessageDialog(null, "No file destination chosen! \nClick the Browse button to choose a directory!", "File Destination Empty", JOptionPane.INFORMATION_MESSAGE);
+    		}
+    	}
+    }
+    
+    private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt)
+    {
+    	fileName = txtFileName.getText();
+    	
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
         fileChooser.setDialogTitle("Choose a Directory to Save Files In");
@@ -651,38 +728,59 @@ public class Gui2 {
         {
         	return;
         }
-                
-        lFile = new File(directory, fileName + "_left.csv");
-        rFile = new File(directory, fileName + "_right.csv");    	
-    	FileWriter lfw = new FileWriter( lFile );
-		FileWriter rfw = new FileWriter( rFile );
-		PrintWriter lpw = new PrintWriter( lfw );
-		PrintWriter rpw = new PrintWriter( rfw );
-		
-    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-        File leftFile = new File(directory, fileName + "_left_detailed.csv");
-        Pathfinder.writeToCSV(leftFile, left);
         
-        File rightFile = new File(directory, fileName + "_right_detailed.csv");
-        Pathfinder.writeToCSV(rightFile, right);
-        
-    	// CSV with position and velocity. To be used with your robot. 
-    	// save left path to CSV
-    	for (int i = 0; i < left.length(); i++) 
-    	{			
-    		Segment seg = left.get(i);
-    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+        txtFileName.setText(directory + "\\" + fileName);
+    }
+    
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+    {
+    	if(txtFileName.getText().equals(""))
+    	{
+    		JOptionPane.showMessageDialog(null, "The File Name/directory field is empty! \nPlease enter a file name and click Browse for a destination!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
+    		return;
     	}
-    			
-    	// save right path to CSV
-    	for (int i = 0; i < right.length(); i++) 
-    	{			
-    		Segment seg = right.get(i);
-    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+    	else
+    	{
+    		if(directory != null)
+    		{
+		    	lFile = new File(directory, fileName + "_left.csv");
+		        rFile = new File(directory, fileName + "_right.csv");    	
+		    	FileWriter lfw = new FileWriter( lFile );
+				FileWriter rfw = new FileWriter( rFile );
+				PrintWriter lpw = new PrintWriter( lfw );
+				PrintWriter rpw = new PrintWriter( rfw );
+				
+		    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+		        File leftFile = new File(directory, fileName + "_left_detailed.csv");
+		        Pathfinder.writeToCSV(leftFile, left);
+		        
+		        File rightFile = new File(directory, fileName + "_right_detailed.csv");
+		        Pathfinder.writeToCSV(rightFile, right);
+		        
+		    	// CSV with position and velocity. To be used with your robot. 
+		    	// save left path to CSV
+		    	for (int i = 0; i < left.length(); i++) 
+		    	{			
+		    		Segment seg = left.get(i);
+		    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+		    	}
+		    			
+		    	// save right path to CSV
+		    	for (int i = 0; i < right.length(); i++) 
+		    	{			
+		    		Segment seg = right.get(i);
+		    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+		    	}
+		    			
+		    	lpw.close();
+		    	rpw.close();
+    		}
+    		else
+    		{
+    			JOptionPane.showMessageDialog(null, "No file destination chosen! \nClick the Browse button to choose a directory!", "File Destination Empty", JOptionPane.INFORMATION_MESSAGE);
+    			return;
+    		}
     	}
-    			
-    	lpw.close();
-    	rpw.close();
     }
     
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt)
@@ -769,9 +867,7 @@ public class Gui2 {
        	velocityGraph.addData(leftVelocity, Color.magenta);
       	velocityGraph.addData(rightVelocity, Color.cyan);
       	velocityGraph.addData(middleVelocity, Color.blue);
-      	velocityGraph.repaint();
-      	      	 	
-     	    
+      	velocityGraph.repaint();    
 		
     }
 	
