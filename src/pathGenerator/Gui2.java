@@ -668,7 +668,7 @@ public class Gui2 {
     	}
     	else
     	{
-    		try
+    		if(directory != null)
     		{
 		    	lFile = new File(directory, fileName + "_left.csv");
 		        rFile = new File(directory, fileName + "_right.csv");    	
@@ -702,9 +702,10 @@ public class Gui2 {
 		    	lpw.close();
 		    	rpw.close();
     		}
-    		catch ( Exception e )
+    		else
     		{
     			JOptionPane.showMessageDialog(null, "No file destination chosen! \nClick the Browse button to choose a directory!", "File Destination Empty", JOptionPane.INFORMATION_MESSAGE);
+    			return;
     		}
     	}
     }
