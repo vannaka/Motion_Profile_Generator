@@ -45,8 +45,9 @@ Generate Motion Profiles to follow with a Talon SRX
 
 [logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/ChooseDirectory.PNG
 
-- Click "File/Save Profile" and the Directory window will appear
-- Choose the directory you want to save your motion profiles in then click open and they will be saved
+- Enter the file name in the File Name text box
+- Click the Browse button to choose the directory you want to save the profiles in
+- Click the Save button or the "File/Save Profile" Menu option to save the profiles
 - The motion profiles are saved as CSV files. One for each left and right
 	- Detailed CSV
 		- This file contains more information than the normal CSV
@@ -66,7 +67,7 @@ Generate Motion Profiles to follow with a Talon SRX
 	- New Profile
 		- Clears all your waypoints and graphs allowing you to start over
 	- Save Profile
-		- The directory chooser is brought up allowing you to save your profiles
+		- Allows you to save your profiles
 	- Exit
 		- Exit the application
 - **Help Menu**
