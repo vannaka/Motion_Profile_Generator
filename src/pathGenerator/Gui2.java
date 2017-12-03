@@ -661,53 +661,62 @@ public class Gui2 {
     
     private void btnMenuSaveActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-    	if(txtFileName.getText().equals(""))
-    	{
-    		JOptionPane.showMessageDialog(null, "The File Name/directory field is empty! \nPlease enter a file name and click Browse for a destination!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
-    		return;
-    	}
-    	else
+    	if(txtFileName.getText().equals("") == false)
     	{
     		if(directory != null)
     		{
-		    	lFile = new File(directory, fileName + "_left.csv");
-		        rFile = new File(directory, fileName + "_right.csv");    	
-		    	FileWriter lfw = new FileWriter( lFile );
-				FileWriter rfw = new FileWriter( rFile );
-				PrintWriter lpw = new PrintWriter( lfw );
-				PrintWriter rpw = new PrintWriter( rfw );
-				
-		    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-		        File leftFile = new File(directory, fileName + "_left_detailed.csv");
-		        Pathfinder.writeToCSV(leftFile, left);
-		        
-		        File rightFile = new File(directory, fileName + "_right_detailed.csv");
-		        Pathfinder.writeToCSV(rightFile, right);
-		        
-		    	// CSV with position and velocity. To be used with your robot. 
-		    	// save left path to CSV
-		    	for (int i = 0; i < left.length(); i++) 
-		    	{			
-		    		Segment seg = left.get(i);
-		    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-		    	}
-		    			
-		    	// save right path to CSV
-		    	for (int i = 0; i < right.length(); i++) 
-		    	{			
-		    		Segment seg = right.get(i);
-		    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-		    	}
-		    			
-		    	lpw.close();
-		    	rpw.close();
+    			if(left != null)
+    			{
+			    	lFile = new File(directory, fileName + "_left.csv");
+			        rFile = new File(directory, fileName + "_right.csv");    	
+			    	FileWriter lfw = new FileWriter( lFile );
+					FileWriter rfw = new FileWriter( rFile );
+					PrintWriter lpw = new PrintWriter( lfw );
+					PrintWriter rpw = new PrintWriter( rfw );
+					
+			    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+			        File leftFile = new File(directory, fileName + "_left_detailed.csv");
+			        Pathfinder.writeToCSV(leftFile, left);
+			        
+			        File rightFile = new File(directory, fileName + "_right_detailed.csv");
+			        Pathfinder.writeToCSV(rightFile, right);
+			        
+			    	// CSV with position and velocity. To be used with your robot. 
+			    	// save left path to CSV
+			    	for (int i = 0; i < left.length(); i++) 
+			    	{			
+			    		Segment seg = left.get(i);
+			    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    			
+			    	// save right path to CSV
+			    	for (int i = 0; i < right.length(); i++) 
+			    	{			
+			    		Segment seg = right.get(i);
+			    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    			
+			    	lpw.close();
+			    	rpw.close();
+    			}
+    			else
+    			{
+    				JOptionPane.showMessageDialog(null, "No Trajectory has been generated!", "Trajectory Not Generated", JOptionPane.INFORMATION_MESSAGE);
+        			return;
+    			}
     		}
     		else
     		{
     			JOptionPane.showMessageDialog(null, "No file destination chosen! \nClick the Browse button to choose a directory!", "File Destination Empty", JOptionPane.INFORMATION_MESSAGE);
     			return;
     		}
+    	
     	}
+    	else
+    	{
+    		JOptionPane.showMessageDialog(null, "The File Name/directory field is empty! \nPlease enter a file name and click Browse for a destination!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
+        	return;
+    	}	
     }
     
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt)
@@ -735,53 +744,62 @@ public class Gui2 {
     
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-    	if(txtFileName.getText().equals(""))
-    	{
-    		JOptionPane.showMessageDialog(null, "The File Name/directory field is empty! \nPlease enter a file name and click Browse for a destination!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
-    		return;
-    	}
-    	else
+    	if(txtFileName.getText().equals("") == false)
     	{
     		if(directory != null)
     		{
-		    	lFile = new File(directory, fileName + "_left.csv");
-		        rFile = new File(directory, fileName + "_right.csv");    	
-		    	FileWriter lfw = new FileWriter( lFile );
-				FileWriter rfw = new FileWriter( rFile );
-				PrintWriter lpw = new PrintWriter( lfw );
-				PrintWriter rpw = new PrintWriter( rfw );
-				
-		    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-		        File leftFile = new File(directory, fileName + "_left_detailed.csv");
-		        Pathfinder.writeToCSV(leftFile, left);
-		        
-		        File rightFile = new File(directory, fileName + "_right_detailed.csv");
-		        Pathfinder.writeToCSV(rightFile, right);
-		        
-		    	// CSV with position and velocity. To be used with your robot. 
-		    	// save left path to CSV
-		    	for (int i = 0; i < left.length(); i++) 
-		    	{			
-		    		Segment seg = left.get(i);
-		    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-		    	}
-		    			
-		    	// save right path to CSV
-		    	for (int i = 0; i < right.length(); i++) 
-		    	{			
-		    		Segment seg = right.get(i);
-		    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-		    	}
-		    			
-		    	lpw.close();
-		    	rpw.close();
+    			if(left != null)
+    			{
+			    	lFile = new File(directory, fileName + "_left.csv");
+			        rFile = new File(directory, fileName + "_right.csv");    	
+			    	FileWriter lfw = new FileWriter( lFile );
+					FileWriter rfw = new FileWriter( rFile );
+					PrintWriter lpw = new PrintWriter( lfw );
+					PrintWriter rpw = new PrintWriter( rfw );
+					
+			    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+			        File leftFile = new File(directory, fileName + "_left_detailed.csv");
+			        Pathfinder.writeToCSV(leftFile, left);
+			        
+			        File rightFile = new File(directory, fileName + "_right_detailed.csv");
+			        Pathfinder.writeToCSV(rightFile, right);
+			        
+			    	// CSV with position and velocity. To be used with your robot. 
+			    	// save left path to CSV
+			    	for (int i = 0; i < left.length(); i++) 
+			    	{			
+			    		Segment seg = left.get(i);
+			    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    			
+			    	// save right path to CSV
+			    	for (int i = 0; i < right.length(); i++) 
+			    	{			
+			    		Segment seg = right.get(i);
+			    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    			
+			    	lpw.close();
+			    	rpw.close();
+    			}
+    			else
+    			{
+    				JOptionPane.showMessageDialog(null, "No Trajectory has been generated!", "Trajectory Not Generated", JOptionPane.INFORMATION_MESSAGE);
+        			return;
+    			}
     		}
     		else
     		{
     			JOptionPane.showMessageDialog(null, "No file destination chosen! \nClick the Browse button to choose a directory!", "File Destination Empty", JOptionPane.INFORMATION_MESSAGE);
     			return;
     		}
+    	
     	}
+    	else
+    	{
+    		JOptionPane.showMessageDialog(null, "The File Name/directory field is empty! \nPlease enter a file name and click Browse for a destination!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
+        	return;
+    	}	
     }
     
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt)
