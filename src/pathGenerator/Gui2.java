@@ -525,84 +525,65 @@ public class Gui2 {
 		
 	private void btnGeneratePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-		double timeStep = 0; 
-		double velocity = 0;
-		double acceleration = 0;
-		double jerk = 0;
-		double wheelBase = 0;
+		double timeStep = Double.parseDouble(txtTime.getText()); //default 0.05 
+		double velocity = Double.parseDouble(txtVelocity.getText()); //default 4
+		double acceleration = Double.parseDouble(txtAcceleration.getText()); // default 3
+		double jerk = Double.parseDouble(txtJerk.getText()); // default 60
+		double wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
 		
 		//get time step value
-		try
+		if(timeStep > 0)
 		{
-			timeStep = Double.parseDouble(txtTime.getText()); //default 0.05
-		}
-		catch ( Exception e)
-		{
-			JOptionPane.showMessageDialog(null, "The Time Step value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
-    		return;
-		}
-		
-		//get velocity value
-		try
-		{
-			velocity = Double.parseDouble(txtVelocity.getText()); //default 4
-		}
-		catch ( Exception e)
-		{
-			JOptionPane.showMessageDialog(null, "The Velocity value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
-    		return;
-		}
-		
-		//get acceleration value
-		try
-		{
-			acceleration = Double.parseDouble(txtAcceleration.getText()); // default 3
-		}
-		catch ( Exception e)
-		{
-			JOptionPane.showMessageDialog(null, "The Acceleration value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
-	   		return;
-		}
-		
-		//get jerk value
-		try
-		{
-			jerk = Double.parseDouble(txtJerk.getText()); // default 60
-		}
-		catch ( Exception e)
-		{
-			JOptionPane.showMessageDialog(null, "The Jerk value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
-	   		return;
-		}
-		
-		//get wheel base value
-		try
-		{
-			wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
-		}
-		catch ( Exception e)
-		{
-			JOptionPane.showMessageDialog(null, "The Wheel Base value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
-	  		return;
-		}
-		
-		// If waypoints exist
-		if( points.size() > 1 )
-		{
-			Waypoint tmp[] = new Waypoint[ points.size() ];
-			points.toArray( tmp );
-			try
+			if(velocity > 0)
 			{
-			trajectory( timeStep, velocity, acceleration, jerk, wheelBase, tmp );
+				if(acceleration > 0)
+				{
+					if(jerk > 0)
+					{
+						if(wheelBase > 0)
+						{
+							// If waypoints exist
+							if( points.size() > 1 )
+							{
+								Waypoint tmp[] = new Waypoint[ points.size() ];
+								points.toArray( tmp );
+								try
+								{
+								trajectory( timeStep, velocity, acceleration, jerk, wheelBase, tmp );
+								}
+								catch ( Exception e )
+								{
+									JOptionPane.showMessageDialog(null, "The trajectory provided was invalid! Invalid trajectory could not be generated", "Invalid Points.", JOptionPane.INFORMATION_MESSAGE);
+								}
+							}
+							else
+							{
+								JOptionPane.showMessageDialog(null, "We need at least two points to generate a profile.", "Insufficient Points.", JOptionPane.INFORMATION_MESSAGE);
+							}
+						}
+						else
+						{
+							JOptionPane.showMessageDialog(null, "The Wheel Base value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+						}
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(null, "The Jerk value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+					}
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "The Acceleration value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+				}
 			}
-			catch ( Exception e )
+			else
 			{
-				JOptionPane.showMessageDialog(null, "The trajectory provided was invalid! Invalid trajectory could not be generated", "Invalid Points.", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, "The Velocity value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 		else
 		{
-			JOptionPane.showMessageDialog(null, "We need at least two points to generate a profile.", "Insufficient Points.", JOptionPane.INFORMATION_MESSAGE);
+			JOptionPane.showMessageDialog(null, "The Time Step value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
 		}
 		
     }
