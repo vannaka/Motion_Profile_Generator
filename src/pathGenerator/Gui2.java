@@ -531,7 +531,18 @@ public class Gui2 {
 		double jerk = Double.parseDouble(txtJerk.getText()); // default 60
 		double wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
 		
-		//get time step value
+		// clear graphs
+    	velocityGraph.clearGraph();
+    	velocityGraph.repaint();
+    	redAllianceGraph.clearGraph();
+    	redAllianceGraph.repaint();
+    	blueAllianceGraph.clearGraph();
+    	blueAllianceGraph.repaint();    	
+    	
+    	motionGraphBlue();
+    	motionGraphRed();
+		velocityGraph();
+		
 		if(timeStep > 0)
 		{
 			if(velocity > 0)
@@ -792,11 +803,11 @@ public class Gui2 {
     	velocityGraph.repaint();
     	redAllianceGraph.clearGraph();
     	redAllianceGraph.repaint();
-    	
-    	velocityGraph();
+    	    	
     	motionGraphBlue();
     	motionGraphRed();
-		    	
+		velocityGraph();  
+		
     	points.clear();
     	
     	txtAreaWaypoints.setText(null);
@@ -833,20 +844,13 @@ public class Gui2 {
         	rightPath[i][0] = right.get(i).x;
         	rightPath[i][1] = right.get(i).y;
         }
-       	
-        if(tabbedPane.getSelectedIndex() == 0)
-        {
-        	blueAllianceGraph.addData(leftPath, Color.magenta);
-        	blueAllianceGraph.addData(rightPath, Color.magenta);
-        	blueAllianceGraph.repaint();
-        }
-        
-        if(tabbedPane.getSelectedIndex() == 1)
-        {
-        	redAllianceGraph.addData(leftPath, Color.magenta);
-         	redAllianceGraph.addData(rightPath, Color.magenta);
-         	redAllianceGraph.repaint();
-        }
+        blueAllianceGraph.addData(leftPath, Color.magenta);
+       	blueAllianceGraph.addData(rightPath, Color.magenta);
+       	blueAllianceGraph.repaint();
+        	
+       	redAllianceGraph.addData(leftPath, Color.magenta);
+        redAllianceGraph.addData(rightPath, Color.magenta);
+        redAllianceGraph.repaint();
         
      	// Velocity to be used in the Velocity graph
      	double[][] leftVelocity = new double[left.length()][2];

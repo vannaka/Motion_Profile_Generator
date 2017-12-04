@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Moved Velocity Graph to the tabbed pane
 - Reworked Saving UX to make it more user friendly
+- Motion Pofile displays on both red and blue tab
 
 ### Fixed
 - Resized menu bar to extend across entire window
+- Negative variables are now checked for
+- Fixed bug that allowed multiple graphs to be dispayed on one graph
 
 ## [1.0.1] - 2017-11-11
 ### Added
