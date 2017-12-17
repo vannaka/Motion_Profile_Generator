@@ -713,23 +713,31 @@ public class Gui2 {
     
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt)
     {
-    	fileName = txtFileName.getText();
-    	
-    	fileChooser = new JFileChooser(); 
-        fileChooser.setCurrentDirectory(new java.io.File("."));
-        fileChooser.setDialogTitle("Choose a Directory to Save Files In");
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        
-        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-        	//directory = fileChooser.getCurrentDirectory();
-        	directory = fileChooser.getSelectedFile();
-        }
-        
-        else
-        {
+    	if(txtFileName.getText().equals("") == false)
+    	{
+    		fileName = txtFileName.getText();
+	    	
+	    	fileChooser = new JFileChooser(); 
+	        fileChooser.setCurrentDirectory(new java.io.File("."));
+	        fileChooser.setDialogTitle("Choose a Directory to Save Files In");
+	        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	        fileChooser.setAcceptAllFileFilterUsed(false);
+	        
+	        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+	        	//directory = fileChooser.getCurrentDirectory();
+	        	directory = fileChooser.getSelectedFile();
+	        }
+	        
+	        else
+	        {
+	        	return;
+	        }
+    	}
+    	else
+    	{
+    		JOptionPane.showMessageDialog(null, "The File Name field is empty! \nPlease enter a file name!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
         	return;
-        }
+    	}
         
         txtFileName.setText(directory + "\\" + fileName);
     }
@@ -742,8 +750,27 @@ public class Gui2 {
     		{
     			if(left != null)
     			{
-			    	lFile = new File(directory, fileName + "_left.csv");
+    				lFile = new File(directory, fileName + "_left.csv");
 			        rFile = new File(directory, fileName + "_right.csv");    	
+			        
+			        if( lFile.exists() || rFile.exists() )
+			        {
+			        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
+			        	
+			        	switch( n )
+			        	{
+			        	case JOptionPane.YES_OPTION:
+			        		break;		// Continue with method
+			        		
+			        	case JOptionPane.NO_OPTION:
+			        		return;		// Stop Saving
+			        		
+			        	default:
+			        		return;
+			        	}
+			        }
+			        	
+			        	
 			    	FileWriter lfw = new FileWriter( lFile );
 					FileWriter rfw = new FileWriter( rFile );
 					PrintWriter lpw = new PrintWriter( lfw );
@@ -756,7 +783,7 @@ public class Gui2 {
 			        File rightFile = new File(directory, fileName + "_right_detailed.csv");
 			        Pathfinder.writeToCSV(rightFile, right);
 			        
-			    	// CSV with position and velocity. To be used with your robot. 
+			    	// CSV with position and velocity. To be used with your robot.
 			    	// save left path to CSV
 			    	for (int i = 0; i < left.length(); i++) 
 			    	{			
