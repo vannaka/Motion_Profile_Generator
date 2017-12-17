@@ -198,7 +198,6 @@ public class Gui2 {
             	try {
 					btnSaveActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
             }
@@ -226,7 +225,7 @@ public class Gui2 {
 		trajecPanel.add(lblWheelBase);
 		
 		txtAngle = new JTextField();
-		txtAngle.setBounds(252, 298, 34, 20);
+		txtAngle.setBounds(257, 298, 63, 20);
 		trajecPanel.add(txtAngle);
 		txtAngle.setColumns(10);
 		
@@ -241,18 +240,18 @@ public class Gui2 {
 		//trajecPanel.add(txtAreaWaypoints);
 					
 		txtXValue = new JTextField();
-		txtXValue.setBounds(164, 298, 34, 20);
+		txtXValue.setBounds(130, 298, 63, 20);
 		trajecPanel.add(txtXValue);
 		txtXValue.setColumns(10);
 		
 		txtYValue = new JTextField();
-		txtYValue.setBounds(208, 298, 34, 20);
+		txtYValue.setBounds(193, 298, 64, 20);
 		trajecPanel.add(txtYValue);
 		txtYValue.setColumns(10);
 		
 		JLabel lblX = new JLabel("X");
 		lblX.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblX.setBounds(176, 275, 10, 20);
+		lblX.setBounds(160, 275, 10, 20);
 		trajecPanel.add(lblX);
 		
 		JLabel lblY = new JLabel("Y");
@@ -262,7 +261,7 @@ public class Gui2 {
 		
 		JLabel lblAngle = new JLabel("Angle");
 		lblAngle.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblAngle.setBounds(252, 275, 34, 20);
+		lblAngle.setBounds(270, 275, 34, 20);
 		trajecPanel.add(lblAngle);
 		
 		JScrollPane scrollPane = new JScrollPane(txtAreaWaypoints, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -403,6 +402,21 @@ public class Gui2 {
 		lblBlakeMammen.setFont(new Font("Arial", Font.PLAIN, 14));
 		lblBlakeMammen.setBounds(109, 200, 110, 14);
 		panel.add(lblBlakeMammen);
+		
+		JLabel lblAcknowedgements = new JLabel("Acknowledgments");
+		lblAcknowedgements.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblAcknowedgements.setBounds(82, 224, 150, 14);
+		panel.add(lblAcknowedgements);
+		
+		JLabel lblJaci = new JLabel("Jaci for the path generation code");
+		lblJaci.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblJaci.setBounds(109, 248, 250, 14);
+		panel.add(lblJaci);
+		
+		JLabel lblJH = new JLabel("KHEngineering for the graph code");
+		lblJH.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblJH.setBounds(109, 272, 250, 14);
+		panel.add(lblJH);
 	}
 	
 	private void motionGraphBlue()
