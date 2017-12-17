@@ -83,5 +83,5 @@ Generate Motion Profiles to follow with a Talon SRX
 ## Acknowledgments
 ---
 
-- [Jaci](https://github.com/JacisNonsense/Pathfinder) for her Pathfinder class
-- [KHEngineering](https://github.com/KHEngineering/SmoothPathPlanner) for his graphing class
+- [Jaci](https://github.com/JacisNonsense/Pathfinder) for the path generation code
+- [KHEngineering](https://github.com/KHEngineering/SmoothPathPlanner) for the graph code

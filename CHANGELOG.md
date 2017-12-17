@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Ability to replace existing file when saving
+
 ### Changed
 - Moved Velocity Graph to the tabbed pane
 - Reworked Saving UX to make it more user friendly
