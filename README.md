@@ -37,6 +37,10 @@ Generate Motion Profiles to follow with a Talon SRX
 - **Angle**
 	- This is the **ending** angle after the robot reaches the point
 	- The first point should **always** have an angle of Zero
+- **Editing existing points**
+	- Once you have added a point to the list you can double click on it to change it. 
+	- The old point will be deleted and the edited point will take that place
+	- After the point is replaced it will go back to normal behavoir and add points to the end
 	
 ## Save File
 ---

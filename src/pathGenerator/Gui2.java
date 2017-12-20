@@ -13,6 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,6 +38,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.UIManager;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Utilities;
 
 public class Gui2 {
 
@@ -51,6 +56,8 @@ public class Gui2 {
 	private JTextField txtYValue;
 	private JTextField txtFileName;
 	
+	JButton btnAddPoint;
+	
 	private JTabbedPane tabbedPane;
 	
 	FalconLinePlot blueAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
@@ -58,6 +65,8 @@ public class Gui2 {
 	FalconLinePlot redAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
 			
 	private JTextArea txtAreaWaypoints;
+	int lineNum;
+	int rowStart;
 	
 	private JFileChooser fileChooser;
 	private File directory;
@@ -159,7 +168,7 @@ public class Gui2 {
             }
         });
 		
-		JButton btnAddPoint = new JButton("Add Point");
+		btnAddPoint = new JButton("Add Point");
 		btnAddPoint.setBounds(130, 329, 90, 20);
 		trajecPanel.add(btnAddPoint);
 		
@@ -232,12 +241,13 @@ public class Gui2 {
 		txtAreaWaypoints = new JTextArea();
 		txtAreaWaypoints.setEditable(false);
 		txtAreaWaypoints.setFont(new Font("Monospaced", Font.PLAIN, 14));
-		String format = "%1$4s %2$6s %3$9s";
-    	String line = String.format(format, "X", "Y", "Angle");
-		txtAreaWaypoints.append(line + "\n");
-		txtAreaWaypoints.append("_______________________" + "\n");
 		txtAreaWaypoints.setBounds(131, 363, 188, 176);
-		//trajecPanel.add(txtAreaWaypoints);
+		txtAreaWaypoints.addMouseListener(new MouseAdapter() {
+	         @Override
+	         public void mouseClicked(MouseEvent e) {
+	            mouseEvent(e);
+	         }
+	      });
 					
 		txtXValue = new JTextField();
 		txtXValue.setBounds(130, 298, 63, 20);
@@ -265,7 +275,7 @@ public class Gui2 {
 		trajecPanel.add(lblAngle);
 		
 		JScrollPane scrollPane = new JScrollPane(txtAreaWaypoints, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(130, 360, 190, 134);
+		scrollPane.setBounds(130, 376, 190, 118);
 		trajecPanel.add(scrollPane);
 		
 		txtFileName = new JTextField();
@@ -277,6 +287,15 @@ public class Gui2 {
 		lblLeftFileName.setHorizontalAlignment(SwingConstants.CENTER);
 		lblLeftFileName.setBounds(27, 524, 90, 20);
 		trajecPanel.add(lblLeftFileName);
+		
+		JTextArea txtAreaWaypointsTitle = new JTextArea();
+		txtAreaWaypointsTitle.setBounds(130, 352, 190, 24);
+		trajecPanel.add(txtAreaWaypointsTitle);
+		txtAreaWaypointsTitle.setEditable(false);
+		txtAreaWaypointsTitle.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		String format = "%1$4s %2$6s %3$9s";
+    	String line = String.format(format, "X", "Y", "Angle");
+		txtAreaWaypointsTitle.append(line + "\n");
 								
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 1075, 21);
@@ -612,6 +631,51 @@ public class Gui2 {
 		}
 		
     }
+	
+	private void mouseEvent(MouseEvent e)
+	{
+		if (e.getButton() != MouseEvent.BUTTON1) {
+            return;
+         }
+         if (e.getClickCount() != 2) {
+            return;
+         }
+
+         int offset = txtAreaWaypoints.viewToModel(e.getPoint());
+
+         try {
+            rowStart = Utilities.getRowStart(txtAreaWaypoints, offset);
+            int rowEnd = Utilities.getRowEnd(txtAreaWaypoints, offset);
+            String selectedLine = txtAreaWaypoints.getText().substring(rowStart, rowEnd);
+           
+            btnAddPoint.setText("Update");
+            
+	       	String[] splitStr = selectedLine.trim().split("\\s+");
+	       	String xValueS = splitStr[0];
+	   		String yValueS = splitStr[1];
+	      	String aValueS = splitStr[2];
+	       		
+	       	txtXValue.setText(xValueS);
+	       	txtYValue.setText(yValueS);
+	       	txtAngle.setText(aValueS);
+	       		
+	       	int off = txtAreaWaypoints.getCaretPosition();
+	        lineNum = txtAreaWaypoints.getLineOfOffset(off);
+	
+	        Document document = txtAreaWaypoints.getDocument();
+	
+	        int len = rowEnd - rowStart + 1;
+	        if (rowStart + len > document.getLength()) 
+	        {
+	        	len--;
+	        }
+	            document.remove(rowStart, len);
+			}
+		catch (Exception e1) {
+				JOptionPane.showMessageDialog(null, "The Row is empty!", "Row Empty", JOptionPane.INFORMATION_MESSAGE);
+			}
+		points.remove(lineNum);
+	}
     
     private void btnAddPointActionPerformed(java.awt.event.ActionEvent evt)
     {
@@ -620,49 +684,58 @@ public class Gui2 {
     	double angle = 0;
     	
     	// get x value
-    	try
-    	{
-    		xValue = Double.parseDouble(txtXValue.getText());   		
-    	}
-    	catch ( Exception e )
-    	{
-    		JOptionPane.showMessageDialog(null, "The X value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
-    		return;
-    	}
-    	
-    	// get y value
-    	try
-    	{
-			yValue = Double.parseDouble(txtYValue.getText());
+	   	try
+	    {
+	    	xValue = Double.parseDouble(txtXValue.getText());   		
+	   	}
+	    catch ( Exception e )
+	    {
+	    	JOptionPane.showMessageDialog(null, "The X value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+	    	return;
 	    }
+	    	
+	    // get y value
+	    try
+	    {
+			yValue = Double.parseDouble(txtYValue.getText());
+		}
 		catch ( Exception e )
 		{
 			JOptionPane.showMessageDialog(null, "The Y value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
-		
+			
 		// get angle value
-    	try
-    	{
+	    try
+	    {
 			angle = Double.parseDouble(txtAngle.getText());
-	    }
+		}
 		catch ( Exception e )
 		{
 			JOptionPane.showMessageDialog(null, "The Angle value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
 			return;
 		}
-		
+    	
     	String format = "%1$6.2f %2$6.2f %3$7.2f";
     	String line = String.format(format, xValue, yValue, angle);
-    	txtAreaWaypoints.append(line + "\n");
-		
-		// add new point to points list
-		points.add( new Waypoint(xValue, yValue, Pathfinder.d2r(angle)));
-		
-		txtXValue.setText("");
-		txtYValue.setText("");
-		txtAngle.setText("");
-		        
+    		
+    	if(btnAddPoint.getText() == "Add Point")
+    	{
+    		txtAreaWaypoints.append(line + "\n");
+    		// add new point to points list
+    		points.add( new Waypoint(xValue, yValue, Pathfinder.d2r(angle)));
+    	}
+    	else
+    	{
+    		txtAreaWaypoints.insert(line + "\n", rowStart);
+    		points.add(lineNum, new Waypoint(xValue, yValue, Pathfinder.d2r(angle)));
+    	}
+    		
+    	txtXValue.setText("");
+    	txtYValue.setText("");
+    	txtAngle.setText("");
+    		
+    	btnAddPoint.setText("Add Point");
     }
     
     private void btnMenuSaveActionPerformed(java.awt.event.ActionEvent evt) throws IOException
@@ -852,10 +925,6 @@ public class Gui2 {
     	points.clear();
     	
     	txtAreaWaypoints.setText(null);
-    	String format = "%1$4s %2$6s %3$9s";
-    	String line = String.format(format, "X", "Y", "Angle");
-		txtAreaWaypoints.append(line + "\n");
-		txtAreaWaypoints.append("_______________________" + "\n");
     }
     
     private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points) throws IOException
