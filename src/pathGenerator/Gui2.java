@@ -15,7 +15,9 @@ import javax.swing.JFileChooser;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -38,7 +40,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.UIManager;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Utilities;
 
@@ -70,16 +71,24 @@ public class Gui2 {
 	
 	private JFileChooser fileChooser;
 	private File directory;
+	private File pFile;
 	
 	// Path Waypoints 
 	//private Waypoint[] points;
 	private List<Waypoint> points = new ArrayList<Waypoint>(); // can be variable length after creation
+	
+	double timeStep;
+	double velocity;
+	double acceleration;
+	double jerk;
+	double wheelBase;
 	
 	Trajectory left;
 	Trajectory right;
 	
 	File lFile;
 	File rFile;
+	File preferenceFile;
 	
 	String fileName;
 		
@@ -327,6 +336,19 @@ public class Gui2 {
             }
 		});
 		
+		JMenuItem mntmLoadProfile = new JMenuItem("Load Profile");
+		mnFile.add(mntmLoadProfile);
+		
+		mntmLoadProfile.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	try {
+					btnMenuLoadActionPerformed(evt);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+            }
+		});
+		
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mnFile.add(mntmExit);
 		
@@ -555,14 +577,72 @@ public class Gui2 {
       	velocityGraph.setXLabel("time (seconds)");
       	velocityGraph.setTitle("Velocity Profile for Left and Right Wheels \n Left = Cyan, Right = Magenta");
 	}
+	
+	private void btnMenuLoadActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+	{
+    	fileChooser = new JFileChooser(); 
+        fileChooser.setCurrentDirectory(new java.io.File("."));
+        fileChooser.setDialogTitle("Choose a file to load.");
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        
+        if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+        	pFile = fileChooser.getSelectedFile();
+        	
+        	@SuppressWarnings("resource")
+			BufferedReader br = new BufferedReader(new FileReader(pFile));
+        	
+        	String sTime = br.readLine();
+        	String sVelocity = br.readLine();
+        	String sAcceleration = br.readLine();
+        	String sJerk = br.readLine();
+        	String sWheel = br.readLine();
+        	
+        	txtTime.setText(sTime);
+        	txtVelocity.setText(sVelocity);
+        	txtAcceleration.setText(sAcceleration);
+        	txtJerk.setText(sJerk);
+        	txtWheelBase.setText(sWheel);
+        	
+        	points.clear();
+        	txtAreaWaypoints.setText(null);
+        	
+        	String st;
+        	while ((st = br.readLine()) != null)
+        	{
+        		
+        				
+    	       	String[] splitStr = st.trim().split("\\s*,\\s*");
+    	       	String xValueS = splitStr[0];
+    	   		String yValueS = splitStr[1];
+    	      	String aValueS = splitStr[2];
+    	      	
+    	      	double dX = Double.parseDouble(xValueS);
+    	      	double dY = Double.parseDouble(yValueS);
+    	      	double dA = Double.parseDouble(aValueS);
+    	      	
+    	      	String format = "%1$6.2f %2$6.2f %3$7.2f";
+    	      	String line = String.format(format, dX, dY, dA);
+    	    	
+    	    	txtAreaWaypoints.append(line + "\n");
+    	    	points.add( new Waypoint(dX, dY, Pathfinder.d2r(dA)));
+        	}
+        	
+        }
+        
+        else
+        {
+        	return;
+        }
+	}
 		
 	private void btnGeneratePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
     {
-		double timeStep = Double.parseDouble(txtTime.getText()); //default 0.05 
-		double velocity = Double.parseDouble(txtVelocity.getText()); //default 4
-		double acceleration = Double.parseDouble(txtAcceleration.getText()); // default 3
-		double jerk = Double.parseDouble(txtJerk.getText()); // default 60
-		double wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
+		timeStep = Double.parseDouble(txtTime.getText()); //default 0.05 
+		velocity = Double.parseDouble(txtVelocity.getText()); //default 4
+		acceleration = Double.parseDouble(txtAcceleration.getText()); // default 3
+		jerk = Double.parseDouble(txtJerk.getText()); // default 60
+		wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
 		
 		// clear graphs
     	velocityGraph.clearGraph();
@@ -746,8 +826,26 @@ public class Gui2 {
     		{
     			if(left != null)
     			{
-			    	lFile = new File(directory, fileName + "_left.csv");
-			        rFile = new File(directory, fileName + "_right.csv");    	
+    				lFile = new File(directory, fileName + "_left.csv");
+			        rFile = new File(directory, fileName + "_right.csv");
+			        
+			        if( lFile.exists() || rFile.exists() )
+			        {
+			        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
+			        	
+			        	switch( n )
+			        	{
+			        	case JOptionPane.YES_OPTION:
+			        		break;		// Continue with method
+			        		
+			        	case JOptionPane.NO_OPTION:
+			        		return;		// Stop Saving
+			        		
+			        	default:
+			        		return;
+			        	}
+			        }
+			        	
 			    	FileWriter lfw = new FileWriter( lFile );
 					FileWriter rfw = new FileWriter( rFile );
 					PrintWriter lpw = new PrintWriter( lfw );
@@ -760,7 +858,7 @@ public class Gui2 {
 			        File rightFile = new File(directory, fileName + "_right_detailed.csv");
 			        Pathfinder.writeToCSV(rightFile, right);
 			        
-			    	// CSV with position and velocity. To be used with your robot. 
+			    	// CSV with position and velocity. To be used with your robot.
 			    	// save left path to CSV
 			    	for (int i = 0; i < left.length(); i++) 
 			    	{			
@@ -777,6 +875,24 @@ public class Gui2 {
 			    			
 			    	lpw.close();
 			    	rpw.close();
+			    	
+			    	preferenceFile = new File(directory, fileName + "_Preferences.txt");
+			    	FileWriter pfw = new FileWriter(preferenceFile);
+			    	PrintWriter ppw = new PrintWriter(pfw);
+			    	
+			    	ppw.println(timeStep);
+			    	ppw.println(velocity);
+			    	ppw.println(acceleration);
+			    	ppw.println(jerk);
+			    	ppw.println(wheelBase);
+			    	
+			    	for(int i = 0; i < points.size(); i++)
+			    	{
+			    		ppw.printf("%4.2f, %4.2f, %4.2f", points.get(i).x, points.get(i).y, Pathfinder.r2d(points.get(i).angle));
+			    		ppw.println();
+			    	}
+			    	
+			    	ppw.close();
     			}
     			else
     			{
@@ -838,7 +954,7 @@ public class Gui2 {
     			if(left != null)
     			{
     				lFile = new File(directory, fileName + "_left.csv");
-			        rFile = new File(directory, fileName + "_right.csv");    	
+			        rFile = new File(directory, fileName + "_right.csv");
 			        
 			        if( lFile.exists() || rFile.exists() )
 			        {
@@ -856,7 +972,6 @@ public class Gui2 {
 			        		return;
 			        	}
 			        }
-			        	
 			        	
 			    	FileWriter lfw = new FileWriter( lFile );
 					FileWriter rfw = new FileWriter( rFile );
@@ -887,6 +1002,24 @@ public class Gui2 {
 			    			
 			    	lpw.close();
 			    	rpw.close();
+			    	
+			    	preferenceFile = new File(directory, fileName + "_Preferences.txt");
+			    	FileWriter pfw = new FileWriter(preferenceFile);
+			    	PrintWriter ppw = new PrintWriter(pfw);
+			    	
+			    	ppw.println(timeStep);
+			    	ppw.println(velocity);
+			    	ppw.println(acceleration);
+			    	ppw.println(jerk);
+			    	ppw.println(wheelBase);
+			    	
+			    	for(int i = 0; i < points.size(); i++)
+			    	{
+			    		ppw.printf("%4.2f, %4.2f, %4.2f", points.get(i).x, points.get(i).y, Pathfinder.r2d(points.get(i).angle));
+			    		ppw.println();
+			    	}
+			    	
+			    	ppw.close();
     			}
     			else
     			{

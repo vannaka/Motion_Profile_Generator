@@ -41,8 +41,14 @@ Generate Motion Profiles to follow with a Talon SRX
 	- Once you have added a point to the list you can double click on it to change it. 
 	- The old point will be deleted and the edited point will take that place
 	- After the point is replaced it will go back to normal behavoir and add points to the end
+
+## Load in previous Profile
+---
+- When you save your profile, a preference file is also saved with your settings and waypoints as a text file
+- Press the "Load Profile" option in the File menu to choose the preference file 
+- Your profile settings will be imported for you to use
 	
-## Save File
+## Save Profile to CSV
 ---
  
 ![alt text][logo1]
