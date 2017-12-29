@@ -589,43 +589,58 @@ public class Gui2 {
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
         	pFile = fileChooser.getSelectedFile();
         	
-        	@SuppressWarnings("resource")
-			BufferedReader br = new BufferedReader(new FileReader(pFile));
+        	String preference = pFile.getName();
+        	String extension = "";
+
+        	int i = preference.lastIndexOf('.');
+        	if (i > 0) {
+        	    extension = preference.substring(i+1);
+        	}
         	
-        	String sTime = br.readLine();
-        	String sVelocity = br.readLine();
-        	String sAcceleration = br.readLine();
-        	String sJerk = br.readLine();
-        	String sWheel = br.readLine();
-        	
-        	txtTime.setText(sTime);
-        	txtVelocity.setText(sVelocity);
-        	txtAcceleration.setText(sAcceleration);
-        	txtJerk.setText(sJerk);
-        	txtWheelBase.setText(sWheel);
-        	
-        	points.clear();
-        	txtAreaWaypoints.setText(null);
-        	
-        	String st;
-        	while ((st = br.readLine()) != null)
+        	if(extension.equals("bot"))
         	{
-        		
-        				
-    	       	String[] splitStr = st.trim().split("\\s*,\\s*");
-    	       	String xValueS = splitStr[0];
-    	   		String yValueS = splitStr[1];
-    	      	String aValueS = splitStr[2];
-    	      	
-    	      	double dX = Double.parseDouble(xValueS);
-    	      	double dY = Double.parseDouble(yValueS);
-    	      	double dA = Double.parseDouble(aValueS);
-    	      	
-    	      	String format = "%1$6.2f %2$6.2f %3$7.2f";
-    	      	String line = String.format(format, dX, dY, dA);
-    	    	
-    	    	txtAreaWaypoints.append(line + "\n");
-    	    	points.add( new Waypoint(dX, dY, Pathfinder.d2r(dA)));
+	        	@SuppressWarnings("resource")
+				BufferedReader br = new BufferedReader(new FileReader(pFile));
+	        	
+	        	String sTime = br.readLine();
+	        	String sVelocity = br.readLine();
+	        	String sAcceleration = br.readLine();
+	        	String sJerk = br.readLine();
+	        	String sWheel = br.readLine();
+	        	
+	        	txtTime.setText(sTime);
+	        	txtVelocity.setText(sVelocity);
+	        	txtAcceleration.setText(sAcceleration);
+	        	txtJerk.setText(sJerk);
+	        	txtWheelBase.setText(sWheel);
+	        	
+	        	points.clear();
+	        	txtAreaWaypoints.setText(null);
+	        	
+	        	String st;
+	        	while ((st = br.readLine()) != null)
+	        	{
+	        		
+	        				
+	    	       	String[] splitStr = st.trim().split("\\s*,\\s*");
+	    	       	String xValueS = splitStr[0];
+	    	   		String yValueS = splitStr[1];
+	    	      	String aValueS = splitStr[2];
+	    	      	
+	    	      	double dX = Double.parseDouble(xValueS);
+	    	      	double dY = Double.parseDouble(yValueS);
+	    	      	double dA = Double.parseDouble(aValueS);
+	    	      	
+	    	      	String format = "%1$6.2f %2$6.2f %3$7.2f";
+	    	      	String line = String.format(format, dX, dY, dA);
+	    	    	
+	    	    	txtAreaWaypoints.append(line + "\n");
+	    	    	points.add( new Waypoint(dX, dY, Pathfinder.d2r(dA)));
+	        	}
+        	}
+        	else
+        	{
+        		JOptionPane.showMessageDialog(null, "The file tpye is invalid! Make sure it is .bot", "Invalid file type", JOptionPane.INFORMATION_MESSAGE);
         	}
         	
         }
@@ -876,7 +891,7 @@ public class Gui2 {
 			    	lpw.close();
 			    	rpw.close();
 			    	
-			    	preferenceFile = new File(directory, fileName + "_Preferences.txt");
+			    	preferenceFile = new File(directory, fileName + "_Preferences.bot");
 			    	FileWriter pfw = new FileWriter(preferenceFile);
 			    	PrintWriter ppw = new PrintWriter(pfw);
 			    	
@@ -1003,7 +1018,7 @@ public class Gui2 {
 			    	lpw.close();
 			    	rpw.close();
 			    	
-			    	preferenceFile = new File(directory, fileName + "_Preferences.txt");
+			    	preferenceFile = new File(directory, fileName + "_Preferences.bot");
 			    	FileWriter pfw = new FileWriter(preferenceFile);
 			    	PrintWriter ppw = new PrintWriter(pfw);
 			    	

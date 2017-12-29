@@ -44,7 +44,7 @@ Generate Motion Profiles to follow with a Talon SRX
 
 ## Load in previous Profile
 ---
-- When you save your profile, a preference file is also saved with your settings and waypoints as a text file
+- When you save your profile, a preference file is also saved with your settings and waypoints as a text file with a .bot extention
 - Press the "Load Profile" option in the File menu to choose the preference file 
 - Your profile settings will be imported for you to use
 	
