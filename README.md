@@ -78,6 +78,8 @@ Generate Motion Profiles to follow with a Talon SRX
 		- Clears all your waypoints and graphs allowing you to start over
 	- Save Profile
 		- Allows you to save your profiles
+	- Load Profile
+		- Allows you to load a previous profile
 	- Exit
 		- Exit the application
 - **Help Menu**
