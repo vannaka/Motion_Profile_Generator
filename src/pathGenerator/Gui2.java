@@ -640,7 +640,7 @@ public class Gui2 {
         	}
         	else
         	{
-        		JOptionPane.showMessageDialog(null, "The file tpye is invalid! Make sure it is .bot", "Invalid file type", JOptionPane.INFORMATION_MESSAGE);
+        		JOptionPane.showMessageDialog(null, "The file type is invalid! Make sure it is .bot", "Invalid file type", JOptionPane.INFORMATION_MESSAGE);
         	}
         	
         }
