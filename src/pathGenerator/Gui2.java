@@ -419,7 +419,7 @@ public class Gui2 {
 		lblMotionProfileGenerator.setBounds(109, 29, 365, 64);
 		panel.add(lblMotionProfileGenerator);
 		
-		JLabel lblVersion = new JLabel("Version 1.2.0");
+		JLabel lblVersion = new JLabel("Version 2.0.0");
 		lblVersion.setFont(new Font("Arial", Font.PLAIN, 14));
 		lblVersion.setBounds(82, 104, 85, 14);
 		panel.add(lblVersion);
