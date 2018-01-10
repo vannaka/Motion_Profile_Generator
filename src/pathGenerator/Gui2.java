@@ -473,45 +473,212 @@ public class Gui2 {
 					
 		//force graph to show field dimensions of 30ft x 27 feet
 		double fieldWidth = 27.0;
-		blueAllianceGraph.setXTic(0, 30, 1);
+		blueAllianceGraph.setXTic(0, 32, 1);
 		blueAllianceGraph.setYTic(0, fieldWidth, 1);
 					
 					
 		//lets add field markers to help visual
-		double[][] airShip = new double[][]{
-				{9.443, 11.805},
-				{12.381, 10.11},
-				{15.318, 11.805},
-				{15.318, 15.195},
-				{12.381, 16.89},
-				{9.443, 15.195},
-				{9.443, 11.805},
+		double[][] redSwitch = new double[][]{
+				{11.7, 7.105},
+				{16.3, 7.105},
+				{16.3, 19.895},
+				{11.7, 19.895},
+				{11.7, 7.105},
 			};
-		blueAllianceGraph.addData(airShip, Color.black);
-					
+		blueAllianceGraph.addData(redSwitch, Color.black);
+							
 		// Auto Line
-		double[][] baseLine = new double[][] {{7.77,0}, {7.77, fieldWidth}};
-		blueAllianceGraph.addData(baseLine, Color.black);
-						
-		// Mid Field
-		double[][] midLine = new double[][] {{27.3,0}, {27.3, fieldWidth}};
-		blueAllianceGraph.addData(midLine, Color.black);
-						
-		// Boiler
-		double[][] blueSideBoiler = new double[][] {{0,24.79}, {2.479,27}};
-		blueAllianceGraph.addData(blueSideBoiler, Color.black);
-						
-		// Boiler Line
-		double[][] blueSideBoilerLine = new double[][] {{0,18.61}, {8.39,27}};
-		blueAllianceGraph.addData(blueSideBoilerLine, Color.blue);
-						
-		// Retrieval Zone
-		double[][] blueSideRetrieval = new double[][] {{0,3.166}, {5.45,0}};
-		blueAllianceGraph.addData(blueSideRetrieval, Color.black);
-						
-		// Retrieval Zone Line
-		double[][] blueSideRetrievalLine = new double[][] {{0,7}, {13.75,0}};
-		blueAllianceGraph.addData(blueSideRetrievalLine, Color.red);
+		double[][] autoLine = new double[][] {{10,0}, {10, fieldWidth}};
+		blueAllianceGraph.addData(autoLine, Color.black);
+								
+		// Mid Field Up
+		double[][] midLineUp = new double[][] {{27,27}, {27, 21}};
+		blueAllianceGraph.addData(midLineUp, Color.black);
+				
+		// Mid Field Down
+		double[][] midLineDown = new double[][] {{27,0}, {27, 6}};
+		blueAllianceGraph.addData(midLineDown, Color.black);
+								
+		// Scale Up
+		double[][] scaleUp = new double[][] {
+				{25, 18}, 
+				{29, 18},
+				{29, 21},
+				{25, 21},
+				{25, 18},
+			};
+		blueAllianceGraph.addData(scaleUp, Color.blue);
+								
+		// Scale Down
+		double[][] scaleDown = new double[][] {
+				{25, 6}, 
+				{29, 6},
+				{29, 9},
+				{25, 9},
+				{25, 6},
+			};
+		blueAllianceGraph.addData(scaleDown, Color.red);
+								
+		// Scale sides
+		double[][] scaleSides = new double[][] {
+				{26.28, 9}, 
+				{27.72, 9},
+				{27.72, 18},
+				{26.28, 18},
+				{26.28, 9},
+			};
+		blueAllianceGraph.addData(scaleSides, Color.black);
+								
+		// Null zone Up
+		double[][] nullZoneUp = new double[][] {
+				{25, 19.06}, 
+				{24, 19.06},
+				{24, 27},
+				{30, 27},
+				{30, 19.06},
+				{29, 19.06},
+			};
+		blueAllianceGraph.addData(nullZoneUp, Color.black);
+				
+		// Null zone Down
+		double[][] nullZoneDown = new double[][] {
+			    {25, 7.94}, 
+				{24, 7.94},
+				{24, 0},
+				{30, 0},
+				{30, 7.94},
+				{29, 7.94},
+			};
+		blueAllianceGraph.addData(nullZoneDown, Color.black);
+				
+		// Platform Zone
+		double[][] platformZoneOne = new double[][] {{16.3, 7.94}, {24, 7.94}};
+		blueAllianceGraph.addData(platformZoneOne, Color.blue);
+				
+		// Platform Zone
+		double[][] platformZoneTwo = new double[][] {{16.3, 19.06}, {24, 19.06}};
+		blueAllianceGraph.addData(platformZoneTwo, Color.blue);
+				
+		// Platform
+		double[][] platform = new double[][] {{21.78, 7.94}, {21.78, 19.06}};
+		blueAllianceGraph.addData(platform, Color.blue);
+				
+		// Cube Zone
+		double[][] cubeZone = new double[][] {
+				{11.7, 11.625}, 
+				{8.2, 11.625},
+				{8.2, 15.375},
+				{11.7, 15.375},
+			};
+		blueAllianceGraph.addData(cubeZone, Color.blue);
+				
+		// Switch Plate One
+		double[][] switchPlateOne = new double[][] {
+				{12, 7.405}, 
+				{16, 7.405},
+				{16, 10.405},
+				{12, 10.405},
+				{12, 7.405},
+			};
+		blueAllianceGraph.addData(switchPlateOne, Color.red);
+				
+		// Switch Plate Two
+		double[][] switchPlateTwo = new double[][] {
+				{12, 19.595}, 
+				{16, 19.595},
+				{16, 16.595},
+				{12, 16.595},
+				{12, 19.595},
+			};
+		blueAllianceGraph.addData(switchPlateTwo, Color.blue);
+		
+		// Portal Bottom
+		double[][] portalBottom = new double[][] {{0, 2.5}, {2.916, 0}};
+		blueAllianceGraph.addData(portalBottom, Color.blue);
+		
+		// Portal Top
+		double[][] portalTop = new double[][] {{0, 24.5}, {2.916, 27}};
+		blueAllianceGraph.addData(portalTop, Color.blue);
+		
+		// Exchange Zone
+		double[][] exchangeZone = new double[][] {
+				{0, 14.5}, 
+				{3, 14.5},
+				{3, 18.5},
+				{0, 18.5},
+			};
+		blueAllianceGraph.addData(exchangeZone, Color.blue);
+		
+		// Cube Zone cubes
+		double[][] cubeZoneCubes = new double[][] {
+				{11.7, 15.209}, 
+				{10.62, 15.209},
+				{10.62, 14.669},
+				{9.54, 14.669},
+				{9.54, 14.129},
+				{8.46, 14.129},
+				{8.46, 12.871},
+				{9.54, 12.871},
+				{9.54, 12.331},
+				{10.62, 12.331},
+				{10.62, 11.791},
+				{11.7, 11.791},
+			};
+		blueAllianceGraph.addData(cubeZoneCubes, Color.green);
+		
+		// Cube One
+		double[][] cubeOne = new double[][] {
+				{16.3, 19.895}, 
+				{17.38, 19.895},
+				{17.38, 18.815},
+				{16.3, 18.815},
+			};
+		blueAllianceGraph.addData(cubeOne, Color.green);
+		
+		// Cube Two
+		double[][] cubeTwo = new double[][] {
+				{16.3, 17.557}, 
+				{17.38, 17.557},
+				{17.38, 16.477},
+				{16.3, 16.477},
+			};
+		blueAllianceGraph.addData(cubeTwo, Color.green);
+		
+		// Cube Three
+		double[][] cubeThree = new double[][] {
+				{16.3, 15.219}, 
+				{17.38, 15.219},
+				{17.38, 14.139},
+				{16.3, 14.139},
+			};
+		blueAllianceGraph.addData(cubeThree, Color.green);
+		
+		// Cube Three
+		double[][] cubeFour = new double[][] {
+				{16.3, 12.861}, 
+				{17.38, 12.861},
+				{17.38, 11.781},
+				{16.3, 11.781},
+			};
+		blueAllianceGraph.addData(cubeFour, Color.green);
+		
+		// Cube Five
+		double[][] cubeFive = new double[][] {
+				{16.3, 10.523}, 
+				{17.38, 10.523},
+				{17.38, 9.443},
+				{16.3, 9.443},
+			};
+		blueAllianceGraph.addData(cubeFive, Color.green);
+		
+		// Cube Six
+		double[][] cubeSix = new double[][] {
+				{16.3, 8.185}, 
+				{17.38, 8.185},
+				{17.38, 7.105},
+				{16.3, 7.105},
+			};
+		blueAllianceGraph.addData(cubeSix, Color.green);
 	}
 	
 	private void motionGraphRed()
@@ -523,49 +690,215 @@ public class Gui2 {
 		redAllianceGraph.setYLabel("Y (feet)");
 		redAllianceGraph.setXLabel("X (feet)");
 		redAllianceGraph.setTitle("Top Down View of FRC Field - Red Alliance (30ft x 27ft) \n shows global position of robot path with left and right wheel trajectories");
-			
-					
+							
 		//force graph to show field dimensions of 30ft x 27 feet
 		double fieldWidth = 27.0;
-		redAllianceGraph.setXTic(0, 30, 1);
+		redAllianceGraph.setXTic(0, 32, 1);
 		redAllianceGraph.setYTic(0, fieldWidth, 1);
 					
 					
 		//lets add field markers to help visual
-		double[][] airShip = new double[][]{
-				{9.443, 11.805},
-				{12.381, 10.11},
-				{15.318, 11.805},
-				{15.318, 15.195},
-				{12.381, 16.89},
-				{9.443, 15.195},
-				{9.443, 11.805},
+		double[][] redSwitch = new double[][]{
+				{11.7, 7.105},
+				{16.3, 7.105},
+				{16.3, 19.895},
+				{11.7, 19.895},
+				{11.7, 7.105},
 			};
-		redAllianceGraph.addData(airShip, Color.black);
+		redAllianceGraph.addData(redSwitch, Color.black);
 					
 		// Auto Line
-		double[][] baseLine = new double[][] {{7.77,0}, {7.77, fieldWidth}};
-		redAllianceGraph.addData(baseLine, Color.black);
+		double[][] autoLine = new double[][] {{10,0}, {10, fieldWidth}};
+		redAllianceGraph.addData(autoLine, Color.black);
 						
-		// Mid Field
-		double[][] midLine = new double[][] {{27.3,0}, {27.3, fieldWidth}};
-		redAllianceGraph.addData(midLine, Color.black);
+		// Mid Field Up
+		double[][] midLineUp = new double[][] {{27,27}, {27, 21}};
+		redAllianceGraph.addData(midLineUp, Color.black);
+		
+		// Mid Field Down
+		double[][] midLineDown = new double[][] {{27,0}, {27, 6}};
+		redAllianceGraph.addData(midLineDown, Color.black);
 						
-		// Boiler
-		double[][] redSideBoiler = new double[][] {{0,2.21}, {2.479,0}};
-		redAllianceGraph.addData(redSideBoiler, Color.black);
+		// Scale Up
+		double[][] scaleUp = new double[][] {
+				{25, 18}, 
+				{29, 18},
+				{29, 21},
+				{25, 21},
+				{25, 18},
+			};
+		redAllianceGraph.addData(scaleUp, Color.blue);
 						
-		// Boiler Line
-		double[][] redSideBoilerLine = new double[][] {{0,8.39}, {8.39,0}};
-		redAllianceGraph.addData(redSideBoilerLine, Color.red);
+		// Scale Down
+		double[][] scaleDown = new double[][] {
+				{25, 6}, 
+				{29, 6},
+				{29, 9},
+				{25, 9},
+				{25, 6},
+			};
+		redAllianceGraph.addData(scaleDown, Color.red);
 						
-		// Retrieval Zone
-		double[][] blueSideRetrieval = new double[][] {{0,23.834}, {5.45,27}};
-		redAllianceGraph.addData(blueSideRetrieval, Color.black);
+		// Scale sides
+		double[][] scaleSides = new double[][] {
+				{26.28, 9}, 
+				{27.72, 9},
+				{27.72, 18},
+				{26.28, 18},
+				{26.28, 9},
+			};
+		redAllianceGraph.addData(scaleSides, Color.black);
 						
-		// Retrieval Zone Line
-		double[][] redSideRetrievalLine = new double[][] {{0,20}, {13.75,27}};
-		redAllianceGraph.addData(redSideRetrievalLine, Color.blue);
+		// Null zone Up
+		double[][] nullZoneUp = new double[][] {
+				{25, 19.06}, 
+				{24, 19.06},
+				{24, 27},
+				{30, 27},
+				{30, 19.06},
+				{29, 19.06},
+			};
+		redAllianceGraph.addData(nullZoneUp, Color.black);
+		
+		// Null zone Down
+				double[][] nullZoneDown = new double[][] {
+						{25, 7.94}, 
+						{24, 7.94},
+						{24, 0},
+						{30, 0},
+						{30, 7.94},
+						{29, 7.94},
+					};
+		redAllianceGraph.addData(nullZoneDown, Color.black);
+		
+		// Platform Zone
+		double[][] platformZoneOne = new double[][] {{16.3, 7.94}, {24, 7.94}};
+		redAllianceGraph.addData(platformZoneOne, Color.red);
+		
+		// Platform Zone
+		double[][] platformZoneTwo = new double[][] {{16.3, 19.06}, {24, 19.06}};
+		redAllianceGraph.addData(platformZoneTwo, Color.red);
+		
+		// Platform
+		double[][] platform = new double[][] {{21.78, 7.94}, {21.78, 19.06}};
+		redAllianceGraph.addData(platform, Color.red);
+		
+		// Cube Zone
+		double[][] cubeZone = new double[][] {
+				{11.7, 11.625}, 
+				{8.2, 11.625},
+				{8.2, 15.375},
+				{11.7, 15.375},
+			};
+		redAllianceGraph.addData(cubeZone, Color.red);
+		
+		// Switch Plate One
+		double[][] switchPlateOne = new double[][] {
+				{12, 7.405}, 
+				{16, 7.405},
+				{16, 10.405},
+				{12, 10.405},
+				{12, 7.405},
+			};
+		redAllianceGraph.addData(switchPlateOne, Color.red);
+		
+		// Switch Plate Two
+		double[][] switchPlateTwo = new double[][] {
+				{12, 19.595}, 
+				{16, 19.595},
+				{16, 16.595},
+				{12, 16.595},
+				{12, 19.595},
+			};
+		redAllianceGraph.addData(switchPlateTwo, Color.blue);
+		
+		// Portal Bottom
+		double[][] portalBottom = new double[][] {{0, 2.5}, {2.916, 0}};
+		redAllianceGraph.addData(portalBottom, Color.red);
+				
+		// Portal Top
+		double[][] portalTop = new double[][] {{0, 24.5}, {2.916, 27}};
+		redAllianceGraph.addData(portalTop, Color.red);
+		
+		// Exchange Zone
+		double[][] exchangeZone = new double[][] {
+				{0, 14.5}, 
+				{3, 14.5},
+				{3, 18.5},
+				{0, 18.5},
+			};
+		redAllianceGraph.addData(exchangeZone, Color.red);
+		
+		// Exchange Zone
+		double[][] cubeZoneCubes = new double[][] {
+				{11.7, 15.209}, 
+				{10.62, 15.209},
+				{10.62, 14.669},
+				{9.54, 14.669},
+				{9.54, 14.129},
+				{8.46, 14.129},
+				{8.46, 12.871},
+				{9.54, 12.871},
+				{9.54, 12.331},
+				{10.62, 12.331},
+				{10.62, 11.791},
+				{11.7, 11.791},
+			};
+		redAllianceGraph.addData(cubeZoneCubes, Color.green);
+		
+		// Cube One
+		double[][] cubeOne = new double[][] {
+				{16.3, 19.895}, 
+				{17.38, 19.895},
+				{17.38, 18.815},
+				{16.3, 18.815},
+			};
+		redAllianceGraph.addData(cubeOne, Color.green);
+				
+		// Cube Two
+		double[][] cubeTwo = new double[][] {
+				{16.3, 17.557}, 
+				{17.38, 17.557},
+				{17.38, 16.477},
+				{16.3, 16.477},
+			};
+		redAllianceGraph.addData(cubeTwo, Color.green);
+				
+		// Cube Three
+		double[][] cubeThree = new double[][] {
+				{16.3, 15.219}, 
+				{17.38, 15.219},
+				{17.38, 14.139},
+				{16.3, 14.139},
+			};
+		redAllianceGraph.addData(cubeThree, Color.green);
+			
+		// Cube Three
+		double[][] cubeFour = new double[][] {
+				{16.3, 12.861}, 
+				{17.38, 12.861},
+				{17.38, 11.781},
+				{16.3, 11.781},
+			};
+		redAllianceGraph.addData(cubeFour, Color.green);
+			
+		// Cube Five
+		double[][] cubeFive = new double[][] {
+				{16.3, 10.523}, 
+				{17.38, 10.523},
+				{17.38, 9.443},
+				{16.3, 9.443},
+			};
+		redAllianceGraph.addData(cubeFive, Color.green);
+				
+		// Cube Six
+		double[][] cubeSix = new double[][] {
+				{16.3, 8.185}, 
+				{17.38, 8.185},
+				{17.38, 7.105},
+				{16.3, 7.105},
+			};
+		redAllianceGraph.addData(cubeSix, Color.green);
 	}
 	
 	private void velocityGraph()

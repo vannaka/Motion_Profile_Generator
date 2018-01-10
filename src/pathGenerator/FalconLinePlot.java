@@ -60,7 +60,8 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
     private double xMax;
     private double xMin;
     
-    private int yticCount;
+    @SuppressWarnings("unused")
+	private int yticCount;
     private int xticCount;
     private double xTicStepSize;
     private double yTicStepSize;
@@ -736,7 +737,8 @@ class FalconLinePlot extends JPanel implements ClipboardOwner{
 
     
     
-    private void menu(JFrame g, final FalconLinePlot p )
+    @SuppressWarnings("unused")
+	private void menu(JFrame g, final FalconLinePlot p )
     {
 
     	g.addMouseListener(new PopupTriggerListener());
