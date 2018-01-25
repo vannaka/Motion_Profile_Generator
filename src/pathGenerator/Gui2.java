@@ -202,27 +202,16 @@ public class Gui2 {
 		trajecPanel.add(btnDeleteLast);
 		btnDeleteLast.addActionListener(new java.awt.event.ActionListener(){
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				//Arrays.copyOf(W, original.length-1)
-				//System.out.println(points.size());
-				//System.out.println(points.get(1));
 				
 				if(points.size()== 1)
 				{
 					txtAreaWaypoints.setText(null);
 				}
-				//System.out.println(txtAreaWaypoints.getText());
-				//for() 3*(laenge -1)
-				//text kuerzen bis zum letzten text
-				//komma finden => in variable
-				 //for(int i=1; i<(3*(points.size()-1)+1); i++){
-		        //      txtAreaWaypoints.getText().lastIndexOf("\n", txtAreaWaypoints.getText().length()-1);
-		       //  }
-				System.out.println(txtAreaWaypoints.getText().length());
-				int pos = txtAreaWaypoints.getText().lastIndexOf("\n", txtAreaWaypoints.getText().length() -2 );
-				System.out.println(Integer.toString(pos));
-				System.out.println(txtAreaWaypoints.getText().substring(0, pos));
-				txtAreaWaypoints.setText(txtAreaWaypoints.getText().substring(0, pos));
-				points.remove(points.size()- 1);
+				else{
+					int pos = txtAreaWaypoints.getText().lastIndexOf("\n", txtAreaWaypoints.getText().length() -2 );
+					txtAreaWaypoints.setText(txtAreaWaypoints.getText().substring(0, pos +1));
+					points.remove(points.size()- 1);
+				}
             }
 		});
 		
