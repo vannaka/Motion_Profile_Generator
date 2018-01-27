@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -196,6 +197,24 @@ public class Gui2 {
             	btnClearActionPerformed(evt);
             }
         });
+		JButton btnDeleteLast = new JButton("Delete last point");
+		btnDeleteLast.setBounds(330,328,90,20);
+		trajecPanel.add(btnDeleteLast);
+		btnDeleteLast.addActionListener(new java.awt.event.ActionListener(){
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				
+				if(points.size()== 1)
+				{
+					txtAreaWaypoints.setText(null);
+				}
+				else{
+					int pos = txtAreaWaypoints.getText().lastIndexOf("\n", txtAreaWaypoints.getText().length() -2 );
+					txtAreaWaypoints.setText(txtAreaWaypoints.getText().substring(0, pos +1));
+					points.remove(points.size()- 1);
+				}
+            }
+		});
+		
 		
 		JButton btnBrowse = new JButton("Browse");
 		btnBrowse.setBounds(334, 522, 89, 24);
