@@ -13,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -179,7 +178,7 @@ public class Gui2 {
         });
 		
 		btnAddPoint = new JButton("Add Point");
-		btnAddPoint.setBounds(130, 329, 90, 20);
+		btnAddPoint.setBounds(20, 329, 130, 20);
 		trajecPanel.add(btnAddPoint);
 		
 		btnAddPoint.addActionListener(new java.awt.event.ActionListener() {
@@ -189,7 +188,7 @@ public class Gui2 {
         });
 		
 		JButton btnClear = new JButton("Clear");
-		btnClear.setBounds(230, 328, 90, 20);
+		btnClear.setBounds(160, 328, 130, 20);
 		trajecPanel.add(btnClear);
 		
 		btnClear.addActionListener(new java.awt.event.ActionListener() {
@@ -198,7 +197,7 @@ public class Gui2 {
             }
         });
 		JButton btnDeleteLast = new JButton("Delete last point");
-		btnDeleteLast.setBounds(330,328,90,20);
+		btnDeleteLast.setBounds(300,328,130,20);
 		trajecPanel.add(btnDeleteLast);
 		btnDeleteLast.addActionListener(new java.awt.event.ActionListener(){
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -303,7 +302,7 @@ public class Gui2 {
 		trajecPanel.add(lblAngle);
 		
 		JScrollPane scrollPane = new JScrollPane(txtAreaWaypoints, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(130, 376, 190, 118);
+		scrollPane.setBounds(130, 385, 190, 118);
 		trajecPanel.add(scrollPane);
 		
 		txtFileName = new JTextField();
@@ -317,7 +316,7 @@ public class Gui2 {
 		trajecPanel.add(lblLeftFileName);
 		
 		JTextArea txtAreaWaypointsTitle = new JTextArea();
-		txtAreaWaypointsTitle.setBounds(130, 352, 190, 24);
+		txtAreaWaypointsTitle.setBounds(130, 361, 190, 24);
 		trajecPanel.add(txtAreaWaypointsTitle);
 		txtAreaWaypointsTitle.setEditable(false);
 		txtAreaWaypointsTitle.setFont(new Font("Monospaced", Font.PLAIN, 14));
