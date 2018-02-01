@@ -168,6 +168,7 @@ public class Gui2 {
 		txtJerk.setColumns(10);
 		
 		JButton btnGeneratePath = new JButton("Generate Path");
+		btnGeneratePath.setToolTipText("Generate Path");
 		btnGeneratePath.setBounds(90, 566, 130, 24);
 		trajecPanel.add(btnGeneratePath);
 		
@@ -182,7 +183,7 @@ public class Gui2 {
         });
 		
 		btnAddPoint = new JButton("Add Point");
-		btnAddPoint.setToolTipText("");
+		btnAddPoint.setToolTipText("Add Point");
 		btnAddPoint.setBounds(20, 329, 130, 20);
 		trajecPanel.add(btnAddPoint);
 		
@@ -193,6 +194,7 @@ public class Gui2 {
         });
 		
 		JButton btnClear = new JButton("Clear");
+		btnClear.setToolTipText("Clear");
 		btnClear.setBounds(160, 328, 130, 20);
 		trajecPanel.add(btnClear);
 		
@@ -202,6 +204,7 @@ public class Gui2 {
             }
         });
 		JButton btnDeleteLast = new JButton("Delete last point");
+		btnDeleteLast.setToolTipText("Delete last point");
 		btnDeleteLast.setBounds(300,328,130,20);
 		trajecPanel.add(btnDeleteLast);
 		btnDeleteLast.addActionListener(new java.awt.event.ActionListener(){
@@ -221,6 +224,7 @@ public class Gui2 {
 		
 		
 		JButton btnBrowse = new JButton("Browse");
+		btnBrowse.setToolTipText("Browse");
 		btnBrowse.setBounds(334, 522, 89, 24);
 		trajecPanel.add(btnBrowse);
 		
@@ -231,6 +235,7 @@ public class Gui2 {
         });
 		
 		JButton btnSave = new JButton("Save");
+		btnSave.setToolTipText("Save");
 		btnSave.setBounds(230, 566, 130, 24);
 		trajecPanel.add(btnSave);
 		
@@ -330,6 +335,7 @@ public class Gui2 {
 		txtAreaWaypointsTitle.append(line + "\n");
 		
 		cbFitMethod = new JComboBox<String>();
+		cbFitMethod.setToolTipText("Fit Method");
 		cbFitMethod.addItem("Cubic");
 		cbFitMethod.addItem("Quintic");
 		cbFitMethod.setBounds(222, 205, 86, 20);

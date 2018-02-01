@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Added ability to choose the Fit method of the points. Hermite Cubic or Hermite Quintic
 
+### Fixed
+- Bug where app would crash when you double clicked in white space to update a point 
+
 ## [2.1.0] - 2018-1-27
 ### Added 
 - Added button to delete last point in the list (Thanks Team 1414)
