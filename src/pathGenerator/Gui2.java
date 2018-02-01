@@ -1151,6 +1151,8 @@ public class Gui2 {
 			}
 		catch (Exception e1) {
 				JOptionPane.showMessageDialog(null, "The Row is empty!", "Row Empty", JOptionPane.INFORMATION_MESSAGE);
+				btnAddPoint.setText("Add Point");
+				return;
 			}
 		points.remove(lineNum);
 	}
