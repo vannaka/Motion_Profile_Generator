@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+- Added ability to choose the Fit method of the points. Hermite Cubic or Hermite Quintic
+
 ## [2.1.0] - 2018-1-27
 ### Added 
-- Add button to delete last point in the list (Thanks Team 1414)
+- Added button to delete last point in the list (Thanks Team 1414)
 
 ## [2.0.0] - 2018-1-10
 ### Added 

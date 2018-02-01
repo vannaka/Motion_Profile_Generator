@@ -29,6 +29,7 @@ import java.util.List;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
+import jaci.pathfinder.Trajectory.FitMethod;
 import jaci.pathfinder.Trajectory.Segment;
 import jaci.pathfinder.modifiers.TankModifier;
 
@@ -42,6 +43,7 @@ import javax.swing.JMenuItem;
 import javax.swing.UIManager;
 import javax.swing.text.Document;
 import javax.swing.text.Utilities;
+import javax.swing.JComboBox;
 
 public class Gui2 {
 
@@ -60,6 +62,8 @@ public class Gui2 {
 	JButton btnAddPoint;
 	
 	private JTabbedPane tabbedPane;
+	
+	JComboBox<String> cbFitMethod;
 	
 	FalconLinePlot blueAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
 	FalconLinePlot velocityGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
@@ -124,42 +128,42 @@ public class Gui2 {
 		trajecPanel.setLayout(null);
 		
 		JLabel lblTimeStep = new JLabel("Time Step");
-		lblTimeStep.setBounds(142, 60, 80, 20);
+		lblTimeStep.setBounds(142, 55, 80, 20);
 		trajecPanel.add(lblTimeStep);
 		
 		JLabel lblVelocity = new JLabel("Velocity");
-		lblVelocity.setBounds(142, 90, 80, 20);
+		lblVelocity.setBounds(142, 85, 80, 20);
 		trajecPanel.add(lblVelocity);
 		
 		JLabel lblAcceleration = new JLabel("Acceleration");
-		lblAcceleration.setBounds(142, 120, 80, 20);
+		lblAcceleration.setBounds(142, 115, 80, 20);
 		trajecPanel.add(lblAcceleration);
 		
 		JLabel lblJerk = new JLabel("Jerk");
-		lblJerk.setBounds(142, 150, 80, 20);
+		lblJerk.setBounds(142, 145, 80, 20);
 		trajecPanel.add(lblJerk);
 		
 		txtTime = new JTextField();
 		txtTime.setText("0.05");
-		txtTime.setBounds(222, 60, 86, 20);
+		txtTime.setBounds(222, 55, 86, 20);
 		trajecPanel.add(txtTime);
 		txtTime.setColumns(10);
 		
 		txtVelocity = new JTextField();
 		txtVelocity.setText("4");
-		txtVelocity.setBounds(222, 90, 86, 20);
+		txtVelocity.setBounds(222, 85, 86, 20);
 		trajecPanel.add(txtVelocity);
 		txtVelocity.setColumns(10);
 		
 		txtAcceleration = new JTextField();
 		txtAcceleration.setText("3");
-		txtAcceleration.setBounds(222, 120, 86, 20);
+		txtAcceleration.setBounds(222, 115, 86, 20);
 		trajecPanel.add(txtAcceleration);
 		txtAcceleration.setColumns(10);
 		
 		txtJerk = new JTextField();
 		txtJerk.setText("60");
-		txtJerk.setBounds(222, 150, 86, 20);
+		txtJerk.setBounds(222, 145, 86, 20);
 		trajecPanel.add(txtJerk);
 		txtJerk.setColumns(10);
 		
@@ -178,6 +182,7 @@ public class Gui2 {
         });
 		
 		btnAddPoint = new JButton("Add Point");
+		btnAddPoint.setToolTipText("");
 		btnAddPoint.setBounds(20, 329, 130, 20);
 		trajecPanel.add(btnAddPoint);
 		
@@ -241,7 +246,7 @@ public class Gui2 {
 		
 		JLabel lblMotionVariables = new JLabel("Motion Variables");
 		lblMotionVariables.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		lblMotionVariables.setBounds(137, 11, 176, 40);
+		lblMotionVariables.setBounds(137, 6, 176, 40);
 		trajecPanel.add(lblMotionVariables);
 		
 		JLabel lblWaypoints = new JLabel("Waypoints");
@@ -251,13 +256,13 @@ public class Gui2 {
 		
 		txtWheelBase = new JTextField();
 		txtWheelBase.setText("1.464");
-		txtWheelBase.setBounds(222, 180, 86, 20);
+		txtWheelBase.setBounds(222, 175, 86, 20);
 		trajecPanel.add(txtWheelBase);
 		txtWheelBase.setColumns(10);
 		
 		JLabel lblWheelBase = new JLabel(" Wheel Base       ");
 		lblWheelBase.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblWheelBase.setBounds(142, 180, 80, 20);
+		lblWheelBase.setBounds(142, 175, 80, 20);
 		trajecPanel.add(lblWheelBase);
 		
 		txtAngle = new JTextField();
@@ -323,7 +328,17 @@ public class Gui2 {
 		String format = "%1$4s %2$6s %3$9s";
     	String line = String.format(format, "X", "Y", "Angle");
 		txtAreaWaypointsTitle.append(line + "\n");
-								
+		
+		cbFitMethod = new JComboBox<String>();
+		cbFitMethod.addItem("Cubic");
+		cbFitMethod.addItem("Quintic");
+		cbFitMethod.setBounds(222, 205, 86, 20);
+		trajecPanel.add(cbFitMethod);	
+		
+		JLabel lblFitMethod = new JLabel("Fit Method");
+		lblFitMethod.setBounds(142, 205, 80, 20);
+		trajecPanel.add(lblFitMethod);
+		
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 1075, 21);
 		frmMotionProfileGenerator.getContentPane().add(menuBar);
@@ -958,12 +973,14 @@ public class Gui2 {
 	        	String sAcceleration = br.readLine();
 	        	String sJerk = br.readLine();
 	        	String sWheel = br.readLine();
+	        	String sGen = br.readLine();
 	        	
 	        	txtTime.setText(sTime);
 	        	txtVelocity.setText(sVelocity);
 	        	txtAcceleration.setText(sAcceleration);
 	        	txtJerk.setText(sJerk);
 	        	txtWheelBase.setText(sWheel);
+	        	cbFitMethod.setSelectedItem(sGen);
 	        	
 	        	points.clear();
 	        	txtAreaWaypoints.setText(null);
@@ -1010,6 +1027,21 @@ public class Gui2 {
 		jerk = Double.parseDouble(txtJerk.getText()); // default 60
 		wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
 		
+		int selectedIndex = cbFitMethod.getSelectedIndex();
+		
+		FitMethod CUBIC = Trajectory.FitMethod.HERMITE_CUBIC;
+		FitMethod QUINTIC = Trajectory.FitMethod.HERMITE_QUINTIC;
+		FitMethod fitMethod;
+		
+		if(selectedIndex == 0)
+		{
+			fitMethod = CUBIC; 
+		}
+		else
+		{
+			fitMethod = QUINTIC;
+		}
+		
 		// clear graphs
     	velocityGraph.clearGraph();
     	velocityGraph.repaint();
@@ -1039,7 +1071,7 @@ public class Gui2 {
 								points.toArray( tmp );
 								try
 								{
-								trajectory( timeStep, velocity, acceleration, jerk, wheelBase, tmp );
+								trajectory( timeStep, velocity, acceleration, jerk, wheelBase, tmp, fitMethod);
 								}
 								catch ( Exception e )
 								{
@@ -1251,6 +1283,7 @@ public class Gui2 {
 			    	ppw.println(acceleration);
 			    	ppw.println(jerk);
 			    	ppw.println(wheelBase);
+			    	ppw.println(cbFitMethod.getSelectedItem());
 			    	
 			    	for(int i = 0; i < points.size(); i++)
 			    	{
@@ -1378,6 +1411,7 @@ public class Gui2 {
 			    	ppw.println(acceleration);
 			    	ppw.println(jerk);
 			    	ppw.println(wheelBase);
+			    	ppw.println(cbFitMethod.getSelectedItem());
 			    	
 			    	for(int i = 0; i < points.size(); i++)
 			    	{
@@ -1426,11 +1460,11 @@ public class Gui2 {
     	txtAreaWaypoints.setText(null);
     }
     
-    private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points) throws IOException
+    private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points, FitMethod fitMethod) throws IOException
     {
     	
 		// Configure the trajectory with the time step, velocity, acceleration, jerk
-		Trajectory.Config config = new Trajectory.Config( Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, timeStep, velocity, acceleration, jerk );
+		Trajectory.Config config = new Trajectory.Config(fitMethod, Trajectory.Config.SAMPLES_HIGH, timeStep, velocity, acceleration, jerk );
              
 		// Generate the path
 		Trajectory trajectory = Pathfinder.generate(points, config);
