@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
@@ -31,6 +32,7 @@ import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.Trajectory.FitMethod;
 import jaci.pathfinder.Trajectory.Segment;
+import jaci.pathfinder.modifiers.SwerveModifier;
 import jaci.pathfinder.modifiers.TankModifier;
 
 import javax.swing.JTextArea;
@@ -44,6 +46,7 @@ import javax.swing.UIManager;
 import javax.swing.text.Document;
 import javax.swing.text.Utilities;
 import javax.swing.JComboBox;
+import javax.swing.JRadioButton;
 
 public class Gui2 {
 
@@ -53,13 +56,15 @@ public class Gui2 {
 	private JTextField txtVelocity;
 	private JTextField txtAcceleration;
 	private JTextField txtJerk;
-	private JTextField txtWheelBase;
+	private JTextField txtWheelBaseW;
 	private JTextField txtAngle;
 	private JTextField txtXValue;
 	private JTextField txtYValue;
 	private JTextField txtFileName;
 	
 	JButton btnAddPoint;
+	JRadioButton rdbtnTankDrive;
+	JRadioButton rdbtnSwerveDrive;
 	
 	private JTabbedPane tabbedPane;
 	
@@ -85,16 +90,29 @@ public class Gui2 {
 	double velocity;
 	double acceleration;
 	double jerk;
-	double wheelBase;
+	double wheelBaseW;
+	double wheelBaseD;
 	
+	//Tank Drive
 	Trajectory left;
 	Trajectory right;
 	
+	//Swerve Drive
+	Trajectory fl;
+	Trajectory fr;
+	Trajectory bl;
+	Trajectory br;
+	
 	File lFile;
 	File rFile;
+	File flFile;
+	File frFile;
+	File blFile;
+	File brFile;
 	File preferenceFile;
 	
 	String fileName;
+	private JTextField txtWheelBaseD;
 		
 	/**
 	 * Create the application.
@@ -128,42 +146,42 @@ public class Gui2 {
 		trajecPanel.setLayout(null);
 		
 		JLabel lblTimeStep = new JLabel("Time Step");
-		lblTimeStep.setBounds(142, 55, 80, 20);
+		lblTimeStep.setBounds(50, 55, 80, 20);
 		trajecPanel.add(lblTimeStep);
 		
 		JLabel lblVelocity = new JLabel("Velocity");
-		lblVelocity.setBounds(142, 85, 80, 20);
+		lblVelocity.setBounds(50, 85, 80, 20);
 		trajecPanel.add(lblVelocity);
 		
 		JLabel lblAcceleration = new JLabel("Acceleration");
-		lblAcceleration.setBounds(142, 115, 80, 20);
+		lblAcceleration.setBounds(50, 115, 80, 20);
 		trajecPanel.add(lblAcceleration);
 		
 		JLabel lblJerk = new JLabel("Jerk");
-		lblJerk.setBounds(142, 145, 80, 20);
+		lblJerk.setBounds(50, 145, 80, 20);
 		trajecPanel.add(lblJerk);
 		
 		txtTime = new JTextField();
 		txtTime.setText("0.05");
-		txtTime.setBounds(222, 55, 86, 20);
+		txtTime.setBounds(140, 55, 86, 20);
 		trajecPanel.add(txtTime);
 		txtTime.setColumns(10);
 		
 		txtVelocity = new JTextField();
 		txtVelocity.setText("4");
-		txtVelocity.setBounds(222, 85, 86, 20);
+		txtVelocity.setBounds(140, 85, 86, 20);
 		trajecPanel.add(txtVelocity);
 		txtVelocity.setColumns(10);
 		
 		txtAcceleration = new JTextField();
 		txtAcceleration.setText("3");
-		txtAcceleration.setBounds(222, 115, 86, 20);
+		txtAcceleration.setBounds(140, 115, 86, 20);
 		trajecPanel.add(txtAcceleration);
 		txtAcceleration.setColumns(10);
 		
 		txtJerk = new JTextField();
 		txtJerk.setText("60");
-		txtJerk.setBounds(222, 145, 86, 20);
+		txtJerk.setBounds(140, 145, 86, 20);
 		trajecPanel.add(txtJerk);
 		txtJerk.setColumns(10);
 		
@@ -255,22 +273,19 @@ public class Gui2 {
 		trajecPanel.add(lblMotionVariables);
 		
 		JLabel lblWaypoints = new JLabel("Waypoints");
+		lblWaypoints.setToolTipText("Dean, We want a water game");
 		lblWaypoints.setFont(new Font("Tahoma", Font.PLAIN, 24));
 		lblWaypoints.setBounds(170, 230, 110, 40);
 		trajecPanel.add(lblWaypoints);
 		
-		txtWheelBase = new JTextField();
-		txtWheelBase.setText("1.464");
-		txtWheelBase.setBounds(222, 175, 86, 20);
-		trajecPanel.add(txtWheelBase);
-		txtWheelBase.setColumns(10);
-		
-		JLabel lblWheelBase = new JLabel(" Wheel Base       ");
-		lblWheelBase.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblWheelBase.setBounds(142, 175, 80, 20);
-		trajecPanel.add(lblWheelBase);
+		txtWheelBaseW = new JTextField();
+		txtWheelBaseW.setText("1.464");
+		txtWheelBaseW.setBounds(140, 175, 86, 20);
+		trajecPanel.add(txtWheelBaseW);
+		txtWheelBaseW.setColumns(10);
 		
 		txtAngle = new JTextField();
+		txtAngle.setToolTipText("Angle");
 		txtAngle.setBounds(257, 298, 63, 20);
 		trajecPanel.add(txtAngle);
 		txtAngle.setColumns(10);
@@ -287,11 +302,13 @@ public class Gui2 {
 	      });
 					
 		txtXValue = new JTextField();
+		txtXValue.setToolTipText("X Point");
 		txtXValue.setBounds(130, 298, 63, 20);
 		trajecPanel.add(txtXValue);
 		txtXValue.setColumns(10);
 		
 		txtYValue = new JTextField();
+		txtYValue.setToolTipText("Y Point");
 		txtYValue.setBounds(193, 298, 64, 20);
 		trajecPanel.add(txtYValue);
 		txtYValue.setColumns(10);
@@ -338,12 +355,55 @@ public class Gui2 {
 		cbFitMethod.setToolTipText("Fit Method");
 		cbFitMethod.addItem("Cubic");
 		cbFitMethod.addItem("Quintic");
-		cbFitMethod.setBounds(222, 205, 86, 20);
+		cbFitMethod.setBounds(140, 205, 86, 20);
 		trajecPanel.add(cbFitMethod);	
 		
 		JLabel lblFitMethod = new JLabel("Fit Method");
-		lblFitMethod.setBounds(142, 205, 80, 20);
+		lblFitMethod.setBounds(50, 205, 80, 20);
 		trajecPanel.add(lblFitMethod);
+		
+		rdbtnTankDrive = new JRadioButton("Tank Drive");
+		rdbtnTankDrive.setSelected(true);
+		rdbtnTankDrive.setBounds(289, 84, 109, 23);
+		trajecPanel.add(rdbtnTankDrive);
+		
+		rdbtnTankDrive.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				txtWheelBaseD.setEnabled(false);
+            }
+        });
+		
+		rdbtnSwerveDrive = new JRadioButton("Swerve Drive");
+		rdbtnSwerveDrive.setToolTipText("Why not combine Tank and Swerve into Swank?");
+		rdbtnSwerveDrive.setBounds(289, 110, 109, 23);
+		trajecPanel.add(rdbtnSwerveDrive);
+		
+		rdbtnSwerveDrive.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				txtWheelBaseD.setEnabled(true);
+            }
+        });
+		
+		ButtonGroup tankSwerve = new ButtonGroup();
+		tankSwerve.add(rdbtnTankDrive);
+		tankSwerve.add(rdbtnSwerveDrive);
+		
+		JLabel lblWheelBaseW = new JLabel("Wheel Base W");
+		lblWheelBaseW.setToolTipText("Wheel Base Width");
+		lblWheelBaseW.setBounds(50, 176, 100, 20);
+		trajecPanel.add(lblWheelBaseW);
+		
+		JLabel lblWheelBaseD = new JLabel("Wheel Base D");
+		lblWheelBaseD.setToolTipText("Wheel Base Depth");
+		lblWheelBaseD.setBounds(250, 175, 100, 20);
+		trajecPanel.add(lblWheelBaseD);
+		
+		txtWheelBaseD = new JTextField();
+		txtWheelBaseD.setText("0");
+		txtWheelBaseD.setBounds(340, 175, 86, 20);
+		txtWheelBaseD.setEnabled(false);
+		trajecPanel.add(txtWheelBaseD);
+		txtWheelBaseD.setColumns(10);
 		
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 1075, 21);
@@ -978,14 +1038,16 @@ public class Gui2 {
 	        	String sVelocity = br.readLine();
 	        	String sAcceleration = br.readLine();
 	        	String sJerk = br.readLine();
-	        	String sWheel = br.readLine();
+	        	String sWheelW = br.readLine();
+	        	String sWheelD = br.readLine();
 	        	String sGen = br.readLine();
 	        	
 	        	txtTime.setText(sTime);
 	        	txtVelocity.setText(sVelocity);
 	        	txtAcceleration.setText(sAcceleration);
 	        	txtJerk.setText(sJerk);
-	        	txtWheelBase.setText(sWheel);
+	        	txtWheelBaseW.setText(sWheelW);
+	        	txtWheelBaseD.setText(sWheelD);
 	        	cbFitMethod.setSelectedItem(sGen);
 	        	
 	        	points.clear();
@@ -1031,7 +1093,17 @@ public class Gui2 {
 		velocity = Double.parseDouble(txtVelocity.getText()); //default 4
 		acceleration = Double.parseDouble(txtAcceleration.getText()); // default 3
 		jerk = Double.parseDouble(txtJerk.getText()); // default 60
-		wheelBase = Double.parseDouble(txtWheelBase.getText()); //default 1.464
+		wheelBaseW = Double.parseDouble(txtWheelBaseW.getText()); //default 0
+		
+		if (rdbtnSwerveDrive.isSelected())
+		{
+			wheelBaseD = Double.parseDouble(txtWheelBaseD.getText());
+		}
+		else 
+		{
+			wheelBaseD = 0;
+		}
+		
 		
 		int selectedIndex = cbFitMethod.getSelectedIndex();
 		
@@ -1068,30 +1140,61 @@ public class Gui2 {
 				{
 					if(jerk > 0)
 					{
-						if(wheelBase > 0)
+						if(wheelBaseW > 0)
 						{
-							// If waypoints exist
-							if( points.size() > 1 )
+							if(rdbtnSwerveDrive.isSelected())
 							{
-								Waypoint tmp[] = new Waypoint[ points.size() ];
-								points.toArray( tmp );
-								try
+								if(wheelBaseD > 0)
 								{
-								trajectory( timeStep, velocity, acceleration, jerk, wheelBase, tmp, fitMethod);
+									// If waypoints exist
+									if( points.size() > 1 )
+									{
+										Waypoint tmp[] = new Waypoint[ points.size() ];
+										points.toArray( tmp );
+										try
+										{
+										trajectory( timeStep, velocity, acceleration, jerk, wheelBaseW, wheelBaseD, tmp, fitMethod);
+										}
+										catch ( Exception e )
+										{
+											JOptionPane.showMessageDialog(null, "The trajectory provided was invalid! Invalid trajectory could not be generated", "Invalid Points.", JOptionPane.INFORMATION_MESSAGE);
+										}
+									}
+									else
+									{
+										JOptionPane.showMessageDialog(null, "We need at least two points to generate a profile.", "Insufficient Points.", JOptionPane.INFORMATION_MESSAGE);
+									}
 								}
-								catch ( Exception e )
+								else
 								{
-									JOptionPane.showMessageDialog(null, "The trajectory provided was invalid! Invalid trajectory could not be generated", "Invalid Points.", JOptionPane.INFORMATION_MESSAGE);
+									JOptionPane.showMessageDialog(null, "The Wheel Base D value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
 								}
 							}
 							else
 							{
-								JOptionPane.showMessageDialog(null, "We need at least two points to generate a profile.", "Insufficient Points.", JOptionPane.INFORMATION_MESSAGE);
+								// If waypoints exist
+								if( points.size() > 1 )
+								{
+									Waypoint tmp[] = new Waypoint[ points.size() ];
+									points.toArray( tmp );
+									try
+									{
+									trajectory( timeStep, velocity, acceleration, jerk, wheelBaseW, wheelBaseD, tmp, fitMethod);
+									}
+									catch ( Exception e )
+									{
+										JOptionPane.showMessageDialog(null, "The trajectory provided was invalid! Invalid trajectory could not be generated", "Invalid Points.", JOptionPane.INFORMATION_MESSAGE);
+									}
+								}
+								else
+								{
+									JOptionPane.showMessageDialog(null, "We need at least two points to generate a profile.", "Insufficient Points.", JOptionPane.INFORMATION_MESSAGE);
+								}
 							}
 						}
 						else
 						{
-							JOptionPane.showMessageDialog(null, "The Wheel Base value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "The Wheel Base W value is invalid!", "Invalid Value", JOptionPane.INFORMATION_MESSAGE);
 						}
 					}
 					else
@@ -1230,57 +1333,140 @@ public class Gui2 {
     	{
     		if(directory != null)
     		{
-    			if(left != null)
+    			if(left != null || fl != null)
     			{
-    				lFile = new File(directory, fileName + "_left.csv");
-			        rFile = new File(directory, fileName + "_right.csv");
-			        
-			        if( lFile.exists() || rFile.exists() )
-			        {
-			        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
-			        	
-			        	switch( n )
-			        	{
-			        	case JOptionPane.YES_OPTION:
-			        		break;		// Continue with method
-			        		
-			        	case JOptionPane.NO_OPTION:
-			        		return;		// Stop Saving
-			        		
-			        	default:
-			        		return;
-			        	}
-			        }
-			        	
-			    	FileWriter lfw = new FileWriter( lFile );
-					FileWriter rfw = new FileWriter( rFile );
-					PrintWriter lpw = new PrintWriter( lfw );
-					PrintWriter rpw = new PrintWriter( rfw );
-					
-			    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-			        File leftFile = new File(directory, fileName + "_left_detailed.csv");
-			        Pathfinder.writeToCSV(leftFile, left);
-			        
-			        File rightFile = new File(directory, fileName + "_right_detailed.csv");
-			        Pathfinder.writeToCSV(rightFile, right);
-			        
-			    	// CSV with position and velocity. To be used with your robot.
-			    	// save left path to CSV
-			    	for (int i = 0; i < left.length(); i++) 
-			    	{			
-			    		Segment seg = left.get(i);
-			    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-			    	}
-			    			
-			    	// save right path to CSV
-			    	for (int i = 0; i < right.length(); i++) 
-			    	{			
-			    		Segment seg = right.get(i);
-			    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-			    	}
-			    			
-			    	lpw.close();
-			    	rpw.close();
+    				if(rdbtnTankDrive.isSelected())
+    				{
+	    				lFile = new File(directory, fileName + "_left.csv");
+				        rFile = new File(directory, fileName + "_right.csv");
+				        
+				        if( lFile.exists() || rFile.exists() )
+				        {
+				        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
+				        	
+				        	switch( n )
+				        	{
+				        	case JOptionPane.YES_OPTION:
+				        		break;		// Continue with method
+				        		
+				        	case JOptionPane.NO_OPTION:
+				        		return;		// Stop Saving
+				        		
+				        	default:
+				        		return;
+				        	}
+				        }
+				        	
+				    	FileWriter lfw = new FileWriter( lFile );
+						FileWriter rfw = new FileWriter( rFile );
+						PrintWriter lpw = new PrintWriter( lfw );
+						PrintWriter rpw = new PrintWriter( rfw );
+						
+				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+				        File leftFile = new File(directory, fileName + "_left_detailed.csv");
+				        Pathfinder.writeToCSV(leftFile, left);
+				        
+				        File rightFile = new File(directory, fileName + "_right_detailed.csv");
+				        Pathfinder.writeToCSV(rightFile, right);
+				        
+				    	// CSV with position and velocity. To be used with your robot.
+				    	// save left path to CSV
+				    	for (int i = 0; i < left.length(); i++) 
+				    	{			
+				    		Segment seg = left.get(i);
+				    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	// save right path to CSV
+				    	for (int i = 0; i < right.length(); i++) 
+				    	{			
+				    		Segment seg = right.get(i);
+				    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	lpw.close();
+				    	rpw.close();
+    				}
+    				else
+    				{
+    					flFile = new File(directory, fileName + "_FrontLeft.csv");
+				        frFile = new File(directory, fileName + "_FrontRight.csv");
+				        blFile = new File(directory, fileName + "_BackLeft.csv");
+				        brFile = new File(directory, fileName + "_BackRight.csv");
+				        
+				        if( flFile.exists() || frFile.exists() || blFile.exists() || brFile.exists() )
+				        {
+				        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
+				        	
+				        	switch( n )
+				        	{
+				        	case JOptionPane.YES_OPTION:
+				        		break;		// Continue with method
+				        		
+				        	case JOptionPane.NO_OPTION:
+				        		return;		// Stop Saving
+				        		
+				        	default:
+				        		return;
+				        	}
+				        }
+				        	
+				    	FileWriter flfw = new FileWriter( flFile );
+						FileWriter frfw = new FileWriter( frFile );
+						FileWriter blfw = new FileWriter( blFile );
+						FileWriter brfw = new FileWriter( brFile );
+						PrintWriter flpw = new PrintWriter( flfw );
+						PrintWriter frpw = new PrintWriter( frfw );
+						PrintWriter blpw = new PrintWriter( blfw );
+						PrintWriter brpw = new PrintWriter( brfw );
+						
+				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+				        File frontLeftFile = new File(directory, fileName + "_FrontLeft_detailed.csv");
+				        Pathfinder.writeToCSV(frontLeftFile, fl);
+				        
+				        File frontRightFile = new File(directory, fileName + "_FrontRight_detailed.csv");
+				        Pathfinder.writeToCSV(frontRightFile, fr);
+				        
+				        File backLeftFile = new File(directory, fileName + "_BackLeft_detailed.csv");
+				        Pathfinder.writeToCSV(backLeftFile, bl);
+				        
+				        File backRightFile = new File(directory, fileName + "_BackRight_detailed.csv");
+				        Pathfinder.writeToCSV(backRightFile, br);
+				        
+				    	// CSV with position and velocity. To be used with your robot.
+				    	// save front left path to CSV
+				    	for (int i = 0; i < fl.length(); i++) 
+				    	{			
+				    		Segment seg = fl.get(i);
+				    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	// save front right path to CSV
+				    	for (int i = 0; i < fr.length(); i++) 
+				    	{			
+				    		Segment seg = fr.get(i);
+				    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    	
+				    	// save back left path to CSV
+				    	for (int i = 0; i < bl.length(); i++) 
+				    	{			
+				    		Segment seg = bl.get(i);
+				    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	// save back right path to CSV
+				    	for (int i = 0; i < br.length(); i++) 
+				    	{			
+				    		Segment seg = br.get(i);
+				    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	flpw.close();
+				    	frpw.close();
+				    	blpw.close();
+				    	brpw.close();
+    				}
 			    	
 			    	preferenceFile = new File(directory, fileName + "_Preferences.bot");
 			    	FileWriter pfw = new FileWriter(preferenceFile);
@@ -1290,7 +1476,8 @@ public class Gui2 {
 			    	ppw.println(velocity);
 			    	ppw.println(acceleration);
 			    	ppw.println(jerk);
-			    	ppw.println(wheelBase);
+			    	ppw.println(wheelBaseW);
+			    	ppw.println(wheelBaseD);
 			    	ppw.println(cbFitMethod.getSelectedItem());
 			    	
 			    	for(int i = 0; i < points.size(); i++)
@@ -1318,7 +1505,7 @@ public class Gui2 {
     	{
     		JOptionPane.showMessageDialog(null, "The File Name/directory field is empty! \nPlease enter a file name and click Browse for a destination!", "File Name Empty", JOptionPane.INFORMATION_MESSAGE);
         	return;
-    	}	
+    	}
     }
     
     private void btnBrowseActionPerformed(java.awt.event.ActionEvent evt)
@@ -1358,57 +1545,140 @@ public class Gui2 {
     	{
     		if(directory != null)
     		{
-    			if(left != null)
+    			if(left != null || fl != null)
     			{
-    				lFile = new File(directory, fileName + "_left.csv");
-			        rFile = new File(directory, fileName + "_right.csv");
-			        
-			        if( lFile.exists() || rFile.exists() )
-			        {
-			        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
-			        	
-			        	switch( n )
-			        	{
-			        	case JOptionPane.YES_OPTION:
-			        		break;		// Continue with method
-			        		
-			        	case JOptionPane.NO_OPTION:
-			        		return;		// Stop Saving
-			        		
-			        	default:
-			        		return;
-			        	}
-			        }
-			        	
-			    	FileWriter lfw = new FileWriter( lFile );
-					FileWriter rfw = new FileWriter( rFile );
-					PrintWriter lpw = new PrintWriter( lfw );
-					PrintWriter rpw = new PrintWriter( rfw );
-					
-			    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
-			        File leftFile = new File(directory, fileName + "_left_detailed.csv");
-			        Pathfinder.writeToCSV(leftFile, left);
-			        
-			        File rightFile = new File(directory, fileName + "_right_detailed.csv");
-			        Pathfinder.writeToCSV(rightFile, right);
-			        
-			    	// CSV with position and velocity. To be used with your robot.
-			    	// save left path to CSV
-			    	for (int i = 0; i < left.length(); i++) 
-			    	{			
-			    		Segment seg = left.get(i);
-			    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-			    	}
-			    			
-			    	// save right path to CSV
-			    	for (int i = 0; i < right.length(); i++) 
-			    	{			
-			    		Segment seg = right.get(i);
-			    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-			    	}
-			    			
-			    	lpw.close();
-			    	rpw.close();
+    				if(rdbtnTankDrive.isSelected())
+    				{
+	    				lFile = new File(directory, fileName + "_left.csv");
+				        rFile = new File(directory, fileName + "_right.csv");
+				        
+				        if( lFile.exists() || rFile.exists() )
+				        {
+				        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
+				        	
+				        	switch( n )
+				        	{
+				        	case JOptionPane.YES_OPTION:
+				        		break;		// Continue with method
+				        		
+				        	case JOptionPane.NO_OPTION:
+				        		return;		// Stop Saving
+				        		
+				        	default:
+				        		return;
+				        	}
+				        }
+				        	
+				    	FileWriter lfw = new FileWriter( lFile );
+						FileWriter rfw = new FileWriter( rFile );
+						PrintWriter lpw = new PrintWriter( lfw );
+						PrintWriter rpw = new PrintWriter( rfw );
+						
+				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+				        File leftFile = new File(directory, fileName + "_left_detailed.csv");
+				        Pathfinder.writeToCSV(leftFile, left);
+				        
+				        File rightFile = new File(directory, fileName + "_right_detailed.csv");
+				        Pathfinder.writeToCSV(rightFile, right);
+				        
+				    	// CSV with position and velocity. To be used with your robot.
+				    	// save left path to CSV
+				    	for (int i = 0; i < left.length(); i++) 
+				    	{			
+				    		Segment seg = left.get(i);
+				    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	// save right path to CSV
+				    	for (int i = 0; i < right.length(); i++) 
+				    	{			
+				    		Segment seg = right.get(i);
+				    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	lpw.close();
+				    	rpw.close();
+    				}
+    				else
+    				{
+    					flFile = new File(directory, fileName + "_FrontLeft.csv");
+				        frFile = new File(directory, fileName + "_FrontRight.csv");
+				        blFile = new File(directory, fileName + "_BackLeft.csv");
+				        brFile = new File(directory, fileName + "_BackRight.csv");
+				        
+				        if( flFile.exists() || frFile.exists() || blFile.exists() || brFile.exists() )
+				        {
+				        	int n = JOptionPane.showConfirmDialog(null, "File already exist. Would you like to replace it?", "File Exists", JOptionPane.YES_NO_OPTION);
+				        	
+				        	switch( n )
+				        	{
+				        	case JOptionPane.YES_OPTION:
+				        		break;		// Continue with method
+				        		
+				        	case JOptionPane.NO_OPTION:
+				        		return;		// Stop Saving
+				        		
+				        	default:
+				        		return;
+				        	}
+				        }
+				        	
+				    	FileWriter flfw = new FileWriter( flFile );
+						FileWriter frfw = new FileWriter( frFile );
+						FileWriter blfw = new FileWriter( blFile );
+						FileWriter brfw = new FileWriter( brFile );
+						PrintWriter flpw = new PrintWriter( flfw );
+						PrintWriter frpw = new PrintWriter( frfw );
+						PrintWriter blpw = new PrintWriter( blfw );
+						PrintWriter brpw = new PrintWriter( brfw );
+						
+				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
+				        File frontLeftFile = new File(directory, fileName + "_FrontLeft_detailed.csv");
+				        Pathfinder.writeToCSV(frontLeftFile, fl);
+				        
+				        File frontRightFile = new File(directory, fileName + "_FrontRight_detailed.csv");
+				        Pathfinder.writeToCSV(frontRightFile, fr);
+				        
+				        File backLeftFile = new File(directory, fileName + "_BackLeft_detailed.csv");
+				        Pathfinder.writeToCSV(backLeftFile, bl);
+				        
+				        File backRightFile = new File(directory, fileName + "_BackRight_detailed.csv");
+				        Pathfinder.writeToCSV(backRightFile, br);
+				        
+				    	// CSV with position and velocity. To be used with your robot.
+				    	// save front left path to CSV
+				    	for (int i = 0; i < fl.length(); i++) 
+				    	{			
+				    		Segment seg = fl.get(i);
+				    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	// save front right path to CSV
+				    	for (int i = 0; i < fr.length(); i++) 
+				    	{			
+				    		Segment seg = fr.get(i);
+				    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    	
+				    	// save back left path to CSV
+				    	for (int i = 0; i < bl.length(); i++) 
+				    	{			
+				    		Segment seg = bl.get(i);
+				    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	// save back right path to CSV
+				    	for (int i = 0; i < br.length(); i++) 
+				    	{			
+				    		Segment seg = br.get(i);
+				    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+				    	}
+				    			
+				    	flpw.close();
+				    	frpw.close();
+				    	blpw.close();
+				    	brpw.close();
+    				}
 			    	
 			    	preferenceFile = new File(directory, fileName + "_Preferences.bot");
 			    	FileWriter pfw = new FileWriter(preferenceFile);
@@ -1418,7 +1688,8 @@ public class Gui2 {
 			    	ppw.println(velocity);
 			    	ppw.println(acceleration);
 			    	ppw.println(jerk);
-			    	ppw.println(wheelBase);
+			    	ppw.println(wheelBaseW);
+			    	ppw.println(wheelBaseD);
 			    	ppw.println(cbFitMethod.getSelectedItem());
 			    	
 			    	for(int i = 0; i < points.size(); i++)
@@ -1468,7 +1739,7 @@ public class Gui2 {
     	txtAreaWaypoints.setText(null);
     }
     
-    private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBase, Waypoint[] points, FitMethod fitMethod) throws IOException
+    private void trajectory(double timeStep, double velocity, double acceleration, double jerk, double wheelBaseW, double wheelBaseD, Waypoint[] points, FitMethod fitMethod) throws IOException
     {
     	
 		// Configure the trajectory with the time step, velocity, acceleration, jerk
@@ -1477,52 +1748,128 @@ public class Gui2 {
 		// Generate the path
 		Trajectory trajectory = Pathfinder.generate(points, config);
 		
-        // Tank drive modifier with the wheel base
-        TankModifier modifier = new TankModifier(trajectory).modify(wheelBase);
+		if(rdbtnTankDrive.isSelected())
+		{
+	        // Tank drive modifier with the wheel base
+	        TankModifier modifier = new TankModifier(trajectory).modify(wheelBaseW);
+	
+	        // Separate the trajectory into left and right
+	        left = modifier.getLeftTrajectory();
+	        right = modifier.getRightTrajectory();
+	        
+	        // Left and Right paths to display on the Field Graph
+	        double[][] leftPath = new double[left.length()][2];
+	        double[][] rightPath = new double[right.length()][2];
+	        
+	        for(int i = 0; i < left.length(); i++)
+	        {
+	        	leftPath[i][0] = left.get(i).x;
+	        	leftPath[i][1] = left.get(i).y;
+	        	rightPath[i][0] = right.get(i).x;
+	        	rightPath[i][1] = right.get(i).y;
+	        }
+	        blueAllianceGraph.addData(leftPath, Color.magenta);
+	       	blueAllianceGraph.addData(rightPath, Color.magenta);
+	       	blueAllianceGraph.repaint();
+	        	
+	       	redAllianceGraph.addData(leftPath, Color.magenta);
+	        redAllianceGraph.addData(rightPath, Color.magenta);
+	        redAllianceGraph.repaint();
+	        
+	     	// Velocity to be used in the Velocity graph
+	     	double[][] leftVelocity = new double[left.length()][2];
+	     	double[][] rightVelocity = new double[right.length()][2];
+	     	double[][] middleVelocity = new double[trajectory.length()][2];
+	     	
+	     	for(int i = 0; i < left.length(); i++)
+	     	{
+	     		leftVelocity[i][0] = left.segments[i].dt * i;
+	     		leftVelocity[i][1] = left.segments[i].velocity;
+	     		rightVelocity[i][0] = right.segments[i].dt * i;
+	     		rightVelocity[i][1] = right.segments[i].velocity;
+	     		middleVelocity[i][0] = trajectory.segments[i].dt * i;
+	     		middleVelocity[i][1] = trajectory.segments[i].velocity;
+	     	}
+	     	
+	      	// Velocity Graph
+	       	velocityGraph.addData(leftVelocity, Color.magenta);
+	      	velocityGraph.addData(rightVelocity, Color.cyan);
+	      	velocityGraph.addData(middleVelocity, Color.blue);
+	      	velocityGraph.repaint();  
+		}
+		else
+		{
+			// The swerve mode to generate will be the 'default' mode, where the 
+			// robot will constantly be facing forward and 'sliding' sideways to 
+			// follow a curved path.
+			SwerveModifier.Mode mode = SwerveModifier.Mode.SWERVE_DEFAULT;
 
-        // Separate the trajectory into left and right
-        left = modifier.getLeftTrajectory();
-        right = modifier.getRightTrajectory();
-        
-        // Left and Right paths to display on the Field Graph
-        double[][] leftPath = new double[left.length()][2];
-        double[][] rightPath = new double[right.length()][2];
-        
-        for(int i = 0; i < left.length(); i++)
-        {
-        	leftPath[i][0] = left.get(i).x;
-        	leftPath[i][1] = left.get(i).y;
-        	rightPath[i][0] = right.get(i).x;
-        	rightPath[i][1] = right.get(i).y;
-        }
-        blueAllianceGraph.addData(leftPath, Color.magenta);
-       	blueAllianceGraph.addData(rightPath, Color.magenta);
-       	blueAllianceGraph.repaint();
-        	
-       	redAllianceGraph.addData(leftPath, Color.magenta);
-        redAllianceGraph.addData(rightPath, Color.magenta);
-        redAllianceGraph.repaint();
-        
-     	// Velocity to be used in the Velocity graph
-     	double[][] leftVelocity = new double[left.length()][2];
-     	double[][] rightVelocity = new double[right.length()][2];
-     	double[][] middleVelocity = new double[trajectory.length()][2];
-     	
-     	for(int i = 0; i < left.length(); i++)
-     	{
-     		leftVelocity[i][0] = left.segments[i].dt * i;
-     		leftVelocity[i][1] = left.segments[i].velocity;
-     		rightVelocity[i][0] = right.segments[i].dt * i;
-     		rightVelocity[i][1] = right.segments[i].velocity;
-     		middleVelocity[i][0] = trajectory.segments[i].dt * i;
-     		middleVelocity[i][1] = trajectory.segments[i].velocity;
-     	}
-     	
-      	// Velocity Graph
-       	velocityGraph.addData(leftVelocity, Color.magenta);
-      	velocityGraph.addData(rightVelocity, Color.cyan);
-      	velocityGraph.addData(middleVelocity, Color.blue);
-      	velocityGraph.repaint();    
+			// Create the Modifier Object
+			SwerveModifier modifier = new SwerveModifier(trajectory);
+
+			// Generate the individual wheel trajectories using the original trajectory
+			// as the center
+			modifier.modify(wheelBaseD, wheelBaseW, mode);
+			
+			bl = modifier.getFrontLeftTrajectory();       // Get the Back Left wheel
+			fl = modifier.getFrontRightTrajectory();      // Get the Front Left wheel
+			br = modifier.getBackLeftTrajectory();        // Get the Back Right wheel
+			fr = modifier.getBackRightTrajectory();       // Get the Front Right wheel
+			
+			// Left and Right paths to display on the Field Graph
+	        double[][] frontLeftPath = new double[fl.length()][2];
+	        double[][] frontRightPath = new double[fr.length()][2];
+	        double[][] backLeftPath = new double[bl.length()][2];
+	        double[][] backRightPath = new double[br.length()][2];
+	        
+	        for(int i = 0; i < fl.length(); i++)
+	        {
+	        	frontLeftPath[i][0] = fl.get(i).x;
+	        	frontLeftPath[i][1] = fl.get(i).y;
+	        	frontRightPath[i][0] = fr.get(i).x;
+	        	frontRightPath[i][1] = fr.get(i).y;
+	        	backLeftPath[i][0] = bl.get(i).x;
+	        	backLeftPath[i][1] = bl.get(i).y;
+	        	backRightPath[i][0] = br.get(i).x;
+	        	backRightPath[i][1] = br.get(i).y;
+	        }
+	        blueAllianceGraph.addData(frontLeftPath, Color.red);
+	       	blueAllianceGraph.addData(frontRightPath, Color.blue);
+	       	blueAllianceGraph.addData(backLeftPath, Color.red);
+	       	blueAllianceGraph.addData(backRightPath, Color.blue);
+	       	blueAllianceGraph.repaint();
+	        	
+	       	redAllianceGraph.addData(frontLeftPath, Color.red);
+	       	redAllianceGraph.addData(frontRightPath, Color.blue);
+	       	redAllianceGraph.addData(backLeftPath, Color.red);
+	       	redAllianceGraph.addData(backRightPath, Color.blue);
+	        redAllianceGraph.repaint();
+	        
+	     	// Velocity to be used in the Velocity graph
+	     	double[][] middleVelocity = new double[trajectory.length()][2];
+	     	double[][] frontLeftVelocity = new double[fl.length()][2];
+	     	double[][] frontRightVelocity = new double[fr.length()][2];
+	     	double[][] backLeftVelocity = new double[bl.length()][2];
+	     	double[][] backRightVelocity = new double[br.length()][2];
+	     	
+	     	for(int i = 0; i < fl.length(); i++)
+	     	{
+	     		middleVelocity[i][0] = trajectory.segments[i].dt * i;
+	     		middleVelocity[i][1] = trajectory.segments[i].velocity;
+	     		frontLeftVelocity[i][0] = fl.segments[i].dt * i;
+	     		frontLeftVelocity[i][1] = fl.segments[i].velocity;
+	     		frontRightVelocity[i][0] = fr.segments[i].dt * i;
+	     		frontRightVelocity[i][1] = fr.segments[i].velocity;
+	     		backLeftVelocity[i][0] = bl.segments[i].dt * i;
+	     		backLeftVelocity[i][1] = bl.segments[i].velocity;
+	     		backRightVelocity[i][0] = br.segments[i].dt * i;
+	     		backRightVelocity[i][1] = br.segments[i].velocity;
+	     	}
+	     	
+	      	// Velocity Graph
+	      	velocityGraph.addData(middleVelocity, Color.blue);
+	      	velocityGraph.repaint(); 
+		}
 		
     }
 	

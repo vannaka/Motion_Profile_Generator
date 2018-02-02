@@ -19,8 +19,12 @@ Generate Motion Profiles to follow with a Talon SRX
 - **Jerk**
 	- The rate of change of acceleration; that is, the derivative of acceleration with respect to time
 	- Units are in ft/s/s/s
-- **Wheel Base**
+- **Wheel Base W**
 	- The distance between your left and right wheels
+	- Units are in feet
+- **Wheel Base D**
+	- The distance between your front and back wheels
+	- Used with the Swerve modifier
 	- Units are in feet
 	
 ## Waypoints

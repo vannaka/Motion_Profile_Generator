@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Added
 - Added ability to choose the Fit method of the points. Hermite Cubic or Hermite Quintic
+- Added ability to choose between the Tank and Swerve modifiers
+- Added Tool tip text
 
 ### Fixed
 - Bug where app would crash when you double clicked in white space to update a point 
