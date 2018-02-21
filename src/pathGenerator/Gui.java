@@ -48,7 +48,7 @@ import javax.swing.text.Utilities;
 import javax.swing.JComboBox;
 import javax.swing.JRadioButton;
 
-public class Gui2 {
+public class Gui {
 
 	private JFrame frmMotionProfileGenerator;
 	
@@ -62,17 +62,17 @@ public class Gui2 {
 	private JTextField txtYValue;
 	private JTextField txtFileName;
 	
-	JButton btnAddPoint;
-	JRadioButton rdbtnTankDrive;
-	JRadioButton rdbtnSwerveDrive;
+	private JButton btnAddPoint;
+	private JRadioButton rdbtnTankDrive;
+	private JRadioButton rdbtnSwerveDrive;
 	
-	private JTabbedPane tabbedPane;
+	static JTabbedPane tabbedPane;
 	
-	JComboBox<String> cbFitMethod;
+	private JComboBox<String> cbFitMethod;
 	
-	FalconLinePlot blueAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
-	FalconLinePlot velocityGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
-	FalconLinePlot redAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
+	static FalconLinePlot blueAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
+	static FalconLinePlot velocityGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
+	static FalconLinePlot redAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
 			
 	private JTextArea txtAreaWaypoints;
 	int lineNum;
@@ -94,30 +94,30 @@ public class Gui2 {
 	double wheelBaseD;
 	
 	//Tank Drive
-	Trajectory left;
-	Trajectory right;
+	private Trajectory left;
+	private Trajectory right;
 	
 	//Swerve Drive
-	Trajectory fl;
-	Trajectory fr;
-	Trajectory bl;
-	Trajectory br;
+	private Trajectory fl;
+	private Trajectory fr;
+	private Trajectory bl;
+	private Trajectory br;
 	
-	File lFile;
-	File rFile;
-	File flFile;
-	File frFile;
-	File blFile;
-	File brFile;
-	File preferenceFile;
+	private File lFile;
+	private File rFile;
+	private File flFile;
+	private File frFile;
+	private File blFile;
+	private File brFile;
+	private File preferenceFile;
 	
-	String fileName;
+	private String fileName;
 	private JTextField txtWheelBaseD;
 		
 	/**
 	 * Create the application.
 	 */
-	public Gui2() {
+	public Gui() {
 		initialize();
 	}
 
@@ -136,6 +136,9 @@ public class Gui2 {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(460, 22, 600, 617);
 		frmMotionProfileGenerator.getContentPane().add(tabbedPane);
+		tabbedPane.insertTab("Blue Alliance", null, blueAllianceGraph, null, 0);
+		tabbedPane.insertTab("Red Alliance", null, redAllianceGraph, null, 1);
+		tabbedPane.insertTab("Velocity", null, velocityGraph, null, 2);
 		
 		velocityGraph.setSize(600, 600);
 		velocityGraph.setLocation(1070, 0);
@@ -493,9 +496,9 @@ public class Gui2 {
             }
 		});
 								
-		motionGraphBlue();
-		motionGraphRed();
-		velocityGraph();
+		MotionGraphsFeet.motionGraphBlue();
+		MotionGraphsFeet.motionGraphRed();
+		MotionGraphsFeet.velocityGraph();
 	};
 	
 	private void aboutPage()
@@ -557,457 +560,6 @@ public class Gui2 {
 		lblJH.setFont(new Font("Arial", Font.PLAIN, 14));
 		lblJH.setBounds(109, 272, 250, 14);
 		panel.add(lblJH);
-	}
-	
-	private void motionGraphBlue()
-	{
-		tabbedPane.insertTab("Blue Alliance", null, blueAllianceGraph, null, 0);
-		// Create a blank grid for the field graph
-		blueAllianceGraph.yGridOn();
-		blueAllianceGraph.xGridOn();
-		blueAllianceGraph.setYLabel("Y (feet)");
-		blueAllianceGraph.setXLabel("X (feet)");
-		blueAllianceGraph.setTitle("Top Down View of FRC Field - Blue Alliance (30ft x 27ft) \n shows global position of robot path with left and right wheel trajectories");
-			
-					
-		//force graph to show field dimensions of 30ft x 27 feet
-		double fieldWidth = 27.0;
-		blueAllianceGraph.setXTic(0, 32, 1);
-		blueAllianceGraph.setYTic(0, fieldWidth, 1);
-					
-					
-		//lets add field markers to help visual
-		double[][] redSwitch = new double[][]{
-				{11.7, 7.105},
-				{16.3, 7.105},
-				{16.3, 19.895},
-				{11.7, 19.895},
-				{11.7, 7.105},
-			};
-		blueAllianceGraph.addData(redSwitch, Color.black);
-							
-		// Auto Line
-		double[][] autoLine = new double[][] {{10,0}, {10, fieldWidth}};
-		blueAllianceGraph.addData(autoLine, Color.black);
-								
-		// Mid Field Up
-		double[][] midLineUp = new double[][] {{27,27}, {27, 21}};
-		blueAllianceGraph.addData(midLineUp, Color.black);
-				
-		// Mid Field Down
-		double[][] midLineDown = new double[][] {{27,0}, {27, 6}};
-		blueAllianceGraph.addData(midLineDown, Color.black);
-								
-		// Scale Up
-		double[][] scaleUp = new double[][] {
-				{25, 18}, 
-				{29, 18},
-				{29, 21},
-				{25, 21},
-				{25, 18},
-			};
-		blueAllianceGraph.addData(scaleUp, Color.blue);
-								
-		// Scale Down
-		double[][] scaleDown = new double[][] {
-				{25, 6}, 
-				{29, 6},
-				{29, 9},
-				{25, 9},
-				{25, 6},
-			};
-		blueAllianceGraph.addData(scaleDown, Color.red);
-								
-		// Scale sides
-		double[][] scaleSides = new double[][] {
-				{26.28, 9}, 
-				{27.72, 9},
-				{27.72, 18},
-				{26.28, 18},
-				{26.28, 9},
-			};
-		blueAllianceGraph.addData(scaleSides, Color.black);
-								
-		// Null zone Up
-		double[][] nullZoneUp = new double[][] {
-				{25, 19.06}, 
-				{24, 19.06},
-				{24, 27},
-				{30, 27},
-				{30, 19.06},
-				{29, 19.06},
-			};
-		blueAllianceGraph.addData(nullZoneUp, Color.black);
-				
-		// Null zone Down
-		double[][] nullZoneDown = new double[][] {
-			    {25, 7.94}, 
-				{24, 7.94},
-				{24, 0},
-				{30, 0},
-				{30, 7.94},
-				{29, 7.94},
-			};
-		blueAllianceGraph.addData(nullZoneDown, Color.black);
-				
-		// Platform Zone
-		double[][] platformZoneOne = new double[][] {{16.3, 7.94}, {24, 7.94}};
-		blueAllianceGraph.addData(platformZoneOne, Color.blue);
-				
-		// Platform Zone
-		double[][] platformZoneTwo = new double[][] {{16.3, 19.06}, {24, 19.06}};
-		blueAllianceGraph.addData(platformZoneTwo, Color.blue);
-				
-		// Platform
-		double[][] platform = new double[][] {{21.78, 7.94}, {21.78, 19.06}};
-		blueAllianceGraph.addData(platform, Color.blue);
-				
-		// Cube Zone
-		double[][] cubeZone = new double[][] {
-				{11.7, 11.625}, 
-				{8.2, 11.625},
-				{8.2, 15.375},
-				{11.7, 15.375},
-			};
-		blueAllianceGraph.addData(cubeZone, Color.blue);
-				
-		// Switch Plate One
-		double[][] switchPlateOne = new double[][] {
-				{12, 7.405}, 
-				{16, 7.405},
-				{16, 10.405},
-				{12, 10.405},
-				{12, 7.405},
-			};
-		blueAllianceGraph.addData(switchPlateOne, Color.red);
-				
-		// Switch Plate Two
-		double[][] switchPlateTwo = new double[][] {
-				{12, 19.595}, 
-				{16, 19.595},
-				{16, 16.595},
-				{12, 16.595},
-				{12, 19.595},
-			};
-		blueAllianceGraph.addData(switchPlateTwo, Color.blue);
-		
-		// Portal Bottom
-		double[][] portalBottom = new double[][] {{0, 2.5}, {2.916, 0}};
-		blueAllianceGraph.addData(portalBottom, Color.blue);
-		
-		// Portal Top
-		double[][] portalTop = new double[][] {{0, 24.5}, {2.916, 27}};
-		blueAllianceGraph.addData(portalTop, Color.blue);
-		
-		// Exchange Zone
-		double[][] exchangeZone = new double[][] {
-				{0, 14.5}, 
-				{3, 14.5},
-				{3, 18.5},
-				{0, 18.5},
-			};
-		blueAllianceGraph.addData(exchangeZone, Color.blue);
-		
-		// Cube Zone cubes
-		double[][] cubeZoneCubes = new double[][] {
-				{11.7, 15.209}, 
-				{10.62, 15.209},
-				{10.62, 14.669},
-				{9.54, 14.669},
-				{9.54, 14.129},
-				{8.46, 14.129},
-				{8.46, 12.871},
-				{9.54, 12.871},
-				{9.54, 12.331},
-				{10.62, 12.331},
-				{10.62, 11.791},
-				{11.7, 11.791},
-			};
-		blueAllianceGraph.addData(cubeZoneCubes, Color.green);
-		
-		// Cube One
-		double[][] cubeOne = new double[][] {
-				{16.3, 19.895}, 
-				{17.38, 19.895},
-				{17.38, 18.815},
-				{16.3, 18.815},
-			};
-		blueAllianceGraph.addData(cubeOne, Color.green);
-		
-		// Cube Two
-		double[][] cubeTwo = new double[][] {
-				{16.3, 17.557}, 
-				{17.38, 17.557},
-				{17.38, 16.477},
-				{16.3, 16.477},
-			};
-		blueAllianceGraph.addData(cubeTwo, Color.green);
-		
-		// Cube Three
-		double[][] cubeThree = new double[][] {
-				{16.3, 15.219}, 
-				{17.38, 15.219},
-				{17.38, 14.139},
-				{16.3, 14.139},
-			};
-		blueAllianceGraph.addData(cubeThree, Color.green);
-		
-		// Cube Three
-		double[][] cubeFour = new double[][] {
-				{16.3, 12.861}, 
-				{17.38, 12.861},
-				{17.38, 11.781},
-				{16.3, 11.781},
-			};
-		blueAllianceGraph.addData(cubeFour, Color.green);
-		
-		// Cube Five
-		double[][] cubeFive = new double[][] {
-				{16.3, 10.523}, 
-				{17.38, 10.523},
-				{17.38, 9.443},
-				{16.3, 9.443},
-			};
-		blueAllianceGraph.addData(cubeFive, Color.green);
-		
-		// Cube Six
-		double[][] cubeSix = new double[][] {
-				{16.3, 8.185}, 
-				{17.38, 8.185},
-				{17.38, 7.105},
-				{16.3, 7.105},
-			};
-		blueAllianceGraph.addData(cubeSix, Color.green);
-	}
-	
-	private void motionGraphRed()
-	{
-		tabbedPane.insertTab("Red Alliance", null, redAllianceGraph, null, 1);
-		// Create a blank grid for the field graph
-		redAllianceGraph.yGridOn();
-		redAllianceGraph.xGridOn();
-		redAllianceGraph.setYLabel("Y (feet)");
-		redAllianceGraph.setXLabel("X (feet)");
-		redAllianceGraph.setTitle("Top Down View of FRC Field - Red Alliance (30ft x 27ft) \n shows global position of robot path with left and right wheel trajectories");
-							
-		//force graph to show field dimensions of 30ft x 27 feet
-		double fieldWidth = 27.0;
-		redAllianceGraph.setXTic(0, 32, 1);
-		redAllianceGraph.setYTic(0, fieldWidth, 1);
-					
-					
-		//lets add field markers to help visual
-		double[][] redSwitch = new double[][]{
-				{11.7, 7.105},
-				{16.3, 7.105},
-				{16.3, 19.895},
-				{11.7, 19.895},
-				{11.7, 7.105},
-			};
-		redAllianceGraph.addData(redSwitch, Color.black);
-					
-		// Auto Line
-		double[][] autoLine = new double[][] {{10,0}, {10, fieldWidth}};
-		redAllianceGraph.addData(autoLine, Color.black);
-						
-		// Mid Field Up
-		double[][] midLineUp = new double[][] {{27,27}, {27, 21}};
-		redAllianceGraph.addData(midLineUp, Color.black);
-		
-		// Mid Field Down
-		double[][] midLineDown = new double[][] {{27,0}, {27, 6}};
-		redAllianceGraph.addData(midLineDown, Color.black);
-						
-		// Scale Up
-		double[][] scaleUp = new double[][] {
-				{25, 18}, 
-				{29, 18},
-				{29, 21},
-				{25, 21},
-				{25, 18},
-			};
-		redAllianceGraph.addData(scaleUp, Color.blue);
-						
-		// Scale Down
-		double[][] scaleDown = new double[][] {
-				{25, 6}, 
-				{29, 6},
-				{29, 9},
-				{25, 9},
-				{25, 6},
-			};
-		redAllianceGraph.addData(scaleDown, Color.red);
-						
-		// Scale sides
-		double[][] scaleSides = new double[][] {
-				{26.28, 9}, 
-				{27.72, 9},
-				{27.72, 18},
-				{26.28, 18},
-				{26.28, 9},
-			};
-		redAllianceGraph.addData(scaleSides, Color.black);
-						
-		// Null zone Up
-		double[][] nullZoneUp = new double[][] {
-				{25, 19.06}, 
-				{24, 19.06},
-				{24, 27},
-				{30, 27},
-				{30, 19.06},
-				{29, 19.06},
-			};
-		redAllianceGraph.addData(nullZoneUp, Color.black);
-		
-		// Null zone Down
-				double[][] nullZoneDown = new double[][] {
-						{25, 7.94}, 
-						{24, 7.94},
-						{24, 0},
-						{30, 0},
-						{30, 7.94},
-						{29, 7.94},
-					};
-		redAllianceGraph.addData(nullZoneDown, Color.black);
-		
-		// Platform Zone
-		double[][] platformZoneOne = new double[][] {{16.3, 7.94}, {24, 7.94}};
-		redAllianceGraph.addData(platformZoneOne, Color.red);
-		
-		// Platform Zone
-		double[][] platformZoneTwo = new double[][] {{16.3, 19.06}, {24, 19.06}};
-		redAllianceGraph.addData(platformZoneTwo, Color.red);
-		
-		// Platform
-		double[][] platform = new double[][] {{21.78, 7.94}, {21.78, 19.06}};
-		redAllianceGraph.addData(platform, Color.red);
-		
-		// Cube Zone
-		double[][] cubeZone = new double[][] {
-				{11.7, 11.625}, 
-				{8.2, 11.625},
-				{8.2, 15.375},
-				{11.7, 15.375},
-			};
-		redAllianceGraph.addData(cubeZone, Color.red);
-		
-		// Switch Plate One
-		double[][] switchPlateOne = new double[][] {
-				{12, 7.405}, 
-				{16, 7.405},
-				{16, 10.405},
-				{12, 10.405},
-				{12, 7.405},
-			};
-		redAllianceGraph.addData(switchPlateOne, Color.red);
-		
-		// Switch Plate Two
-		double[][] switchPlateTwo = new double[][] {
-				{12, 19.595}, 
-				{16, 19.595},
-				{16, 16.595},
-				{12, 16.595},
-				{12, 19.595},
-			};
-		redAllianceGraph.addData(switchPlateTwo, Color.blue);
-		
-		// Portal Bottom
-		double[][] portalBottom = new double[][] {{0, 2.5}, {2.916, 0}};
-		redAllianceGraph.addData(portalBottom, Color.red);
-				
-		// Portal Top
-		double[][] portalTop = new double[][] {{0, 24.5}, {2.916, 27}};
-		redAllianceGraph.addData(portalTop, Color.red);
-		
-		// Exchange Zone
-		double[][] exchangeZone = new double[][] {
-				{0, 14.5}, 
-				{3, 14.5},
-				{3, 18.5},
-				{0, 18.5},
-			};
-		redAllianceGraph.addData(exchangeZone, Color.red);
-		
-		// Exchange Zone
-		double[][] cubeZoneCubes = new double[][] {
-				{11.7, 15.209}, 
-				{10.62, 15.209},
-				{10.62, 14.669},
-				{9.54, 14.669},
-				{9.54, 14.129},
-				{8.46, 14.129},
-				{8.46, 12.871},
-				{9.54, 12.871},
-				{9.54, 12.331},
-				{10.62, 12.331},
-				{10.62, 11.791},
-				{11.7, 11.791},
-			};
-		redAllianceGraph.addData(cubeZoneCubes, Color.green);
-		
-		// Cube One
-		double[][] cubeOne = new double[][] {
-				{16.3, 19.895}, 
-				{17.38, 19.895},
-				{17.38, 18.815},
-				{16.3, 18.815},
-			};
-		redAllianceGraph.addData(cubeOne, Color.green);
-				
-		// Cube Two
-		double[][] cubeTwo = new double[][] {
-				{16.3, 17.557}, 
-				{17.38, 17.557},
-				{17.38, 16.477},
-				{16.3, 16.477},
-			};
-		redAllianceGraph.addData(cubeTwo, Color.green);
-				
-		// Cube Three
-		double[][] cubeThree = new double[][] {
-				{16.3, 15.219}, 
-				{17.38, 15.219},
-				{17.38, 14.139},
-				{16.3, 14.139},
-			};
-		redAllianceGraph.addData(cubeThree, Color.green);
-			
-		// Cube Three
-		double[][] cubeFour = new double[][] {
-				{16.3, 12.861}, 
-				{17.38, 12.861},
-				{17.38, 11.781},
-				{16.3, 11.781},
-			};
-		redAllianceGraph.addData(cubeFour, Color.green);
-			
-		// Cube Five
-		double[][] cubeFive = new double[][] {
-				{16.3, 10.523}, 
-				{17.38, 10.523},
-				{17.38, 9.443},
-				{16.3, 9.443},
-			};
-		redAllianceGraph.addData(cubeFive, Color.green);
-				
-		// Cube Six
-		double[][] cubeSix = new double[][] {
-				{16.3, 8.185}, 
-				{17.38, 8.185},
-				{17.38, 7.105},
-				{16.3, 7.105},
-			};
-		redAllianceGraph.addData(cubeSix, Color.green);
-	}
-	
-	private void velocityGraph()
-	{
-		tabbedPane.insertTab("Velocity", null, velocityGraph, null, 2);
-		velocityGraph.yGridOn();
-      	velocityGraph.xGridOn();
-      	velocityGraph.setYLabel("Velocity (ft/sec)");
-      	velocityGraph.setXLabel("time (seconds)");
-      	velocityGraph.setTitle("Velocity Profile for Left and Right Wheels \n Left = Cyan, Right = Magenta");
 	}
 	
 	private void btnMenuLoadActionPerformed(java.awt.event.ActionEvent evt) throws IOException
@@ -1128,9 +680,9 @@ public class Gui2 {
     	blueAllianceGraph.clearGraph();
     	blueAllianceGraph.repaint();    	
     	
-    	motionGraphBlue();
-    	motionGraphRed();
-		velocityGraph();
+    	MotionGraphsFeet.motionGraphBlue();
+    	MotionGraphsFeet.motionGraphRed();
+    	MotionGraphsFeet.velocityGraph();
 		
 		if(timeStep > 0)
 		{
@@ -1730,9 +1282,9 @@ public class Gui2 {
     	redAllianceGraph.clearGraph();
     	redAllianceGraph.repaint();
     	    	
-    	motionGraphBlue();
-    	motionGraphRed();
-		velocityGraph();  
+    	MotionGraphsFeet.motionGraphBlue();
+    	MotionGraphsFeet.motionGraphRed();
+    	MotionGraphsFeet.velocityGraph();  
 		
     	points.clear();
     	
@@ -1880,7 +1432,7 @@ public class Gui2 {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Gui2 window = new Gui2();
+					Gui window = new Gui();
 					window.frmMotionProfileGenerator.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
