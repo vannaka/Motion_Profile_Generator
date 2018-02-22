@@ -7,25 +7,28 @@ Generate Motion Profiles to follow with a Talon SRX
 
 ## Motion Variables
 ---
+- **Units**
+	- Units can be chosen via a drop down menu
+	- Feet or Meters
 - **Time Step**
 	- The rate at which the control loop on the RoboRio runs
 	- Units are in seconds
 - **Velocity**
 	- The max velocity rate your robot is capable of achieving
-	- Units are in ft/s
+	- Units are in ft/s or m/s
 - **Acceleration**
 	- The max acceleration rate your robot is capable of achieving
-	- Units are in ft/s/s
+	- Units are in ft/s/s or m/s/s
 - **Jerk**
 	- The rate of change of acceleration; that is, the derivative of acceleration with respect to time
-	- Units are in ft/s/s/s
+	- Units are in ft/s/s/s or m/s/s/s
 - **Wheel Base W**
 	- The distance between your left and right wheels
-	- Units are in feet
+	- Units are in feet or meters
 - **Wheel Base D**
 	- The distance between your front and back wheels
 	- Used with the Swerve modifier
-	- Units are in feet
+	- Units are in feet or meters
 	
 ## Waypoints
 ---
