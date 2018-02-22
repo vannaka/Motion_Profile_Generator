@@ -316,15 +316,15 @@ public class MotionGraphsMeters {
 				
 		// Platform Zone
 		double[][] platformZoneOne = new double[][] {{4.968, 2.42}, {7.315, 2.42}};
-		Gui.redAllianceGraph.addData(platformZoneOne, Color.blue);
+		Gui.redAllianceGraph.addData(platformZoneOne, Color.red);
 				
 		// Platform Zone
 		double[][] platformZoneTwo = new double[][] {{4.968, 5.809}, {7.315, 5.809}};
-		Gui.redAllianceGraph.addData(platformZoneTwo, Color.blue);
+		Gui.redAllianceGraph.addData(platformZoneTwo, Color.red);
 				
 		// Platform
 		double[][] platform = new double[][] {{6.639, 2.42}, {6.639, 5.809}};
-		Gui.redAllianceGraph.addData(platform, Color.blue);
+		Gui.redAllianceGraph.addData(platform, Color.red);
 				
 		// Cube Zone
 		double[][] cubeZone = new double[][] {
@@ -333,7 +333,7 @@ public class MotionGraphsMeters {
 				{2.499, 4.686},
 				{3.566, 4.686},
 			};
-		Gui.redAllianceGraph.addData(cubeZone, Color.blue);
+		Gui.redAllianceGraph.addData(cubeZone, Color.red);
 				
 		// Switch Plate One
 		double[][] switchPlateOne = new double[][] {
@@ -357,11 +357,11 @@ public class MotionGraphsMeters {
 		
 		// Portal Bottom
 		double[][] portalBottom = new double[][] {{0, .762}, {.889, 0}};
-		Gui.redAllianceGraph.addData(portalBottom, Color.blue);
+		Gui.redAllianceGraph.addData(portalBottom, Color.red);
 		
 		// Portal Top
 		double[][] portalTop = new double[][] {{0, 7.468}, {.889, 8.296}};
-		Gui.redAllianceGraph.addData(portalTop, Color.blue);
+		Gui.redAllianceGraph.addData(portalTop, Color.red);
 		
 		// Exchange Zone
 		double[][] exchangeZone = new double[][] {
@@ -370,7 +370,7 @@ public class MotionGraphsMeters {
 				{0.914, 5.639},
 				{0, 5.639},
 			};
-		Gui.redAllianceGraph.addData(exchangeZone, Color.blue);
+		Gui.redAllianceGraph.addData(exchangeZone, Color.red);
 		
 		// Cube Zone cubes
 		double[][] cubeZoneCubes = new double[][] {
