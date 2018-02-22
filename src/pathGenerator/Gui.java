@@ -196,11 +196,7 @@ public class Gui {
 		
 		btnGeneratePath.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                try {
-					btnGeneratePathActionPerformed(evt);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+					btnGeneratePathActionPerformed();
             }
         });
 		
@@ -208,30 +204,19 @@ public class Gui {
 		btnAddPoint.setToolTipText("Add Point");
 		btnAddPoint.setBounds(20, 329, 130, 20);
 		trajecPanel.add(btnAddPoint);
-		
-		btnAddPoint.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	btnAddPointActionPerformed(evt);
-            }
-        });
+		btnAddPoint.addActionListener(evt -> btnAddPointActionPerformed());
 		
 		btnClear = new JButton("Clear");
 		btnClear.setToolTipText("Clear");
 		btnClear.setBounds(160, 328, 130, 20);
 		trajecPanel.add(btnClear);
+		btnClear.addActionListener(evt -> btnClearActionPerformed(evt));
 		
-		btnClear.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	btnClearActionPerformed(evt);
-            }
-        });
 		btnDeleteLast = new JButton("Delete last point");
 		btnDeleteLast.setToolTipText("Delete last point");
 		btnDeleteLast.setBounds(300,328,130,20);
 		trajecPanel.add(btnDeleteLast);
-		btnDeleteLast.addActionListener(new java.awt.event.ActionListener(){
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				
+		btnDeleteLast.addActionListener(evt -> {
 				if(points.size()== 1)
 				{
 					txtAreaWaypoints.setText(null);
@@ -241,35 +226,26 @@ public class Gui {
 					txtAreaWaypoints.setText(txtAreaWaypoints.getText().substring(0, pos +1));
 					points.remove(points.size()- 1);
 				}
-            }
 		});
-		
 		
 		JButton btnBrowse = new JButton("Browse");
 		btnBrowse.setToolTipText("Browse");
 		btnBrowse.setBounds(334, 522, 89, 24);
 		trajecPanel.add(btnBrowse);
-		
-		btnBrowse.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	btnBrowseActionPerformed(evt);
-            }
-        });
+		btnBrowse.addActionListener(evt -> btnBrowseActionPerformed(evt));
 		
 		JButton btnSave = new JButton("Save");
 		btnSave.setToolTipText("Save");
 		btnSave.setBounds(230, 566, 130, 24);
 		trajecPanel.add(btnSave);
 		
-		btnSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	try {
+		btnSave.addActionListener(evt -> {
+				try {
 					btnSaveActionPerformed(evt);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-            }
-        });
+		});
 		
 		JLabel lblMotionVariables = new JLabel("Motion Variables");
 		lblMotionVariables.setFont(new Font("Tahoma", Font.PLAIN, 24));
@@ -388,22 +364,14 @@ public class Gui {
 		rdbtnTankDrive.setBounds(289, 84, 109, 23);
 		trajecPanel.add(rdbtnTankDrive);
 		
-		rdbtnTankDrive.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				txtWheelBaseD.setEnabled(false);
-            }
-        });
+		rdbtnTankDrive.addActionListener(evt -> txtWheelBaseD.setEnabled(false));
 		
 		rdbtnSwerveDrive = new JRadioButton("Swerve Drive");
 		rdbtnSwerveDrive.setToolTipText("Why not combine Tank and Swerve into Swank?");
 		rdbtnSwerveDrive.setBounds(289, 110, 109, 23);
 		trajecPanel.add(rdbtnSwerveDrive);
 		
-		rdbtnSwerveDrive.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				txtWheelBaseD.setEnabled(true);
-            }
-        });
+		rdbtnSwerveDrive.addActionListener(evt -> txtWheelBaseD.setEnabled(true));
 		
 		ButtonGroup tankSwerve = new ButtonGroup();
 		tankSwerve.add(rdbtnTankDrive);
@@ -436,49 +404,34 @@ public class Gui {
 		
 		JMenuItem mntmNewProfile = new JMenuItem("New Profile");
 		mnFile.add(mntmNewProfile);
-		
-		mntmNewProfile.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				btnClearActionPerformed(evt);
-            }
-		});
+		mntmNewProfile.addActionListener(evt -> btnClearActionPerformed(evt));
 		
 		JMenuItem mntmSaveFile = new JMenuItem("Save Profile");
 		mnFile.add(mntmSaveFile);
 		
-		mntmSaveFile.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	try {
+		mntmSaveFile.addActionListener(evt -> {
+				try {
 					btnMenuSaveActionPerformed(evt);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-            }
 		});
 		
 		JMenuItem mntmLoadProfile = new JMenuItem("Load Profile");
 		mnFile.add(mntmLoadProfile);
 		
-		mntmLoadProfile.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	try {
-					btnMenuLoadActionPerformed(evt);
+		mntmLoadProfile.addActionListener(evt -> {
+				try {
+					btnMenuLoadActionPerformed();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-            }
 		});
 		
 		JMenuItem mntmExit = new JMenuItem("Exit");
 		mnFile.add(mntmExit);
 		
-		mntmExit.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				System.exit(0);
-            }
-		});
-		
-		
+		mntmExit.addActionListener(evt -> System.exit(0));
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
@@ -486,38 +439,31 @@ public class Gui {
 		JMenuItem mntmHelp = new JMenuItem("Help");
 		mnHelp.add(mntmHelp);
 		
-		mntmHelp.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		mntmHelp.addActionListener(evt -> {
 				  if (Desktop.isDesktopSupported()) {
 					  Desktop desktop = Desktop.getDesktop();
-		              try {
-		            	  URI uri = new URI("https://github.com/vannaka/Motion_Profile_Generator");
-		                  desktop.browse(uri);
-		              } catch (IOException ex) {
-		                  return;
-		              } catch (URISyntaxException ex) {
-		            	  return;
+					  try {
+						  	URI uri = new URI("https://github.com/vannaka/Motion_Profile_Generator");
+						  	desktop.browse(uri);
+					  } catch (IOException ex) {
+						  return;
+					  } catch (URISyntaxException ex) {
+						  return;
 		              }
 				  } 
 				  else {
-					  return;
 				  }
-		    }
 		});
 		
 		JMenuItem mntmAbout = new JMenuItem("About");
 		mnHelp.add(mntmAbout);
 		
-		mntmAbout.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				aboutPage();
-            }
-		});
+		mntmAbout.addActionListener(evt -> aboutPage());
 		
 		MotionGraphsFeet.motionGraphBlue();
 		MotionGraphsFeet.motionGraphRed();
 		MotionGraphsFeet.velocityGraph();
-	};
+	}
 	
 	private void aboutPage()
 	{
@@ -612,7 +558,7 @@ public class Gui {
 		}
 	}
 	
-	private void btnMenuLoadActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+	private void btnMenuLoadActionPerformed() throws IOException
 	{		
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
@@ -689,7 +635,7 @@ public class Gui {
         }
 	}
 		
-	private void btnGeneratePathActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+	private void btnGeneratePathActionPerformed()
     {
 		timeStep = Double.parseDouble(txtTime.getText()); //default 0.05 
 		velocity = Double.parseDouble(txtVelocity.getText()); //default 4
@@ -895,7 +841,7 @@ public class Gui {
 		btnDeleteLast.setEnabled(false);
 	}
     
-    private void btnAddPointActionPerformed(java.awt.event.ActionEvent evt)
+    private void btnAddPointActionPerformed()
     {
     	double xValue = 0;
     	double yValue = 0;
