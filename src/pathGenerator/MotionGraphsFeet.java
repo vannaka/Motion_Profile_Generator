@@ -11,7 +11,7 @@ public class MotionGraphsFeet {
 		Gui.blueAllianceGraph.xGridOn();
 		Gui.blueAllianceGraph.setYLabel("Y (feet)");
 		Gui.blueAllianceGraph.setXLabel("X (feet)");
-		Gui.blueAllianceGraph.setTitle("Top Down View of FRC Field - Blue Alliance (30ft x 27ft) \n shows global position of robot path with left and right wheel trajectories");
+		Gui.blueAllianceGraph.setTitle("Top Down View of FRC Field - Blue Alliance (32ft x 27ft) \n shows the left and right wheel trajectories");
 			
 					
 		//force graph to show field dimensions of 30ft x 27 feet
@@ -231,7 +231,7 @@ public class MotionGraphsFeet {
 		Gui.redAllianceGraph.xGridOn();
 		Gui.redAllianceGraph.setYLabel("Y (feet)");
 		Gui.redAllianceGraph.setXLabel("X (feet)");
-		Gui.redAllianceGraph.setTitle("Top Down View of FRC Field - Red Alliance (30ft x 27ft) \n shows global position of robot path with left and right wheel trajectories");
+		Gui.redAllianceGraph.setTitle("Top Down View of FRC Field - Red Alliance (32ft x 27ft) \n shows the left and right wheel trajectories");
 							
 		//force graph to show field dimensions of 30ft x 27 feet
 		double fieldWidth = 27.0;

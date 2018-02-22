@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Added ability to choose between different units
+
+### Fixed
+- Bug where a user could get stuck in point update mode
 
 ## [2.2.0] - 2018-2-1
 ### Added

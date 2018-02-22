@@ -3,16 +3,6 @@ package pathGenerator;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -27,26 +17,34 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import jaci.pathfinder.Pathfinder;
-import jaci.pathfinder.Trajectory;
-import jaci.pathfinder.Waypoint;
-import jaci.pathfinder.Trajectory.FitMethod;
-import jaci.pathfinder.Trajectory.Segment;
-import jaci.pathfinder.modifiers.SwerveModifier;
-import jaci.pathfinder.modifiers.TankModifier;
-
-import javax.swing.JTextArea;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.JTabbedPane;
-import javax.swing.JMenuBar;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.text.Document;
 import javax.swing.text.Utilities;
-import javax.swing.JComboBox;
-import javax.swing.JRadioButton;
+
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.Trajectory.FitMethod;
+import jaci.pathfinder.Trajectory.Segment;
+import jaci.pathfinder.Waypoint;
+import jaci.pathfinder.modifiers.SwerveModifier;
+import jaci.pathfinder.modifiers.TankModifier;
 
 public class Gui {
 
@@ -63,12 +61,15 @@ public class Gui {
 	private JTextField txtFileName;
 	
 	private JButton btnAddPoint;
+	private JButton btnClear;
+	private JButton btnDeleteLast;
 	private JRadioButton rdbtnTankDrive;
 	private JRadioButton rdbtnSwerveDrive;
 	
 	static JTabbedPane tabbedPane;
 	
 	private JComboBox<String> cbFitMethod;
+	private JComboBox<String> cbUnits;
 	
 	static FalconLinePlot blueAllianceGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
 	static FalconLinePlot velocityGraph = new FalconLinePlot(new double[][]{{0.0,0.0}});
@@ -214,7 +215,7 @@ public class Gui {
             }
         });
 		
-		JButton btnClear = new JButton("Clear");
+		btnClear = new JButton("Clear");
 		btnClear.setToolTipText("Clear");
 		btnClear.setBounds(160, 328, 130, 20);
 		trajecPanel.add(btnClear);
@@ -224,7 +225,7 @@ public class Gui {
             	btnClearActionPerformed(evt);
             }
         });
-		JButton btnDeleteLast = new JButton("Delete last point");
+		btnDeleteLast = new JButton("Delete last point");
 		btnDeleteLast.setToolTipText("Delete last point");
 		btnDeleteLast.setBounds(300,328,130,20);
 		trajecPanel.add(btnDeleteLast);
@@ -365,6 +366,23 @@ public class Gui {
 		lblFitMethod.setBounds(50, 205, 80, 20);
 		trajecPanel.add(lblFitMethod);
 		
+		cbUnits = new JComboBox<String>();
+		cbUnits.setToolTipText("Units");
+		cbUnits.addItem("Feet");
+		cbUnits.addItem("Meters");
+		cbUnits.setBounds(340, 205, 86, 20);
+		trajecPanel.add(cbUnits);
+		
+		cbUnits.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	cbUnitsActionPerformed(evt);
+		    }
+		});
+		
+		JLabel lblUnits = new JLabel("Units");
+		lblUnits.setBounds(250, 205, 100, 20);
+		trajecPanel.add(lblUnits);
+		
 		rdbtnTankDrive = new JRadioButton("Tank Drive");
 		rdbtnTankDrive.setSelected(true);
 		rdbtnTankDrive.setBounds(289, 84, 109, 23);
@@ -495,7 +513,7 @@ public class Gui {
 				aboutPage();
             }
 		});
-								
+		
 		MotionGraphsFeet.motionGraphBlue();
 		MotionGraphsFeet.motionGraphRed();
 		MotionGraphsFeet.velocityGraph();
@@ -562,8 +580,40 @@ public class Gui {
 		panel.add(lblJH);
 	}
 	
-	private void btnMenuLoadActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+	void cbUnitsActionPerformed(java.awt.event.ActionEvent evt)
 	{
+		if(cbUnits.getSelectedIndex() == 0)
+		{
+			// clear graphs
+	    	blueAllianceGraph.clearGraph();
+	    	blueAllianceGraph.repaint();
+	    	velocityGraph.clearGraph();
+	    	velocityGraph.repaint();
+	    	redAllianceGraph.clearGraph();
+	    	redAllianceGraph.repaint();
+	    	
+			MotionGraphsFeet.motionGraphBlue();
+			MotionGraphsFeet.motionGraphRed();
+			MotionGraphsFeet.velocityGraph();
+		}
+		else
+		{
+			// clear graphs
+	    	blueAllianceGraph.clearGraph();
+	    	blueAllianceGraph.repaint();
+	    	velocityGraph.clearGraph();
+	    	velocityGraph.repaint();
+	    	redAllianceGraph.clearGraph();
+	    	redAllianceGraph.repaint();
+	    	
+			MotionGraphsMeters.motionGraphBlue();
+			MotionGraphsMeters.motionGraphRed();
+			MotionGraphsMeters.velocityGraph();
+		}
+	}
+	
+	private void btnMenuLoadActionPerformed(java.awt.event.ActionEvent evt) throws IOException
+	{		
     	fileChooser = new JFileChooser(); 
         fileChooser.setCurrentDirectory(new java.io.File("."));
         fileChooser.setDialogTitle("Choose a file to load.");
@@ -680,9 +730,34 @@ public class Gui {
     	blueAllianceGraph.clearGraph();
     	blueAllianceGraph.repaint();    	
     	
-    	MotionGraphsFeet.motionGraphBlue();
-    	MotionGraphsFeet.motionGraphRed();
-    	MotionGraphsFeet.velocityGraph();
+    	if(cbUnits.getSelectedIndex() == 0)
+		{
+			// clear graphs
+	    	blueAllianceGraph.clearGraph();
+	    	blueAllianceGraph.repaint();
+	    	velocityGraph.clearGraph();
+	    	velocityGraph.repaint();
+	    	redAllianceGraph.clearGraph();
+	    	redAllianceGraph.repaint();
+	    	
+			MotionGraphsFeet.motionGraphBlue();
+			MotionGraphsFeet.motionGraphRed();
+			MotionGraphsFeet.velocityGraph();
+		}
+		else
+		{
+			// clear graphs
+	    	blueAllianceGraph.clearGraph();
+	    	blueAllianceGraph.repaint();
+	    	velocityGraph.clearGraph();
+	    	velocityGraph.repaint();
+	    	redAllianceGraph.clearGraph();
+	    	redAllianceGraph.repaint();
+	    	
+			MotionGraphsMeters.motionGraphBlue();
+			MotionGraphsMeters.motionGraphRed();
+			MotionGraphsMeters.velocityGraph();
+		}
 		
 		if(timeStep > 0)
 		{
@@ -816,6 +891,8 @@ public class Gui {
 				return;
 			}
 		points.remove(lineNum);
+		btnClear.setEnabled(false);
+		btnDeleteLast.setEnabled(false);
 	}
     
     private void btnAddPointActionPerformed(java.awt.event.ActionEvent evt)
@@ -870,6 +947,8 @@ public class Gui {
     	{
     		txtAreaWaypoints.insert(line + "\n", rowStart);
     		points.add(lineNum, new Waypoint(xValue, yValue, Pathfinder.d2r(angle)));
+    		btnClear.setEnabled(true);
+    		btnDeleteLast.setEnabled(true);
     	}
     		
     	txtXValue.setText("");
@@ -1282,9 +1361,18 @@ public class Gui {
     	redAllianceGraph.clearGraph();
     	redAllianceGraph.repaint();
     	    	
-    	MotionGraphsFeet.motionGraphBlue();
-    	MotionGraphsFeet.motionGraphRed();
-    	MotionGraphsFeet.velocityGraph();  
+    	if(cbUnits.getSelectedIndex() == 0)
+		{	
+			MotionGraphsFeet.motionGraphBlue();
+			MotionGraphsFeet.motionGraphRed();
+			MotionGraphsFeet.velocityGraph();
+		}
+		else
+		{
+			MotionGraphsMeters.motionGraphBlue();
+			MotionGraphsMeters.motionGraphRed();
+			MotionGraphsMeters.velocityGraph();
+		}  
 		
     	points.clear();
     	
