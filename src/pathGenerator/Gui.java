@@ -35,6 +35,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 import javax.swing.text.Utilities;
 
@@ -566,70 +567,54 @@ public class Gui {
         fileChooser.setDialogTitle("Choose a file to load.");
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Bot file", "bot", "BOT"));
         
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
         	pFile = fileChooser.getSelectedFile();
-        	
-        	String preference = pFile.getName();
-        	String extension = "";
-
-        	int i = preference.lastIndexOf('.');
-        	if (i > 0) {
-        	    extension = preference.substring(i+1);
-        	}
-        	
-        	if(extension.equals("bot"))
-        	{
-	        	@SuppressWarnings("resource")
-				BufferedReader br = new BufferedReader(new FileReader(pFile));
+  
+	        @SuppressWarnings("resource")
+			BufferedReader br = new BufferedReader(new FileReader(pFile));
 	        	
-	        	String sTime = br.readLine();
-	        	String sVelocity = br.readLine();
-	        	String sAcceleration = br.readLine();
-	        	String sJerk = br.readLine();
-	        	String sWheelW = br.readLine();
-	        	String sWheelD = br.readLine();
-	        	String sGen = br.readLine();
+	       	String sTime = br.readLine();
+	       	String sVelocity = br.readLine();
+	       	String sAcceleration = br.readLine();
+	       	String sJerk = br.readLine();
+	       	String sWheelW = br.readLine();
+	       	String sWheelD = br.readLine();
+	       	String sGen = br.readLine();
 	        	
-	        	txtTime.setText(sTime);
-	        	txtVelocity.setText(sVelocity);
-	        	txtAcceleration.setText(sAcceleration);
-	        	txtJerk.setText(sJerk);
-	        	txtWheelBaseW.setText(sWheelW);
-	        	txtWheelBaseD.setText(sWheelD);
-	        	cbFitMethod.setSelectedItem(sGen);
+	       	txtTime.setText(sTime);
+        	txtVelocity.setText(sVelocity);
+	       	txtAcceleration.setText(sAcceleration);
+	       	txtJerk.setText(sJerk);
+	       	txtWheelBaseW.setText(sWheelW);
+	       	txtWheelBaseD.setText(sWheelD);
+	       	cbFitMethod.setSelectedItem(sGen);
+	       	
+	       	points.clear();
+	       	txtAreaWaypoints.setText(null);
 	        	
-	        	points.clear();
-	        	txtAreaWaypoints.setText(null);
-	        	
-	        	String st;
-	        	while ((st = br.readLine()) != null)
-	        	{
+	       	String st;
+	       	while ((st = br.readLine()) != null)
+	       	{
 	        		
 	        				
-	    	       	String[] splitStr = st.trim().split("\\s*,\\s*");
-	    	       	String xValueS = splitStr[0];
-	    	   		String yValueS = splitStr[1];
-	    	      	String aValueS = splitStr[2];
+	   	       	String[] splitStr = st.trim().split("\\s*,\\s*");
+	   	       	String xValueS = splitStr[0];
+	      		String yValueS = splitStr[1];
+	   	     	String aValueS = splitStr[2];
 	    	      	
-	    	      	double dX = Double.parseDouble(xValueS);
-	    	      	double dY = Double.parseDouble(yValueS);
-	    	      	double dA = Double.parseDouble(aValueS);
+	   	      	double dX = Double.parseDouble(xValueS);
+	   	      	double dY = Double.parseDouble(yValueS);
+	   	      	double dA = Double.parseDouble(aValueS);
 	    	      	
-	    	      	String format = "%1$6.2f %2$6.2f %3$7.2f";
-	    	      	String line = String.format(format, dX, dY, dA);
-	    	    	
-	    	    	txtAreaWaypoints.append(line + "\n");
-	    	    	points.add( new Waypoint(dX, dY, Pathfinder.d2r(dA)));
-	        	}
+	   	      	String format = "%1$6.2f %2$6.2f %3$7.2f";
+	   	      	String line = String.format(format, dX, dY, dA);
+	   	    	
+    	    	txtAreaWaypoints.append(line + "\n");
+    	    	points.add( new Waypoint(dX, dY, Pathfinder.d2r(dA)));
         	}
-        	else
-        	{
-        		JOptionPane.showMessageDialog(null, "The file type is invalid! Make sure it is .bot", "Invalid file type", JOptionPane.INFORMATION_MESSAGE);
-        	}
-        	
         }
-        
         else
         {
         	return;
