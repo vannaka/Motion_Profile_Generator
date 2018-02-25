@@ -220,6 +220,7 @@ public class Gui {
 				if(points.size()== 1)
 				{
 					txtAreaWaypoints.setText(null);
+					points.remove(0);
 				}
 				else{
 					int pos = txtAreaWaypoints.getText().lastIndexOf("\n", txtAreaWaypoints.getText().length() -2 );
