@@ -46,6 +46,7 @@ import jaci.pathfinder.Trajectory.Segment;
 import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.modifiers.SwerveModifier;
 import jaci.pathfinder.modifiers.TankModifier;
+import javax.swing.JCheckBox;
 
 public class Gui {
 
@@ -60,6 +61,8 @@ public class Gui {
 	private JTextField txtXValue;
 	private JTextField txtYValue;
 	private JTextField txtFileName;
+	
+	private JCheckBox chckbxReverse;
 	
 	private JButton btnAddPoint;
 	private JButton btnClear;
@@ -363,14 +366,14 @@ public class Gui {
 		
 		rdbtnTankDrive = new JRadioButton("Tank Drive");
 		rdbtnTankDrive.setSelected(true);
-		rdbtnTankDrive.setBounds(289, 84, 109, 23);
+		rdbtnTankDrive.setBounds(289, 115, 109, 23);
 		trajecPanel.add(rdbtnTankDrive);
 		
 		rdbtnTankDrive.addActionListener(evt -> txtWheelBaseD.setEnabled(false));
 		
 		rdbtnSwerveDrive = new JRadioButton("Swerve Drive");
 		rdbtnSwerveDrive.setToolTipText("Why not combine Tank and Swerve into Swank?");
-		rdbtnSwerveDrive.setBounds(289, 110, 109, 23);
+		rdbtnSwerveDrive.setBounds(289, 145, 109, 23);
 		trajecPanel.add(rdbtnSwerveDrive);
 		
 		rdbtnSwerveDrive.addActionListener(evt -> txtWheelBaseD.setEnabled(true));
@@ -395,6 +398,11 @@ public class Gui {
 		txtWheelBaseD.setEnabled(false);
 		trajecPanel.add(txtWheelBaseD);
 		txtWheelBaseD.setColumns(10);
+		
+		chckbxReverse = new JCheckBox("Reverse Profile");
+		chckbxReverse.setBounds(289, 55, 130, 23);
+		chckbxReverse.setSelected(false);
+		trajecPanel.add(chckbxReverse);
 		
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 1075, 21);
@@ -927,25 +935,48 @@ public class Gui {
 						
 				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
 				        File leftFile = new File(directory, fileName + "_left_detailed.csv");
-				        Pathfinder.writeToCSV(leftFile, left);
-				        
 				        File rightFile = new File(directory, fileName + "_right_detailed.csv");
-				        Pathfinder.writeToCSV(rightFile, right);
 				        
-				    	// CSV with position and velocity. To be used with your robot.
-				    	// save left path to CSV
-				    	for (int i = 0; i < left.length(); i++) 
-				    	{			
-				    		Segment seg = left.get(i);
-				    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    			
-				    	// save right path to CSV
-				    	for (int i = 0; i < right.length(); i++) 
-				    	{			
-				    		Segment seg = right.get(i);
-				    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
+				        if (chckbxReverse.isSelected())
+				        {
+				        	Pathfinder.writeToCSV(rightFile, left);
+					        Pathfinder.writeToCSV(leftFile, right);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion 
+					    	// save left path to CSV
+					    	for (int i = 0; i < left.length(); i++) 
+					    	{			
+					    		Segment seg = right.get(i);
+					    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save right path to CSV
+					    	for (int i = 0; i < right.length(); i++) 
+					    	{			
+					    		Segment seg = left.get(i);
+					    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
+				        else
+				        {
+				        	Pathfinder.writeToCSV(rightFile, right);
+					        Pathfinder.writeToCSV(leftFile, left);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion
+					    	// save left path to CSV
+					    	for (int i = 0; i < left.length(); i++) 
+					    	{			
+					    		Segment seg = left.get(i);
+					    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save right path to CSV
+					    	for (int i = 0; i < right.length(); i++) 
+					    	{			
+					    		Segment seg = right.get(i);
+					    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
 				    			
 				    	lpw.close();
 				    	rpw.close();
@@ -985,45 +1016,82 @@ public class Gui {
 						
 				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
 				        File frontLeftFile = new File(directory, fileName + "_FrontLeft_detailed.csv");
-				        Pathfinder.writeToCSV(frontLeftFile, fl);
-				        
 				        File frontRightFile = new File(directory, fileName + "_FrontRight_detailed.csv");
-				        Pathfinder.writeToCSV(frontRightFile, fr);
-				        
 				        File backLeftFile = new File(directory, fileName + "_BackLeft_detailed.csv");
-				        Pathfinder.writeToCSV(backLeftFile, bl);
-				        
 				        File backRightFile = new File(directory, fileName + "_BackRight_detailed.csv");
-				        Pathfinder.writeToCSV(backRightFile, br);
-				        
-				    	// CSV with position and velocity. To be used with your robot.
-				    	// save front left path to CSV
-				    	for (int i = 0; i < fl.length(); i++) 
-				    	{			
-				    		Segment seg = fl.get(i);
-				    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    			
-				    	// save front right path to CSV
-				    	for (int i = 0; i < fr.length(); i++) 
-				    	{			
-				    		Segment seg = fr.get(i);
-				    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
 				    	
-				    	// save back left path to CSV
-				    	for (int i = 0; i < bl.length(); i++) 
-				    	{			
-				    		Segment seg = bl.get(i);
-				    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    			
-				    	// save back right path to CSV
-				    	for (int i = 0; i < br.length(); i++) 
-				    	{			
-				    		Segment seg = br.get(i);
-				    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
+				    	if (chckbxReverse.isSelected())
+				        {
+				    		Pathfinder.writeToCSV(frontLeftFile, br);
+				    		Pathfinder.writeToCSV(frontRightFile, bl);
+				    		Pathfinder.writeToCSV(backLeftFile, fr);
+				    		Pathfinder.writeToCSV(backRightFile, fl);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion 
+				    		// save front left path to CSV
+					    	for (int i = 0; i < fl.length(); i++) 
+					    	{			
+					    		Segment seg = br.get(i);
+					    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save front right path to CSV
+					    	for (int i = 0; i < fr.length(); i++) 
+					    	{			
+					    		Segment seg = bl.get(i);
+					    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    	
+					    	// save back left path to CSV
+					    	for (int i = 0; i < bl.length(); i++) 
+					    	{			
+					    		Segment seg = fr.get(i);
+					    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save back right path to CSV
+					    	for (int i = 0; i < br.length(); i++) 
+					    	{			
+					    		Segment seg = fl.get(i);
+					    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
+				        else
+				        {
+				        	Pathfinder.writeToCSV(frontLeftFile, fl);
+				    		Pathfinder.writeToCSV(frontRightFile, fr);
+				    		Pathfinder.writeToCSV(backLeftFile, bl);
+				    		Pathfinder.writeToCSV(backRightFile, br);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion
+				    		// save front left path to CSV
+					    	for (int i = 0; i < fl.length(); i++) 
+					    	{			
+					    		Segment seg = fl.get(i);
+					    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save front right path to CSV
+					    	for (int i = 0; i < fr.length(); i++) 
+					    	{			
+					    		Segment seg = fr.get(i);
+					    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    	
+					    	// save back left path to CSV
+					    	for (int i = 0; i < bl.length(); i++) 
+					    	{			
+					    		Segment seg = bl.get(i);
+					    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save back right path to CSV
+					    	for (int i = 0; i < br.length(); i++) 
+					    	{			
+					    		Segment seg = br.get(i);
+					    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
 				    			
 				    	flpw.close();
 				    	frpw.close();
@@ -1139,26 +1207,49 @@ public class Gui {
 						
 				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
 				        File leftFile = new File(directory, fileName + "_left_detailed.csv");
-				        Pathfinder.writeToCSV(leftFile, left);
-				        
 				        File rightFile = new File(directory, fileName + "_right_detailed.csv");
-				        Pathfinder.writeToCSV(rightFile, right);
 				        
-				    	// CSV with position and velocity. To be used with your robot.
-				    	// save left path to CSV
-				    	for (int i = 0; i < left.length(); i++) 
-				    	{			
-				    		Segment seg = left.get(i);
-				    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    			
-				    	// save right path to CSV
-				    	for (int i = 0; i < right.length(); i++) 
-				    	{			
-				    		Segment seg = right.get(i);
-				    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    			
+				        if (chckbxReverse.isSelected())
+				        {
+				        	Pathfinder.writeToCSV(rightFile, left);
+					        Pathfinder.writeToCSV(leftFile, right);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion 
+					    	// save left path to CSV
+					    	for (int i = 0; i < left.length(); i++) 
+					    	{			
+					    		Segment seg = right.get(i);
+					    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save right path to CSV
+					    	for (int i = 0; i < right.length(); i++) 
+					    	{			
+					    		Segment seg = left.get(i);
+					    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
+				        else
+				        {
+				        	Pathfinder.writeToCSV(rightFile, right);
+					        Pathfinder.writeToCSV(leftFile, left);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion
+					    	// save left path to CSV
+					    	for (int i = 0; i < left.length(); i++) 
+					    	{			
+					    		Segment seg = left.get(i);
+					    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save right path to CSV
+					    	for (int i = 0; i < right.length(); i++) 
+					    	{			
+					    		Segment seg = right.get(i);
+					    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
+				        
 				    	lpw.close();
 				    	rpw.close();
     				}
@@ -1197,45 +1288,82 @@ public class Gui {
 						
 				    	// Detailed CSV with dt, x, y, position, velocity, acceleration, jerk, and heading
 				        File frontLeftFile = new File(directory, fileName + "_FrontLeft_detailed.csv");
-				        Pathfinder.writeToCSV(frontLeftFile, fl);
-				        
 				        File frontRightFile = new File(directory, fileName + "_FrontRight_detailed.csv");
-				        Pathfinder.writeToCSV(frontRightFile, fr);
-				        
 				        File backLeftFile = new File(directory, fileName + "_BackLeft_detailed.csv");
-				        Pathfinder.writeToCSV(backLeftFile, bl);
-				        
 				        File backRightFile = new File(directory, fileName + "_BackRight_detailed.csv");
-				        Pathfinder.writeToCSV(backRightFile, br);
 				        
-				    	// CSV with position and velocity. To be used with your robot.
-				    	// save front left path to CSV
-				    	for (int i = 0; i < fl.length(); i++) 
-				    	{			
-				    		Segment seg = fl.get(i);
-				    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    			
-				    	// save front right path to CSV
-				    	for (int i = 0; i < fr.length(); i++) 
-				    	{			
-				    		Segment seg = fr.get(i);
-				    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    	
-				    	// save back left path to CSV
-				    	for (int i = 0; i < bl.length(); i++) 
-				    	{			
-				    		Segment seg = bl.get(i);
-				    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
-				    			
-				    	// save back right path to CSV
-				    	for (int i = 0; i < br.length(); i++) 
-				    	{			
-				    		Segment seg = br.get(i);
-				    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
-				    	}
+				        if (chckbxReverse.isSelected())
+				        {
+				    		Pathfinder.writeToCSV(frontLeftFile, br);
+				    		Pathfinder.writeToCSV(frontRightFile, bl);
+				    		Pathfinder.writeToCSV(backLeftFile, fr);
+				    		Pathfinder.writeToCSV(backRightFile, fl);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion 
+				    		// save front left path to CSV
+					    	for (int i = 0; i < fl.length(); i++) 
+					    	{			
+					    		Segment seg = br.get(i);
+					    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save front right path to CSV
+					    	for (int i = 0; i < fr.length(); i++) 
+					    	{			
+					    		Segment seg = bl.get(i);
+					    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    	
+					    	// save back left path to CSV
+					    	for (int i = 0; i < bl.length(); i++) 
+					    	{			
+					    		Segment seg = fr.get(i);
+					    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save back right path to CSV
+					    	for (int i = 0; i < br.length(); i++) 
+					    	{			
+					    		Segment seg = fl.get(i);
+					    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
+				        else
+				        {
+				        	Pathfinder.writeToCSV(frontLeftFile, fl);
+				    		Pathfinder.writeToCSV(frontRightFile, fr);
+				    		Pathfinder.writeToCSV(backLeftFile, bl);
+				    		Pathfinder.writeToCSV(backRightFile, br);
+					        
+					        // CSV with position and velocity. To be used with Talon SRX Motion
+				    		// save front left path to CSV
+					    	for (int i = 0; i < fl.length(); i++) 
+					    	{			
+					    		Segment seg = fl.get(i);
+					    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save front right path to CSV
+					    	for (int i = 0; i < fr.length(); i++) 
+					    	{			
+					    		Segment seg = fr.get(i);
+					    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    	
+					    	// save back left path to CSV
+					    	for (int i = 0; i < bl.length(); i++) 
+					    	{			
+					    		Segment seg = bl.get(i);
+					    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+					    			
+					    	// save back right path to CSV
+					    	for (int i = 0; i < br.length(); i++) 
+					    	{			
+					    		Segment seg = br.get(i);
+					    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+					    	}
+				        }
 				    			
 				    	flpw.close();
 				    	frpw.close();
