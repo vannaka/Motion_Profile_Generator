@@ -58,8 +58,8 @@ public class Gui {
 	private JTextField txtJerk;
 	private JTextField txtWheelBaseW;
 	private JTextField txtAngle;
-	private JTextField txtXValue;
-	private JTextField txtYValue;
+	static JTextField txtXValue;
+	static JTextField txtYValue;
 	private JTextField txtFileName;
 	
 	private JCheckBox chckbxReverse;
