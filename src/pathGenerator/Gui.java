@@ -264,7 +264,7 @@ public class Gui {
 		trajecPanel.add(lblWaypoints);
 		
 		txtWheelBaseW = new JTextField();
-		txtWheelBaseW.setText("1.464");
+		txtWheelBaseW.setText("2.16");
 		txtWheelBaseW.setBounds(140, 175, 86, 20);
 		trajecPanel.add(txtWheelBaseW);
 		txtWheelBaseW.setColumns(10);
@@ -894,6 +894,14 @@ public class Gui {
     	txtXValue.setText("");
     	txtYValue.setText("");
     	txtAngle.setText("");
+	double[][] point = new double[][] {{xValue - 0.2, yValue - 0.2}, {xValue + 0.2, yValue + 0.2}};
+	double[][] point2 = new double[][] {{xValue - 0.2, yValue + 0.2}, {xValue + 0.2, yValue - 0.2}};
+	Gui.blueAllianceGraph.addData(point, Color.magenta);
+	Gui.blueAllianceGraph.addData(point2, Color.magenta);
+	Gui.blueAllianceGraph.repaint();
+	Gui.redAllianceGraph.addData(point, Color.magenta);
+	Gui.redAllianceGraph.addData(point2, Color.magenta);
+	Gui.redAllianceGraph.repaint();
     		
     	btnAddPoint.setText("Add Point");
     }
