@@ -1,12 +1,94 @@
 package pathGenerator;
 
 import java.awt.Color;
+import pathGenerator.Gui;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.text.DecimalFormat;
 
 public class MotionGraphsFeet {
+	
+	private static void generatePointOnMouseClickBlue(MouseEvent e) {
+		DecimalFormat df = new DecimalFormat("#.##");
+		double xLocation = e.getX();
+		double yLocation = e.getY();
+		if(xLocation <= 70) {
+			xLocation = 0;
+		} else { 
+			xLocation = xLocation - 70;
+		}
+		if(yLocation >= 514) {
+			yLocation = 0;
+		} else {
+			yLocation = yLocation - 514;
+		}
+		xLocation = xLocation / 13.8;
+		yLocation = yLocation / 16.7;
+		xLocation = Math.abs(xLocation);
+		yLocation = Math.abs(yLocation);
+		xLocation = Double.valueOf(df.format(xLocation));
+		yLocation = Double.valueOf(df.format(yLocation));
+		Gui.txtXValue.setText(Double.toString(xLocation));
+		Gui.txtYValue.setText(Double.toString(yLocation));
+	}
 
+	private static void generatePointOnMouseClickRed(MouseEvent e) {
+		DecimalFormat df = new DecimalFormat("#.##");
+		double xLocation = e.getX();
+		double yLocation = e.getY();
+		if(xLocation <= 70) {
+			xLocation = 0;
+		} else { 
+			xLocation = xLocation - 70;
+		}
+		if(yLocation >= 514) {
+			yLocation = 0;
+		} else {
+			yLocation = yLocation - 514;
+		}
+		xLocation = xLocation / 13.8;
+		yLocation = yLocation / 16.7;
+		xLocation = Math.abs(xLocation);
+		yLocation = Math.abs(yLocation);
+		xLocation = Double.valueOf(df.format(xLocation));
+		yLocation = Double.valueOf(df.format(yLocation));
+		Gui.txtXValue.setText(Double.toString(xLocation));
+		Gui.txtYValue.setText(Double.toString(yLocation));
+	}
+	
 	static void motionGraphBlue()
 	{
 		// Create a blank grid for the field graph
+		Gui.blueAllianceGraph.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				generatePointOnMouseClickBlue(e);
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		Gui.blueAllianceGraph.yGridOn();
 		Gui.blueAllianceGraph.xGridOn();
 		Gui.blueAllianceGraph.setYLabel("Y (feet)");
@@ -227,6 +309,36 @@ public class MotionGraphsFeet {
 	static void motionGraphRed()
 	{
 		// Create a blank grid for the field graph
+		Gui.redAllianceGraph.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				generatePointOnMouseClickRed(e);
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		Gui.redAllianceGraph.yGridOn();
 		Gui.redAllianceGraph.xGridOn();
 		Gui.redAllianceGraph.setYLabel("Y (feet)");
