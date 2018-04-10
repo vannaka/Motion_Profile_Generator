@@ -18,15 +18,14 @@ public class Main extends Application
 		try
 		{
 			VBox root = (VBox)FXMLLoader.load(getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml"));
-			Scene scene = new Scene(root,400,400);
+			Scene scene = new Scene(root);
 			Dimension res = Toolkit.getDefaultToolkit().getScreenSize();
 	        int width = res.width - 269;
-	        int height = res.height - 111;			
-			
-			scene.getStylesheets().add(getClass().getResource("/com/mammen/ui/javafx/application.css").toExternalForm());
-			
+	        int height = res.height - 111;
+	        
 			primaryStage.setScene(scene);
 			primaryStage.setTitle("Motion Profile Generator");
+			
 			primaryStage.setWidth(width);
 	        primaryStage.setHeight(height);
 	        primaryStage.centerOnScreen();
