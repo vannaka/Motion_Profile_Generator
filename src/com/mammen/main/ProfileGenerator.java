@@ -15,13 +15,37 @@ import jaci.pathfinder.modifiers.TankModifier;
 public class ProfileGenerator 
 {
 	public enum DriveBase {
-        TANK,
-        SWERVE
+        TANK("TANK"),
+        SWERVE("SWERVE");
+        
+        private String label;
+
+		DriveBase(String label)
+		{
+            this.label = label;
+        }
+
+        public String toString()
+        {
+            return label;
+        }
     }
 
     public enum Units {
-        IMPERIAL,
-        METRIC
+        IMPERIAL("IMPERIAL"),
+        METRIC("METRIC");
+        
+        private String label;
+        
+        Units(String label)
+        {
+        	this.label = label;
+        }
+        
+        public String toString()
+        {
+            return label;
+        }
     }
     
     private double timeStep;

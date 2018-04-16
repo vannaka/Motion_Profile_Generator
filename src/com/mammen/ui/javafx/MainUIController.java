@@ -1,5 +1,648 @@
 package com.mammen.ui.javafx;
 
-public class MainUIController {
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import com.mammen.ui.javafx.factory.SeriesFactory;
+import com.mammen.util.Mathf;
+import com.mammen.ui.javafx.factory.DialogFactory;
+import com.mammen.main.ProfileGenerator;
+
+import jaci.pathfinder.Pathfinder;
+import jaci.pathfinder.Trajectory;
+import jaci.pathfinder.Waypoint;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableValueBase;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.Pane;
+import javafx.util.Callback;
+import javafx.util.converter.DoubleStringConverter;
+
+public class MainUIController 
+{
+	private ProfileGenerator backend;
 	
+	@FXML
+    private Pane root;
+
+    @FXML
+    private TextField
+        txtTimeStep,
+        txtVelocity,
+        txtAcceleration,
+        txtJerk,
+        txtWheelBaseW,
+        txtWheelBaseD;
+
+    @FXML
+    private Label
+        lblWheelBaseD;
+
+    @FXML
+    private TableView<Waypoint> tblWaypoints;
+
+    @FXML
+    private LineChart<Double, Double>
+        chtPosition,
+        chtVelocity;
+
+    @FXML
+    private NumberAxis
+        axisPosX,
+        axisPosY,
+        axisTime,
+        axisVel;
+
+    @FXML
+    private TableColumn<Waypoint, Double>
+        colWaypointX,
+        colWaypointY,
+        colWaypointAngle;
+    
+    @FXML
+    private MenuItem
+        mnuOpen,
+        mnuFileNew,
+        mnuFileSave,
+        mnuFileSaveAs,
+        mnuFileExport,
+        mnuFileExit,
+        mnuHelpAbout;
+
+    @FXML
+    private ChoiceBox<String> 
+    	choDriveBase, 
+    	choFitMethod,
+    	choUnits;
+
+    @FXML
+    private Button
+        btnAddPoint,
+        btnClearPoints,
+        btnDelete;
+
+    private ObservableList<Waypoint> waypointsList;
+    
+    @FXML
+    public void initialize() 
+    {
+        backend = new ProfileGenerator();
+
+        btnDelete.setDisable(true);
+
+        choDriveBase.getItems().addAll("Tank", "Swerve");
+        choDriveBase.setValue(choDriveBase.getItems().get(0));
+        choDriveBase.getSelectionModel().selectedItemProperty().addListener(this::updateDriveBase);
+
+        choFitMethod.getItems().addAll("Cubic", "Quintic");
+        choFitMethod.setValue(choFitMethod.getItems().get(0));
+        choFitMethod.getSelectionModel().selectedItemProperty().addListener(this::updateFitMethod);
+
+        choUnits.getItems().addAll("Imperial", "Metric");
+        choUnits.setValue(choUnits.getItems().get(0));
+        choUnits.getSelectionModel().selectedItemProperty().addListener(this::updateUnits);
+        
+        Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
+            (TableColumn<Waypoint, Double> param) -> {
+                TextFieldTableCell<Waypoint, Double> cell = new TextFieldTableCell<>();
+
+                cell.setConverter(new DoubleStringConverter());
+
+                return cell;
+        };
+
+        EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler =
+            (TableColumn.CellEditEvent<Waypoint, Double> t) -> {
+                Waypoint curWaypoint = t.getRowValue();
+
+                if (t.getTableColumn() == colWaypointAngle)
+                    curWaypoint.angle = Pathfinder.d2r(t.getNewValue());
+                else if (t.getTableColumn() == colWaypointY)
+                    curWaypoint.y = t.getNewValue();
+                else
+                    curWaypoint.x = t.getNewValue();
+
+                generateTrajectories();
+        };
+
+        txtTimeStep.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+        txtVelocity.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+        txtAcceleration.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+        txtJerk.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+        txtWheelBaseW.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+        txtWheelBaseD.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+
+        txtTimeStep.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            if (!newValue) // On unfocus
+            { 
+                String val = txtTimeStep.getText().trim();
+                double d = 0;
+
+                if (val.isEmpty())
+                {
+                    val = "0.02";
+                    txtTimeStep.setText(val);
+                } 
+                else 
+                {
+                    d = Double.parseDouble(val);
+                    if (d != 0)
+                    {
+                        txtTimeStep.setText("" + Math.abs(d));
+                        generateTrajectories();
+                    }
+                }
+            }
+        });
+
+        txtVelocity.focusedProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (!newValue) // On unfocus
+            { 
+                String val = txtVelocity.getText().trim();
+                double d = 0;
+
+                if (val.isEmpty())
+                {
+                    val = "4.0";
+                    txtVelocity.setText(val);
+                } 
+                else 
+                {
+                    d = Double.parseDouble(val);
+                    if (d != 0)
+                    {
+                        txtVelocity.setText("" + Math.abs(d));
+                        generateTrajectories();
+                    }
+                }
+            }
+        });
+
+        txtAcceleration.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            if (!newValue) // On unfocus
+            {
+                String val = txtAcceleration.getText().trim();
+                double d = 0;
+
+                if (val.isEmpty())
+                {
+                    val = "3.0";
+                    txtAcceleration.setText(val);
+                } 
+                else 
+                {
+                    d = Double.parseDouble(val);
+                    if (d != 0)
+                    {
+                        txtAcceleration.setText("" + Math.abs(d));
+                        generateTrajectories();
+                    }
+                }
+            }
+        });
+
+        txtJerk.focusedProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (!newValue) // On unfocus
+            { 
+                String val = txtJerk.getText().trim();
+                double d = 0;
+
+                if (val.isEmpty())
+                {
+                    val = "60.0";
+                    txtJerk.setText(val);
+                } 
+                else
+                {
+                    d = Double.parseDouble(val);
+                    if (d != 0) 
+                    {
+                        txtJerk.setText("" + Math.abs(d));
+                        generateTrajectories();
+                    }
+                }
+            }
+        });
+
+        txtWheelBaseW.focusedProperty().addListener((observable, oldValue, newValue) -> 
+        {
+            if (!newValue) // On unfocus
+            {
+                String val = txtWheelBaseW.getText().trim();
+                double d = 0;
+
+                if (val.isEmpty())
+                {
+                    val = "1.464";
+                    txtWheelBaseW.setText(val);
+                }
+                else 
+                {
+                    d = Double.parseDouble(val);
+                    if (d != 0)
+                    {
+                        txtWheelBaseW.setText("" + Math.abs(d));
+                        generateTrajectories();
+                    }
+                }
+            }
+        });
+
+        txtWheelBaseD.focusedProperty().addListener((observable, oldValue, newValue) ->
+        {
+            if (!newValue) // On unfocus
+            {
+                String val = txtWheelBaseD.getText().trim();
+                double d = 0;
+
+                if (val.isEmpty()) 
+                {
+                    val = "1.464";
+                    txtWheelBaseD.setText(val);
+                } 
+                else 
+                {
+                    d = Double.parseDouble(val);
+                    if (d != 0)
+                    {
+                        txtWheelBaseD.setText( "" + Math.abs(d) );
+                        generateTrajectories();
+                    }
+                }
+            }
+        });
+        
+        colWaypointX.setCellFactory(doubleCallback);
+        colWaypointY.setCellFactory(doubleCallback);
+        colWaypointAngle.setCellFactory(doubleCallback);
+
+        colWaypointX.setOnEditCommit(editHandler);
+        colWaypointY.setOnEditCommit(editHandler);
+        colWaypointAngle.setOnEditCommit(editHandler);
+
+        colWaypointX.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        {
+            @Override
+            public Double getValue()
+            {
+                return d.getValue().x;
+            }
+        });
+
+        colWaypointY.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        {
+            @Override
+            public Double getValue() {
+                return d.getValue().y;
+            }
+        });
+
+        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>() 
+        {
+            @Override
+            public Double getValue()
+            {
+                return Mathf.round(Pathfinder.r2d(d.getValue().angle), 2);
+            }
+        });
+
+        waypointsList = FXCollections.observableList(backend.getWaypointsList());
+        waypointsList.addListener((ListChangeListener<Waypoint>) c -> 
+        {
+            btnClearPoints.setDisable( waypointsList.size() == 0 );
+            if (!generateTrajectories())
+                waypointsList.remove(waypointsList.size());
+        });
+
+        tblWaypoints.setItems(waypointsList);
+        tblWaypoints.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        tblWaypoints.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) ->
+                btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1)
+        );
+
+        //updateOverlayImg();
+        updateFrontend();
+    }
+    
+    @FXML
+    private void showAddPointDialog() 
+    {
+        Dialog<Waypoint> waypointDialog = DialogFactory.createWaypointDialog();
+        Optional<Waypoint> result = null;
+
+        // Wait for the result
+        result = waypointDialog.showAndWait();
+
+        result.ifPresent((Waypoint w) -> waypointsList.add(w));
+    }
+    
+    @FXML
+    private void showClearPointsDialog() 
+    {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+        alert.setTitle("Clear Points");
+        alert.setHeaderText("Clear All Points?");
+        alert.setContentText("Are you sure you want to clear all points?");
+        
+        Optional<ButtonType> result = alert.showAndWait();
+        
+        result.ifPresent((ButtonType t) -> {
+            if (t.getButtonData() == ButtonBar.ButtonData.OK_DONE)
+                waypointsList.clear();
+        });
+    }
+    
+    @FXML
+    private void validateFieldEdit(ActionEvent event)
+    {
+        String val = ((TextField) event.getSource()).getText().trim();
+        double d = 0;
+        boolean validInput = true;
+
+        try {
+            d = Double.parseDouble(val);
+
+            validInput = d > 0;
+        } catch (NumberFormatException e) {
+            validInput = false;
+        } finally {
+            if (validInput)
+                generateTrajectories();
+            else
+                Toolkit.getDefaultToolkit().beep();
+        }
+    }
+    
+    @FXML
+    private void deletePoints() 
+    {
+        List<Integer> selectedIndicies = tblWaypoints.getSelectionModel().getSelectedIndices();
+
+        int firstIndex = selectedIndicies.get(0);
+        int lastIndex = selectedIndicies.get(selectedIndicies.size() - 1);
+
+        waypointsList.remove(firstIndex, lastIndex + 1);
+    }
+    
+    @FXML
+    private void updateBackend() {
+        backend.setTimeStep(Double.parseDouble( txtTimeStep.getText().trim() ));
+        backend.setVelocity(Double.parseDouble( txtVelocity.getText().trim() ));
+        backend.setAcceleration(Double.parseDouble( txtAcceleration.getText().trim() ));
+        backend.setJerk(Double.parseDouble( txtJerk.getText().trim() ));
+        backend.setWheelBaseW(Double.parseDouble( txtWheelBaseW.getText().trim() ));
+        backend.setWheelBaseD(Double.parseDouble( txtWheelBaseD.getText().trim() ));
+    }
+
+    /**
+     * Updates all fields and views in the UI.
+     */
+    private void updateFrontend() {
+        txtTimeStep.setText("" + backend.getTimeStep());
+        txtVelocity.setText("" + backend.getVelocity());
+        txtAcceleration.setText("" + backend.getAcceleration());
+        txtJerk.setText("" + backend.getJerk());
+        txtWheelBaseW.setText("" + backend.getWheelBaseW());
+        txtWheelBaseD.setText("" + backend.getWheelBaseD());
+
+        choDriveBase.setValue(choDriveBase.getItems().get(backend.getDriveBase().ordinal()));
+        choFitMethod.setValue(choFitMethod.getItems().get(backend.getFitMethod().ordinal()));
+        choUnits.setValue(choUnits.getItems().get(backend.getUnits().ordinal()));
+
+        refreshWaypointTable();
+    }
+    
+    private boolean generateTrajectories() {
+        updateBackend();
+
+        if (waypointsList.size() > 1) {
+            try {
+                backend.updateTrajectories();
+            } catch (Pathfinder.GenerationException e) {
+                Toolkit.getDefaultToolkit().beep();
+
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+
+                alert.setTitle("Invalid Trajectory");
+                alert.setHeaderText("Invalid trajectory point!");
+                alert.setContentText("The trajectory point is invalid because one of the waypoints is invalid! " +
+                        "Please check the waypoints and try again.");
+                alert.showAndWait();
+            }
+        }
+        
+        repopulatePosChart();
+        repopulateVelChart();
+
+        return true;
+    }
+     
+    private void updateDriveBase(ObservableValue<? extends String> observable, Object oldValue, Object newValue)
+    {
+        String choice = ((String) newValue).toUpperCase();
+        ProfileGenerator.DriveBase db = ProfileGenerator.DriveBase.valueOf(choice);
+
+        backend.setDriveBase(db);
+
+        txtWheelBaseD.setDisable(db == ProfileGenerator.DriveBase.TANK);
+        lblWheelBaseD.setDisable(db == ProfileGenerator.DriveBase.TANK);
+
+        generateTrajectories();
+    }
+
+    private void updateFitMethod(ObservableValue<? extends String> observable, Object oldValue, Object newValue) 
+    {
+        String choice = ((String) newValue).toUpperCase();
+        Trajectory.FitMethod fm = Trajectory.FitMethod.valueOf("HERMITE_" + choice);
+
+        backend.setFitMethod(fm);
+
+        generateTrajectories();
+    }
+
+    private void updateUnits(ObservableValue<? extends String> observable, Object oldValue, Object newValue) 
+    {
+        String choice = ((String) newValue).toUpperCase();
+        ProfileGenerator.Units u = ProfileGenerator.Units.valueOf(choice);
+
+        backend.setUnits(u);
+        updateChartAxis();
+    }
+	
+    private void repopulatePosChart() 
+    {
+        XYChart.Series<Double, Double> waypointSeries;
+
+        // Clear data from position graph
+        chtPosition.getData().clear();
+
+        // Start by drawing drive train trajectories
+        if (waypointsList.size() > 1) 
+        {
+            XYChart.Series<Double, Double>
+                    flSeries = SeriesFactory.buildPositionSeries(backend.getFrontLeftTrajectory()),
+                    frSeries = SeriesFactory.buildPositionSeries(backend.getFrontRightTrajectory());
+
+            if (backend.getDriveBase() == ProfileGenerator.DriveBase.SWERVE)
+            {
+                XYChart.Series<Double, Double>
+                        blSeries = SeriesFactory.buildPositionSeries(backend.getBackLeftTrajectory()),
+                        brSeries = SeriesFactory.buildPositionSeries(backend.getBackRightTrajectory());
+
+                chtPosition.getData().addAll(blSeries, brSeries, flSeries, frSeries);
+                flSeries.getNode().setStyle("-fx-stroke: red");
+                frSeries.getNode().setStyle("-fx-stroke: red");
+                blSeries.getNode().setStyle("-fx-stroke: blue");
+                brSeries.getNode().setStyle("-fx-stroke: blue");
+
+                for (XYChart.Data<Double, Double> data : blSeries.getData())
+                    data.getNode().setVisible(false);
+
+                for (XYChart.Data<Double, Double> data : brSeries.getData())
+                    data.getNode().setVisible(false);
+            }
+            else 
+            {
+                chtPosition.getData().addAll(flSeries, frSeries);
+
+                flSeries.getNode().setStyle("-fx-stroke: magenta");
+                frSeries.getNode().setStyle("-fx-stroke: magenta");
+            }
+
+            for (XYChart.Data<Double, Double> data : flSeries.getData())
+                data.getNode().setVisible(false);
+
+            for (XYChart.Data<Double, Double> data : frSeries.getData())
+                data.getNode().setVisible(false);
+        }
+
+        // Draw source (center) trajectory and waypoints on top of everything
+        if ( !waypointsList.isEmpty() )
+        {
+            waypointSeries = SeriesFactory.buildWaypointsSeries(waypointsList.toArray(new Waypoint[1]));
+
+            if ( waypointsList.size() > 1 ) 
+            {
+                XYChart.Series<Double, Double> sourceSeries =
+                        SeriesFactory.buildPositionSeries(backend.getSourceTrajectory());
+                chtPosition.getData().add(sourceSeries);
+                sourceSeries.getNode().setStyle("-fx-stroke: orange");
+
+                for (XYChart.Data<Double, Double> data : sourceSeries.getData())
+                    data.getNode().setVisible(false);
+            }
+
+            chtPosition.getData().add(waypointSeries);
+            waypointSeries.getNode().setStyle("-fx-stroke: transparent");
+            for (XYChart.Data<Double, Double> data : waypointSeries.getData())
+                data.getNode().setStyle("-fx-background-color: orange, white");
+        }
+    }
+
+    private void repopulateVelChart()
+    {
+        // Clear data from velocity graph
+        chtVelocity.getData().clear();
+
+        if (waypointsList.size() > 1) {
+            XYChart.Series<Double, Double>
+                    flSeries = SeriesFactory.buildVelocitySeries(backend.getFrontLeftTrajectory()),
+                    frSeries = SeriesFactory.buildVelocitySeries(backend.getFrontRightTrajectory());
+
+            chtVelocity.getData().addAll(flSeries, frSeries);
+
+            if (backend.getDriveBase() == ProfileGenerator.DriveBase.SWERVE) {
+                XYChart.Series<Double, Double>
+                        blSeries = SeriesFactory.buildVelocitySeries(backend.getBackLeftTrajectory()),
+                        brSeries = SeriesFactory.buildVelocitySeries(backend.getBackRightTrajectory());
+
+                chtVelocity.getData().addAll(blSeries, brSeries);
+
+                flSeries.setName("Front Left Trajectory");
+                frSeries.setName("Front Right Trajectory");
+                blSeries.setName("Back Left Trajectory");
+                brSeries.setName("Back Right Trajectory");
+            } 
+            else 
+            {
+                flSeries.setName("Left Trajectory");
+                frSeries.setName("Right Trajectory");
+            }
+        }
+    }
+
+    private void updateChartAxis() 
+    {
+        switch (backend.getUnits())
+        {
+            case IMPERIAL:
+                axisPosX.setUpperBound(32);
+                axisPosX.setTickUnit(1);
+                axisPosX.setLabel("X-Position (ft)");
+                axisPosY.setUpperBound(27);
+                axisPosY.setTickUnit(1);
+                axisPosY.setLabel("Y-Position (ft)");
+
+                axisVel.setLabel("Velocity (ft/s)");
+
+                break;
+            case METRIC:
+                axisPosX.setUpperBound(10);
+                axisPosX.setTickUnit(0.5);
+                axisPosX.setLabel("X-Position (m)");
+                axisPosY.setUpperBound(8.23);
+                axisPosY.setTickUnit(0.5);
+                axisPosY.setLabel("Y-Position (m)");
+
+                axisVel.setLabel("Velocity (m/s)");
+
+                break;
+            default:
+                backend.setUnits(ProfileGenerator.Units.IMPERIAL);
+                updateChartAxis();
+        }
+    }
+
+    /**
+     * Refreshes the waypoints table by clearing the waypoint list and repopulating it.
+     */
+    public void refreshWaypointTable() 
+    {
+        // Bad way to update the waypoint list...
+        // However, TableView.refresh() is apparently borked?
+        List<Waypoint> tmp = new ArrayList<>(backend.getWaypointsList());
+        waypointsList.clear();
+        waypointsList.addAll(tmp);
+    }
+    
 }

@@ -103,38 +103,23 @@
                               <RowConstraints maxHeight="208.0" minHeight="10.0" percentHeight="25.0" prefHeight="113.0" valignment="CENTER" vgrow="ALWAYS" />
                           </rowConstraints>
                            <children>
-                              <TextField fx:id="txtTimeStep" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="0.02" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                 <tooltip>
-                                    <Tooltip text="The rate at which the control loop on the roboRIO runs" textAlignment="CENTER" wrapText="true" />
-                                 </tooltip>
-                              </TextField>
                               <Label alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Time Step:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="1" />
                               <Label alignment="CENTER_RIGHT" layoutX="22.0" layoutY="36.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Velocity:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="2" />
-                              <TextField fx:id="txtVelocity" layoutX="101.0" layoutY="24.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="4" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                 <tooltip>
-                                    <Tooltip text="The max velocity rate your robot is capable of achieving" textAlignment="CENTER" wrapText="true" />
-                                 </tooltip>
-                              </TextField>
                               <Label alignment="CENTER_RIGHT" layoutX="33.0" layoutY="62.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Acceleration:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="3" />
-                              <TextField fx:id="txtAcceleration" layoutX="111.0" layoutY="83.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="3" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                 <tooltip>
-                                    <Tooltip text="The max acceleration rate your robot is capable of achieving" textAlignment="CENTER" wrapText="true" />
-                                 </tooltip>
-                              </TextField>
                               <Label alignment="CENTER_RIGHT" layoutX="43.0" layoutY="143.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Jerk:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="4" />
-                              <TextField fx:id="txtJerk" layoutX="111.0" layoutY="138.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="60" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                              <TextField fx:id="txtJerk" layoutX="111.0" layoutY="138.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="60" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                  <tooltip>
                                     <Tooltip text="The rate of change of acceleration; that is, the derivative of acceleration with respect to time" textAlignment="CENTER" wrapText="true" />
                                  </tooltip>
                               </TextField>
                               <Label alignment="CENTER_RIGHT" layoutX="38.0" layoutY="48.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="39.0" prefWidth="72.0" text="Wheel Base (Width):" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                               <Label fx:id="lblWheelBaseD" alignment="CENTER_RIGHT" disable="true" layoutX="186.0" layoutY="172.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="39.0" prefWidth="72.0" text="Wheel Base (Depth):" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                              <TextField fx:id="txtWheelBaseW" layoutX="104.0" layoutY="43.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="1.464" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                              <TextField fx:id="txtWheelBaseW" layoutX="104.0" layoutY="43.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="1.464" GridPane.columnIndex="3" GridPane.rowIndex="3">
                                  <tooltip>
                                     <Tooltip text="The distance between your left and right wheels" textAlignment="CENTER" wrapText="true" />
                                  </tooltip>
                               </TextField>
-                              <TextField fx:id="txtWheelBaseD" disable="true" layoutX="104.0" layoutY="178.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="0" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                              <TextField fx:id="txtWheelBaseD" disable="true" layoutX="104.0" layoutY="178.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="0" GridPane.columnIndex="3" GridPane.rowIndex="4">
                                  <tooltip>
                                     <Tooltip text="The distance between your front and back wheels (Swerve modifier only)" textAlignment="CENTER" wrapText="true" />
                                  </tooltip>
@@ -157,6 +142,21 @@
                                     <Tooltip text="The unit of measurement used for measuring distance" textAlignment="CENTER" wrapText="true" />
                                  </tooltip>
                               </ChoiceBox>
+                              <TextField fx:id="txtTimeStep" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="0.02" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                 <tooltip>
+                                    <Tooltip text="The rate at which the control loop on the roboRIO runs" textAlignment="CENTER" wrapText="true" />
+                                 </tooltip>
+                              </TextField>
+                              <TextField fx:id="txtVelocity" layoutX="101.0" layoutY="24.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="4" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                 <tooltip>
+                                    <Tooltip text="The max velocity rate your robot is capable of achieving" textAlignment="CENTER" wrapText="true" />
+                                 </tooltip>
+                              </TextField>
+                              <TextField fx:id="txtAcceleration" layoutX="111.0" layoutY="83.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="3" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                 <tooltip>
+                                    <Tooltip text="The max acceleration rate your robot is capable of achieving" textAlignment="CENTER" wrapText="true" />
+                                 </tooltip>
+                              </TextField>
                            </children>
                         </GridPane>
                      </content>
@@ -177,9 +177,8 @@
                               <RowConstraints maxHeight="296.0" minHeight="10.0" prefHeight="267.0" vgrow="ALWAYS" />
                            </rowConstraints>
                            <children>
-                              <Button fx:id="btnAddPoint" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" text="Add Point" textAlignment="CENTER" GridPane.halignment="CENTER" />
-                              <Button fx:id="btnClearPoints" alignment="CENTER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" text="Clear Points" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
-                              <Button fx:id="btnDelete" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" text="Delete Selected" textAlignment="CENTER" GridPane.columnIndex="2" />
+                              <Button fx:id="btnClearPoints" alignment="CENTER" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#showClearPointsDialog" text="Clear Points" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
+                              <Button fx:id="btnDelete" alignment="CENTER" maxWidth="1.7976931348623157E308" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#deletePoints" text="Delete Selected" textAlignment="CENTER" GridPane.columnIndex="2" />
                               <TableView fx:id="tblWaypoints" editable="true" prefHeight="160.0" prefWidth="304.0" GridPane.columnSpan="3" GridPane.rowIndex="1">
                                 <columns>
                                   <TableColumn fx:id="colWaypointX" minWidth="-1.0" prefWidth="-1.0" sortable="false" text="X" />
@@ -190,6 +189,7 @@
                                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                  </columnResizePolicy>
                               </TableView>
+                              <Button fx:id="btnAddPoint" alignment="CENTER" maxWidth="1.7976931348623157E308" minWidth="-Infinity" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#showAddPointDialog" text="Add Point" textAlignment="CENTER" GridPane.halignment="CENTER" />
                            </children>
                         </GridPane>
                      </content>
