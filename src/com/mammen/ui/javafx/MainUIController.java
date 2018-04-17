@@ -21,6 +21,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -39,9 +40,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 import javafx.util.converter.DoubleStringConverter;
+
+import static com.mammen.util.Mathf.round;
 
 public class MainUIController 
 {
@@ -107,6 +111,9 @@ public class MainUIController
         btnDelete;
 
     private ObservableList<Waypoint> waypointsList;
+
+    private Node backgroundChtPos;
+
     
     @FXML
     public void initialize() 
@@ -331,7 +338,7 @@ public class MainUIController
             @Override
             public Double getValue()
             {
-                return Mathf.round(Pathfinder.r2d(d.getValue().angle), 2);
+                return round(Pathfinder.r2d(d.getValue().angle), 2);
             }
         });
 
@@ -350,9 +357,29 @@ public class MainUIController
         );
 
         //updateOverlayImg();
+        backgroundChtPos = chtPosition.lookup(".chart-plot-background");
+        backgroundChtPos.setOnMouseClicked(this::whenChartClicked);
+
+
         updateFrontend();
     }
-    
+
+    private void whenChartClicked(MouseEvent mouseEvent)
+    {
+        double xPos = axisPosX.getValueForDisplay(mouseEvent.getX()).doubleValue();
+        double yPos =  axisPosY.getValueForDisplay(mouseEvent.getY()).doubleValue();
+
+        Optional<Waypoint> result = null;
+
+        result = DialogFactory.createWaypointDialog(String.valueOf(round(xPos, 2)),
+                String.valueOf(round(yPos, 2))).showAndWait();
+
+
+        result.ifPresent((Waypoint w) -> waypointsList.add(w));
+
+
+    }
+
     @FXML
     private void showAddPointDialog() 
     {

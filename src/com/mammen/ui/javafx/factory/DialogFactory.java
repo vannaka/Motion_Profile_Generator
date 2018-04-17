@@ -71,7 +71,7 @@ public class DialogFactory
         return dialog;
     }
 
-    public static Dialog<Waypoint> createWaypointDialog() {
+    public static Dialog<Waypoint> createWaypointDialog(String xPos, String yPos) {
         Dialog<Waypoint> dialog = new Dialog<>();
 
         try {
@@ -91,6 +91,9 @@ public class DialogFactory
             txtWX = controller.getTxtWX();
             txtWY = controller.getTxtWY();
             txtWA = controller.getTxtWA();
+
+            txtWX.setText(xPos);
+            txtWY.setText(yPos);
 
             // Some header stuff
             dialog.setTitle("Add Waypoint");
@@ -136,4 +139,6 @@ public class DialogFactory
 
         return dialog;
     }
+
+    public static Dialog<Waypoint> createWaypointDialog() { return createWaypointDialog("", ""); }
 }
