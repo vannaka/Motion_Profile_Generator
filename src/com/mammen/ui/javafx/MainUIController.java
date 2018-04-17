@@ -21,7 +21,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
+import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -111,9 +111,6 @@ public class MainUIController
         btnDelete;
 
     private ObservableList<Waypoint> waypointsList;
-
-    private Node backgroundChtPos;
-
     
     @FXML
     public void initialize() 
@@ -357,26 +354,29 @@ public class MainUIController
         );
 
         //updateOverlayImg();
-        backgroundChtPos = chtPosition.lookup(".chart-plot-background");
-        backgroundChtPos.setOnMouseClicked(this::whenChartClicked);
 
 
         updateFrontend();
     }
+    @FXML
+    private void addPointOnClick(MouseEvent event)
+    {   
+        Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
+        double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
+        double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
 
-    private void whenChartClicked(MouseEvent mouseEvent)
-    {
-        double xPos = axisPosX.getValueForDisplay(mouseEvent.getX()).doubleValue();
-        double yPos =  axisPosY.getValueForDisplay(mouseEvent.getY()).doubleValue();
+        double x = Mathf.round(axisPosX.getValueForDisplay(xLocal).doubleValue(), 2);
+        double y = Mathf.round(axisPosY.getValueForDisplay(yLocal).doubleValue(), 2);
 
-        Optional<Waypoint> result = null;
+        if (x >= axisPosX.getLowerBound() && x <= axisPosX.getUpperBound() &&
+            y >= axisPosY.getLowerBound() && y <= axisPosY.getUpperBound()) {
 
-        result = DialogFactory.createWaypointDialog(String.valueOf(round(xPos, 2)),
-                String.valueOf(round(yPos, 2))).showAndWait();
+        	Optional<Waypoint> result = null;
 
+        	result = DialogFactory.createWaypointDialog(String.valueOf(x), String.valueOf(y)).showAndWait();
 
-        result.ifPresent((Waypoint w) -> waypointsList.add(w));
-
+        	result.ifPresent((Waypoint w) -> waypointsList.add(w));
+        }
 
     }
 
