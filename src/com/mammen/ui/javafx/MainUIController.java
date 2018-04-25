@@ -860,13 +860,16 @@ public class MainUIController
             for (XYChart.Data<Double, Double> data : frSeries.getData())
                 data.getNode().setVisible(false);
         }
+        
+        String srcDisplayStr = properties.getProperty("ui.sourceDisplay", "2");
+        int sourceDisplay = Integer.parseInt(srcDisplayStr);
 
         // Draw source (center) trajectory and waypoints on top of everything
-        if ( !waypointsList.isEmpty() )
+        if ( !waypointsList.isEmpty() && sourceDisplay > 0)
         {
             waypointSeries = SeriesFactory.buildWaypointsSeries(waypointsList.toArray(new Waypoint[1]));
 
-            if ( waypointsList.size() > 1 ) 
+            if ( waypointsList.size() > 1 && sourceDisplay == 2) 
             {
                 XYChart.Series<Double, Double> sourceSeries =
                         SeriesFactory.buildPositionSeries(backend.getSourceTrajectory());
