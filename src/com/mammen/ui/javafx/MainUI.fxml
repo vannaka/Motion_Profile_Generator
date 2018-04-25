@@ -37,7 +37,7 @@
                         <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-            <MenuItem fx:id="mnuOpen" mnemonicParsing="false" text="Open…">
+            <MenuItem fx:id="mnuOpen" mnemonicParsing="false" onAction="#showOpenDialog" text="Open…">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>

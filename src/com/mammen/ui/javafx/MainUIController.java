@@ -471,6 +471,37 @@ public class MainUIController
     }
     
     @FXML
+    private void showOpenDialog() {
+        FileChooser fileChooser = new FileChooser();
+
+        fileChooser.setInitialDirectory(workingDirectory);
+        fileChooser.setTitle("Open Project");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Extensive Markup Language", "*.xml")
+        );
+
+        File result = fileChooser.showOpenDialog(root.getScene().getWindow());
+
+        if (result != null) {
+            try {
+                workingDirectory = result.getParentFile();
+                backend.loadProject(result);
+
+                updateFrontend();
+                updateChartAxis();
+
+                generateTrajectories();
+
+                mnuFileSave.setDisable(false);
+            } catch (Exception e) {
+                Alert alert = AlertFactory.createExceptionAlert(e);
+
+                alert.showAndWait();
+            }
+        }
+    }
+    
+    @FXML
     private void save() {
         updateBackend();
 

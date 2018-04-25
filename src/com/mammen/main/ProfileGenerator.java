@@ -233,6 +233,60 @@ public class ProfileGenerator
     }
     
     /**
+     * Loads a project from file.
+     *
+     * @param path the absolute file path to load the project from
+     * @throws IOException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     */
+    public void loadProject(File path) throws IOException, ParserConfigurationException, SAXException {
+        if (!path.exists() || path.isDirectory())
+            return;
+
+        if (path.getAbsolutePath().toLowerCase().endsWith("." + PROJECT_EXTENSION)) {
+            DocumentBuilder db = dbFactory.newDocumentBuilder();
+
+            Document dom = db.parse(path);
+
+            Element docEle = dom.getDocumentElement();
+
+            timeStep = Double.parseDouble(docEle.getAttribute("dt"));
+            velocity = Double.parseDouble(docEle.getAttribute("velocity"));
+            acceleration = Double.parseDouble(docEle.getAttribute("acceleration"));
+            jerk = Double.parseDouble(docEle.getAttribute("jerk"));
+            wheelBaseW = Double.parseDouble(docEle.getAttribute("wheelBaseW"));
+            wheelBaseD = Double.parseDouble(docEle.getAttribute("wheelBaseD"));
+
+            driveBase = DriveBase.valueOf(docEle.getAttribute("driveBase"));
+            fitMethod = FitMethod.valueOf(docEle.getAttribute("fitMethod"));
+            units = Units.valueOf(docEle.getAttribute("units"));
+
+            NodeList waypointEleList = docEle.getElementsByTagName("Waypoint");
+
+            POINTS.clear();
+            if (waypointEleList != null && waypointEleList.getLength() > 0) {
+                for (int i = 0; i < waypointEleList.getLength(); i++) {
+                    Element waypointEle = (Element) waypointEleList.item(i);
+
+                    String
+                            xText = waypointEle.getElementsByTagName("X").item(0).getTextContent(),
+                            yText = waypointEle.getElementsByTagName("Y").item(0).getTextContent(),
+                            angleText = waypointEle.getElementsByTagName("Angle").item(0).getTextContent();
+
+                    POINTS.add(new Waypoint(
+                            Double.parseDouble(xText),
+                            Double.parseDouble(yText),
+                            Double.parseDouble(angleText)
+                    ));
+                }
+            }
+
+            workingProject = path;
+        }
+    }
+    
+    /**
      * Clears the working project files
      */
     public void clearWorkingFiles() {
