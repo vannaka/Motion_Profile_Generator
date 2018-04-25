@@ -233,6 +233,13 @@ public class ProfileGenerator
     }
     
     /**
+     * Clears the working project files
+     */
+    public void clearWorkingFiles() {
+        workingProject = null;
+    }
+    
+    /**
      * Resets configuration to default values
      */
     public void resetValues() 

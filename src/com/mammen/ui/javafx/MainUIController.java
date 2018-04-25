@@ -484,6 +484,30 @@ public class MainUIController
     }
     
     @FXML
+    private void resetData() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+        alert.setTitle("Create New Project?");
+        alert.setHeaderText("Confirm Reset");
+        alert.setContentText("Are you sure you want to reset all data? Have you saved?");
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        result.ifPresent((ButtonType t) -> {
+            if (t == ButtonType.OK) {
+                backend.clearWorkingFiles();
+                backend.resetValues();
+
+                updateFrontend();
+                waypointsList.clear();
+                updateChartAxis();
+
+                mnuFileSave.setDisable(true);
+            }
+        });
+    }
+    
+    @FXML
     private void addPointOnClick(MouseEvent event)
     {   
     	boolean addWaypointOnClick = Boolean.parseBoolean(
