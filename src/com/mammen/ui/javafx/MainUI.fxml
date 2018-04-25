@@ -64,7 +64,7 @@
                      </accelerator>
                   </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false" />
-                <MenuItem fx:id="mnuEditSetBG" mnemonicParsing="false" text="Settings...">
+                <MenuItem fx:id="mnuEditSetBG" mnemonicParsing="false" onAction="#showSettingsDialog" text="Settings...">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="COMMA" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>

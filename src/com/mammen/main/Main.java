@@ -6,18 +6,18 @@ import java.awt.Toolkit;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Pane;
 import javafx.fxml.FXMLLoader;
 
 
 public class Main extends Application 
 {
 	@Override
-	public void start(Stage primaryStage) 
+	public void start(Stage primaryStage)
 	{
 		try
 		{
-			VBox root = (VBox)FXMLLoader.load(getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml"));
+			Pane root = FXMLLoader.load(getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml"));
 			Scene scene = new Scene(root);
 			Dimension res = Toolkit.getDefaultToolkit().getScreenSize();
 	        int width = res.width - 269;

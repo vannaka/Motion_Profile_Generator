@@ -26,7 +26,7 @@ public class DialogFactory
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ResourceLoader.getResource("/com/jtulayan/ui/javafx/dialog/AboutDialog.fxml")
+                    ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/AboutDialog.fxml")
             );
 
             dialog.setDialogPane(loader.load());
@@ -49,7 +49,7 @@ public class DialogFactory
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ResourceLoader.getResource("/com/jtulayan/ui/javafx/dialog/SettingsDialog.fxml")
+                    ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/SettingsDialog.fxml")
             );
 
             dialog.setDialogPane(loader.load());

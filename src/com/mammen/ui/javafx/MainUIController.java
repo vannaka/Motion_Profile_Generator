@@ -1,11 +1,15 @@
 package com.mammen.ui.javafx;
 
-import java.awt.Toolkit;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 import com.mammen.ui.javafx.factory.SeriesFactory;
+import com.mammen.ui.javafx.factory.AlertFactory;
 import com.mammen.util.Mathf;
 import com.mammen.ui.javafx.factory.DialogFactory;
 import com.mammen.main.ProfileGenerator;
@@ -30,7 +34,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
@@ -112,10 +118,17 @@ public class MainUIController
 
     private ObservableList<Waypoint> waypointsList;
     
+    private Properties properties;
+
+    private File workingDirectory;
+    
     @FXML
     public void initialize() 
     {
         backend = new ProfileGenerator();
+        properties = PropWrapper.getProperties();
+        
+        workingDirectory = new File(properties.getProperty("file.workingDir", System.getProperty("user.dir")));
 
         btnDelete.setDisable(true);
 
@@ -353,29 +366,83 @@ public class MainUIController
                 btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1)
         );
 
-        //updateOverlayImg();
-
-
+        updateOverlayImg();
         updateFrontend();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            properties.setProperty("file.workingDir", workingDirectory.getAbsolutePath());
+            try {
+                PropWrapper.storeProperties();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }));
     }
+    
+    @FXML
+    private void showSettingsDialog() {
+        Dialog<Boolean> settingsDialog = DialogFactory.createSettingsDialog();
+        Optional<Boolean> result = null;
+
+        // Wait for the result
+        result = settingsDialog.showAndWait();
+
+        result.ifPresent((Boolean b) -> {
+            if (b) {
+                try {
+                    DialogPane pane = settingsDialog.getDialogPane();
+
+                    String overlayDir = ((TextField) pane.lookup("#txtOverlayDir")).getText().trim();
+
+                    int sourceDisplay = ((ChoiceBox<String>) pane.lookup("#choSourceDisplay"))
+                            .getSelectionModel()
+                            .getSelectedIndex();
+
+                    boolean addWaypointOnClick = ((CheckBox) pane.lookup("#chkAddWaypointOnClick")).isSelected();
+
+                    properties.setProperty("ui.overlayDir", overlayDir);
+                    properties.setProperty("ui.sourceDisplay", "" + sourceDisplay);
+                    properties.setProperty("ui.addWaypointOnClick", "" + addWaypointOnClick);
+
+                    updateOverlayImg();
+                    repopulatePosChart();
+                    PropWrapper.storeProperties();
+                } catch (IOException e) {
+                    Alert alert = AlertFactory.createExceptionAlert(e);
+
+                    alert.showAndWait();
+                }
+            }
+        });
+    }
+    
     @FXML
     private void addPointOnClick(MouseEvent event)
     {   
-        Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
-        double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
-        double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
-
-        double x = Mathf.round(axisPosX.getValueForDisplay(xLocal).doubleValue(), 2);
-        double y = Mathf.round(axisPosY.getValueForDisplay(yLocal).doubleValue(), 2);
-
-        if (x >= axisPosX.getLowerBound() && x <= axisPosX.getUpperBound() &&
-            y >= axisPosY.getLowerBound() && y <= axisPosY.getUpperBound()) {
-
-        	Optional<Waypoint> result = null;
-
-        	result = DialogFactory.createWaypointDialog(String.valueOf(x), String.valueOf(y)).showAndWait();
-
-        	result.ifPresent((Waypoint w) -> waypointsList.add(w));
+    	boolean addWaypointOnClick = Boolean.parseBoolean(
+                properties.getProperty("ui.addWaypointOnClick", "false")
+        );
+    	
+    	if (addWaypointOnClick) {
+	        Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
+	        double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
+	        double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
+	
+	        double x = Mathf.round(axisPosX.getValueForDisplay(xLocal).doubleValue(), 2);
+	        double y = Mathf.round(axisPosY.getValueForDisplay(yLocal).doubleValue(), 2);
+	
+	        if (x >= axisPosX.getLowerBound() && x <= axisPosX.getUpperBound() &&
+	            y >= axisPosY.getLowerBound() && y <= axisPosY.getUpperBound()) {
+	
+	        	Optional<Waypoint> result = null;
+	
+	        	result = DialogFactory.createWaypointDialog(String.valueOf(x), String.valueOf(y)).showAndWait();
+	
+	        	result.ifPresent((Waypoint w) -> waypointsList.add(w));
+	        }
+        
+    	} else {
+            event.consume();
         }
 
     }
@@ -525,6 +592,26 @@ public class MainUIController
         backend.setUnits(u);
         updateChartAxis();
     }
+    
+    private void updateOverlayImg() {
+        String dir = properties.getProperty("ui.overlayDir", "");
+
+        if (!dir.isEmpty()) {
+            try {
+                File img = new File(dir);
+                chtPosition.lookup(".chart-plot-background").setStyle(
+                    "-fx-background-image: url(" + img.toURI().toString() + ");" +
+                    "-fx-background-size: stretch;" +
+                    "-fx-background-position: top right;" +
+                    "-fx-background-repeat: no-repeat;"
+                );
+            } catch (Exception e) {
+                Alert alert = AlertFactory.createExceptionAlert(e);
+
+                alert.showAndWait();
+            }
+        }
+    } 
 	
     private void repopulatePosChart() 
     {
