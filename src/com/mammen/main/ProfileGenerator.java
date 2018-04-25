@@ -287,6 +287,56 @@ public class ProfileGenerator
     }
     
     /**
+     * Imports a properties (*.bot) file into the generator.
+     * This import method should work with properties files generated from version 2.3.0.
+     *
+     * @param path     the file path of the bot file
+     * @param botUnits the units to use for this bot file
+     * @throws IOException
+     */
+    public void importBotFile(File path, Units botUnits) throws IOException, NumberFormatException {
+        if (!path.exists() || path.isDirectory())
+            return;
+
+        if (path.getAbsolutePath().toLowerCase().endsWith(".bot")) {
+            BufferedReader botReader = new BufferedReader(new FileReader(path));
+            Stream<String> botStream = botReader.lines();
+            List<String> botLines = botStream.collect(Collectors.toList());
+
+            // First off we need to set the units of distance being used in the file.
+            // Unfortunately it is not explicitly saved to file; we will need some user input on that.
+            units = botUnits;
+
+            // Now we can read the first 7 lines and assign them accordingly.
+            timeStep = Math.abs(Double.parseDouble(botLines.get(0).trim()));
+            velocity = Math.abs(Double.parseDouble(botLines.get(1).trim()));
+            acceleration = Math.abs(Double.parseDouble(botLines.get(2).trim()));
+            jerk = Math.abs(Double.parseDouble(botLines.get(3).trim()));
+            wheelBaseW = Math.abs(Double.parseDouble(botLines.get(4).trim()));
+            wheelBaseD = Math.abs(Double.parseDouble(botLines.get(5).trim()));
+
+            fitMethod = FitMethod.valueOf("HERMITE_" + botLines.get(6).trim().toUpperCase());
+
+            if (wheelBaseD > 0) // Assume that the wheel base was swerve
+                driveBase = DriveBase.SWERVE;
+
+            // GLHF parse the rest of the file I guess...
+            for (int i = 7; i < botLines.size(); i++) {
+                String[] waypointVals = botLines.get(i).split(",");
+
+                POINTS.add(new Waypoint(
+                    Double.parseDouble(waypointVals[0].trim()),
+                    Double.parseDouble(waypointVals[1].trim()),
+                    Math.toRadians(Double.parseDouble(waypointVals[2].trim()))
+                ));
+            }
+
+            // Make sure you aren't trying to save to another project file
+            clearWorkingFiles();
+        }
+    }
+    
+    /**
      * Clears the working project files
      */
     public void clearWorkingFiles() {
@@ -480,6 +530,10 @@ public class ProfileGenerator
     public void setWheelBaseD(double wheelBaseD)
     {
         this.wheelBaseD = wheelBaseD;
+    }
+    
+    public boolean hasWorkingProject() {
+        return workingProject != null;
     }
 
     public List<Waypoint> getWaypointsList()

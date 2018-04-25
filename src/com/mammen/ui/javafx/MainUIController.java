@@ -25,28 +25,21 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
+
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -498,6 +491,80 @@ public class MainUIController
 
                 alert.showAndWait();
             }
+        }
+    }
+    
+    @FXML
+    private void showImportDialog() {
+        FileChooser fileChooser = new FileChooser();
+
+        fileChooser.setInitialDirectory(workingDirectory);
+        fileChooser.setTitle("Import");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Vannaka Properties File", "*.bot")
+        );
+
+        File result = fileChooser.showOpenDialog(root.getScene().getWindow());
+
+        if (result != null) {
+            Dialog<ProfileGenerator.Units> unitsSelector = new Dialog<>();
+            Optional<ProfileGenerator.Units> unitsResult = null;
+            GridPane grid = new GridPane();
+            ToggleGroup radGroup = new ToggleGroup();
+            RadioButton
+                radImperial = new RadioButton("Imperial (ft)"),
+                radMetric = new RadioButton("Metric (m)");
+
+            // Reset working directory
+            workingDirectory = result.getParentFile();
+
+            // Some header stuff
+            unitsSelector.setTitle("Select Units");
+            unitsSelector.setHeaderText("Select the distance units being used");
+
+            // Some other UI stuff
+            grid.setVgap(10);
+            grid.setPadding(new Insets(20, 150, 10, 10));
+
+            grid.add(radImperial, 0, 0);
+            grid.add(radMetric, 0, 1);
+
+            radImperial.setToggleGroup(radGroup);
+            radImperial.selectedProperty().set(true);
+            radMetric.setToggleGroup(radGroup);
+
+            unitsSelector.getDialogPane().setContent(grid);
+
+            // Add all buttons
+            unitsSelector.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            unitsSelector.setResultConverter(buttonType -> {
+                if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                    if (radMetric.selectedProperty().getValue())
+                        return ProfileGenerator.Units.METRIC;
+                    else
+                        return ProfileGenerator.Units.IMPERIAL;
+                }
+
+                return null;
+            });
+
+            unitsResult = unitsSelector.showAndWait();
+
+            unitsResult.ifPresent(u -> {
+                backend.clearPoints();
+                try {
+                    backend.importBotFile(result, u);
+
+                    updateFrontend();
+                    generateTrajectories();
+
+                    mnuFileSave.setDisable(!backend.hasWorkingProject());
+                } catch (Exception e) {
+                    Alert alert = AlertFactory.createExceptionAlert(e);
+
+                    alert.showAndWait();
+                }
+            });
         }
     }
     

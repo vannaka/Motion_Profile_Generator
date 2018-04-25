@@ -53,7 +53,7 @@
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                  <MenuItem fx:id="btnFileImport" mnemonicParsing="false" text="Import...">
+                  <MenuItem fx:id="btnFileImport" mnemonicParsing="false" onAction="#showImportDialog" text="Import...">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
