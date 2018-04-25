@@ -1,7 +1,10 @@
 package com.mammen.main;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
@@ -14,6 +17,8 @@ import jaci.pathfinder.modifiers.TankModifier;
 
 public class ProfileGenerator 
 {
+	public static final String PROJECT_EXTENSION = "xml";
+	
 	public enum DriveBase {
         TANK("TANK"),
         SWERVE("SWERVE");
@@ -72,10 +77,64 @@ public class ProfileGenerator
     // i.e. the center trajectory
     private Trajectory source;
     
+    // File stuff
+    private DocumentBuilderFactory dbFactory;
+    private File workingProject;
+    
     public ProfileGenerator()
     {
     	POINTS = new ArrayList<>();
+    	dbFactory = DocumentBuilderFactory.newInstance();
     	resetValues();
+    }
+    
+    /**
+     * Exports all trajectories to the parent folder, with the given root name and file extension.
+     *
+     * @param parentPath the absolute file path to save to, excluding file extension
+     * @param ext        the file extension to save to, can be {@code *.csv} or {@code *.traj}
+     * @throws Pathfinder.GenerationException
+     */
+    public void exportTrajectories(File parentPath, String ext) throws Pathfinder.GenerationException {
+        updateTrajectories();
+
+        File dir = parentPath.getParentFile();
+
+        if (dir != null && !dir.exists() && dir.isDirectory()) {
+            if (!dir.mkdirs())
+                return;
+        }
+
+        switch (ext) {
+            case ".csv":
+                Pathfinder.writeToCSV(new File(parentPath + "_source_detailed.csv"), source);
+
+                if (driveBase == DriveBase.SWERVE) {
+                    Pathfinder.writeToCSV(new File(parentPath + "_fl_detailed.csv"), fl);
+                    Pathfinder.writeToCSV(new File(parentPath + "_fr_detailed.csv"), fr);
+                    Pathfinder.writeToCSV(new File(parentPath + "_bl_detailed.csv"), bl);
+                    Pathfinder.writeToCSV(new File(parentPath + "_br_detailed.csv"), br);
+                } else {
+                    Pathfinder.writeToCSV(new File(parentPath + "_left_detailed.csv"), fl);
+                    Pathfinder.writeToCSV(new File(parentPath + "_right_detailed.csv"), fr);
+                }
+            break;
+            case ".traj":
+                Pathfinder.writeToFile(new File(parentPath + "_source_detailed.traj"), source);
+
+                if (driveBase == DriveBase.SWERVE) {
+                    Pathfinder.writeToFile(new File(parentPath + "_fl_detailed.traj"), fl);
+                    Pathfinder.writeToFile(new File(parentPath + "_fr_detailed.traj"), fr);
+                    Pathfinder.writeToFile(new File(parentPath + "_bl_detailed.traj"), bl);
+                    Pathfinder.writeToFile(new File(parentPath + "_br_detailed.traj"), br);
+                } else {
+                    Pathfinder.writeToFile(new File(parentPath + "_left_detailed.traj"), fl);
+                    Pathfinder.writeToFile(new File(parentPath + "_right_detailed.traj"), fr);
+                }
+            break;
+            default:
+                throw new IllegalArgumentException("Invalid file extension");
+        }
     }
     
     /**

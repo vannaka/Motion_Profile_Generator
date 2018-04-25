@@ -58,7 +58,7 @@
                         <KeyCodeCombination alt="UP" code="I" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-                <MenuItem fx:id="btnExport" mnemonicParsing="false" text="Export...">
+                <MenuItem fx:id="btnExport" mnemonicParsing="false" onAction="#showExportDialog" text="Export...">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>

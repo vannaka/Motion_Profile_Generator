@@ -48,6 +48,7 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import javafx.util.converter.DoubleStringConverter;
 
@@ -414,6 +415,33 @@ public class MainUIController
                 }
             }
         });
+    }
+    
+    @FXML
+    private void showExportDialog() {
+        FileChooser fileChooser = new FileChooser();
+
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+        fileChooser.setTitle("Export");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Comma Separated Values", "*.csv"),
+                new FileChooser.ExtensionFilter("Binary Trajectory File", "*.traj")
+        );
+
+        File result = fileChooser.showSaveDialog(root.getScene().getWindow());
+
+        if (result != null && generateTrajectories()) {
+            String parentPath = result.getAbsolutePath(), ext = parentPath.substring(parentPath.lastIndexOf("."));
+            parentPath = parentPath.substring(0, parentPath.lastIndexOf(ext));
+
+            try {
+                backend.exportTrajectories(new File(parentPath), ext);
+            } catch (Pathfinder.GenerationException e) {
+                Alert alert = AlertFactory.createExceptionAlert(e, "Invalid Trajectory!");
+
+                alert.showAndWait();
+            }
+        }
     }
     
     @FXML
