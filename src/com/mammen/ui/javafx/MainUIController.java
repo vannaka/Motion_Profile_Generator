@@ -411,6 +411,13 @@ public class MainUIController
     }
     
     @FXML
+    private void openAboutDialog() {
+        Dialog<Boolean> aboutDialog = DialogFactory.createAboutDialog();
+
+        aboutDialog.showAndWait();
+    }
+    
+    @FXML
     private void showExportDialog() {
         FileChooser fileChooser = new FileChooser();
 
@@ -580,6 +587,11 @@ public class MainUIController
             alert.showAndWait();
         }
     }
+    
+    @FXML
+    private void exit() {
+        System.exit(0);
+    } 
     
     @FXML
     private void resetData() {

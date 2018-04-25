@@ -69,12 +69,12 @@
                         <KeyCodeCombination alt="UP" code="COMMA" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-            <MenuItem fx:id="mnuFileExit" mnemonicParsing="false" text="Exit" />
+            <MenuItem fx:id="mnuFileExit" mnemonicParsing="false" onAction="#exit" text="Exit" />
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
           <items>
-            <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" text="About" />
+            <MenuItem fx:id="mnuHelpAbout" mnemonicParsing="false" onAction="#openAboutDialog" text="About" />
           </items>
         </Menu>
       </menus>
