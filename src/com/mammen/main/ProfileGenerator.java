@@ -1,10 +1,7 @@
 package com.mammen.main;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilderFactory;
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
@@ -14,6 +11,20 @@ import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.modifiers.SwerveModifier;
 import jaci.pathfinder.modifiers.TankModifier;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ProfileGenerator 
 {
@@ -134,6 +145,90 @@ public class ProfileGenerator
             break;
             default:
                 throw new IllegalArgumentException("Invalid file extension");
+        }
+    }
+    
+    /**
+     * Saves the project in XML format.
+     *
+     * @param path the absolute file path to save to, including file name and extension
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
+    public void saveProjectAs(File path) throws IOException, ParserConfigurationException {
+        if (!path.getAbsolutePath().endsWith("." + PROJECT_EXTENSION))
+            path = new File(path + "." + PROJECT_EXTENSION);
+
+        File dir = path.getParentFile();
+
+        if (dir != null && !dir.exists() && dir.isDirectory()) {
+            if (!dir.mkdirs())
+                return;
+        }
+
+        if (path.exists() && !path.delete())
+            return;
+
+        workingProject = path;
+
+        saveWorkingProject();
+    }
+
+    /**
+     * Saves the working project.
+     *
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
+    public void saveWorkingProject() throws IOException, ParserConfigurationException {
+        if (workingProject != null) {
+            // Create document
+            DocumentBuilder db = dbFactory.newDocumentBuilder();
+            Document dom = db.newDocument();
+
+            Element trajectoryEle = dom.createElement("Trajectory");
+
+            trajectoryEle.setAttribute("dt", "" + timeStep);
+            trajectoryEle.setAttribute("velocity", "" + velocity);
+            trajectoryEle.setAttribute("acceleration", "" + acceleration);
+            trajectoryEle.setAttribute("jerk", "" + jerk);
+            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW);
+            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD);
+            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.toString());
+            trajectoryEle.setAttribute("driveBase", "" + driveBase.toString());
+            trajectoryEle.setAttribute("units", "" + units.toString());
+
+            dom.appendChild(trajectoryEle);
+
+            for (Waypoint w : POINTS) {
+                Element waypointEle = dom.createElement("Waypoint");
+                Element xEle = dom.createElement("X");
+                Element yEle = dom.createElement("Y");
+                Element angleEle = dom.createElement("Angle");
+                Text xText = dom.createTextNode("" + w.x);
+                Text yText = dom.createTextNode("" + w.y);
+                Text angleText = dom.createTextNode("" + w.angle);
+
+                xEle.appendChild(xText);
+                yEle.appendChild(yText);
+                angleEle.appendChild(angleText);
+
+                waypointEle.appendChild(xEle);
+                waypointEle.appendChild(yEle);
+                waypointEle.appendChild(angleEle);
+
+                trajectoryEle.appendChild(waypointEle);
+            }
+
+            OutputFormat format = new OutputFormat(dom);
+
+            format.setIndenting(true);
+
+            XMLSerializer xmlSerializer = new XMLSerializer(
+                    new FileOutputStream(workingProject), format
+            );
+
+            xmlSerializer.serialize(dom);
         }
     }
     

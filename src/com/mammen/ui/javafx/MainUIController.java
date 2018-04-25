@@ -445,6 +445,45 @@ public class MainUIController
     }
     
     @FXML
+    private void showSaveAsDialog() {
+        FileChooser fileChooser = new FileChooser();
+
+        fileChooser.setInitialDirectory(workingDirectory);
+        fileChooser.setTitle("Save As");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Extensive Markup Language", "*.xml")
+        );
+
+        File result = fileChooser.showSaveDialog(root.getScene().getWindow());
+
+        if (result != null)
+            try {
+                workingDirectory = result.getParentFile();
+
+                backend.saveProjectAs(result);
+
+                mnuFileSave.setDisable(false);
+            } catch (Exception e) {
+                Alert alert = AlertFactory.createExceptionAlert(e);
+
+                alert.showAndWait();
+        }
+    }
+    
+    @FXML
+    private void save() {
+        updateBackend();
+
+        try {
+            backend.saveWorkingProject();
+        } catch (Exception e) {
+            Alert alert = AlertFactory.createExceptionAlert(e);
+
+            alert.showAndWait();
+        }
+    }
+    
+    @FXML
     private void addPointOnClick(MouseEvent event)
     {   
     	boolean addWaypointOnClick = Boolean.parseBoolean(

@@ -43,12 +43,12 @@
                      </accelerator>
                   </MenuItem>
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem fx:id="mnuFileSave" disable="true" mnemonicParsing="false" text="Save">
+            <MenuItem fx:id="mnuFileSave" disable="true" mnemonicParsing="false" onAction="#save" text="Save">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
-            <MenuItem fx:id="mnuFileSaveAs" mnemonicParsing="false" text="Save As…">
+            <MenuItem fx:id="mnuFileSaveAs" mnemonicParsing="false" onAction="#showSaveAsDialog" text="Save As…">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
                      </accelerator>
