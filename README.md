@@ -3,7 +3,7 @@ Generate Motion Profiles to follow with a Talon SRX.
  
 ![alt text][logo]
 
-[logo]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/MotionWindow.JPG/
+[logo]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/MotionWindow.JPG/
 
 ## Motion Variables
 - **Time Step**
@@ -57,7 +57,7 @@ the "File" menu.
  
 ![alt text][logo1]
 
-[logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/exportprofile.JPG
+[logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/exportprofile.JPG
 
 1. Enter the root name for the trajectory as the file name
 2. Choose the type of export you want to save the trajectories as
@@ -80,7 +80,7 @@ the "File" menu.
 
 ![alt text][logo2]
 
-[logo2]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/menubar.JPG
+[logo2]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/menubar.JPG
 
 - **File Menu**
 	- New: Clears all your waypoints and graphs allowing you to start over
@@ -99,7 +99,7 @@ the "File" menu.
     
 ![alt text][logo3]
 
-[logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/settings.JPG
+[logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/settings.JPG
 **NOTE: Settings file saved to `%user.dir%\.motion-profile-generator\mpg.properties`**
 - Position graph overlay: 32:27 image to use as an overlay to the position chart
 		
