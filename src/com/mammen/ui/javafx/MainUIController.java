@@ -13,6 +13,7 @@ import com.mammen.ui.javafx.factory.AlertFactory;
 import com.mammen.util.Mathf;
 import com.mammen.ui.javafx.factory.DialogFactory;
 import com.mammen.main.ProfileGenerator;
+import com.mammen.main.ProfileGenerator.Units;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
@@ -640,25 +641,49 @@ public class MainUIController
                 properties.getProperty("ui.addWaypointOnClick", "false")
         );
     	
-    	if (addWaypointOnClick) {
+    	if (addWaypointOnClick) 
+    	{
+    		// get pixel location
 	        Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
 	        double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
 	        double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
 	
-	        double x = Mathf.round(axisPosX.getValueForDisplay(xLocal).doubleValue(), 2);
-	        double y = Mathf.round(axisPosY.getValueForDisplay(yLocal).doubleValue(), 2);
+	        // get location in units (ft, m, in)
+	        double raw_x = axisPosX.getValueForDisplay(xLocal).doubleValue();
+	        double raw_y = axisPosY.getValueForDisplay(yLocal).doubleValue();
+	        
+	        // round location
+	        double rnd_x;
+	        double rnd_y;
+	        
+	        if( backend.getUnits() == Units.IMPERIAL )
+	        {
+	        	
+		        rnd_x = Mathf.round(raw_x, 0.5);
+		        rnd_y = Mathf.round(raw_y, 0.5);
+	        }
+	        else if( backend.getUnits() == Units.METRIC )
+	        {
+	        	rnd_x = Mathf.round(raw_x, 0.25);
+		        rnd_y = Mathf.round(raw_y, 0.25);
+	        }
+	        else
+	        {
+	        	rnd_x = Mathf.round(raw_x, 2);
+		        rnd_y = Mathf.round(raw_y, 2);
+	        }
+	        
 	
-	        if (x >= axisPosX.getLowerBound() && x <= axisPosX.getUpperBound() &&
-	            y >= axisPosY.getLowerBound() && y <= axisPosY.getUpperBound()) {
-	
-	        	Optional<Waypoint> result = null;
-	
-	        	result = DialogFactory.createWaypointDialog(String.valueOf(x), String.valueOf(y)).showAndWait();
-	
-	        	result.ifPresent((Waypoint w) -> waypointsList.add(w));
+	        if (rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
+        		rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound()) 
+	        {	        	
+	        	Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
+	        	waypointsList.add(temp);
 	        }
         
-    	} else {
+    	} 
+    	else 
+    	{
             event.consume();
         }
 
