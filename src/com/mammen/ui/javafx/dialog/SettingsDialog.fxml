@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<DialogPane fx:id="root" maxHeight="200.0" minHeight="200.0" prefHeight="200.0" prefWidth="526.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.SettingsDialogController">
+<DialogPane fx:id="root" maxHeight="224.0" minHeight="200.0" prefHeight="224.0" prefWidth="526.0" xmlns="http://javafx.com/javafx/8.0.172" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.SettingsDialogController">
    <content>
       <GridPane alignment="CENTER" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="8.0" prefWidth="455.0" vgap="10.0">
         <columnConstraints>
@@ -23,6 +23,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="Position Chart Background:" />
@@ -30,7 +31,9 @@
             <Button fx:id="btnChooseOverlay" mnemonicParsing="false" onAction="#showChooseOverlayDialog" text="Find image..." GridPane.columnIndex="2" />
             <ChoiceBox fx:id="choSourceDisplay" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label layoutX="38.0" layoutY="31.0" text="Source Trajectory Display:" GridPane.rowIndex="1" />
-            <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label text="CSV Type:" GridPane.rowIndex="2" />
+            <ChoiceBox fx:id="choCSVType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          </children>
       </GridPane>
    </content>

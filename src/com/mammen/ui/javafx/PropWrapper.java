@@ -24,6 +24,7 @@ public class PropWrapper {
 
                     propInstance.put("ui.overlayImg", "");
                     propInstance.put("ui.sourceDisplay", "2");
+                    propInstance.put("ui.csvTpye", "0");
                     propInstance.put("ui.addWaypointOnClick", "false");
                 }
 

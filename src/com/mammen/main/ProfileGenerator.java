@@ -7,6 +7,7 @@ import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Trajectory.Config;
 import jaci.pathfinder.Trajectory.FitMethod;
+import jaci.pathfinder.Trajectory.Segment;
 import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.modifiers.SwerveModifier;
 import jaci.pathfinder.modifiers.TankModifier;
@@ -106,7 +107,7 @@ public class ProfileGenerator
      * @param ext        the file extension to save to, can be {@code *.csv} or {@code *.traj}
      * @throws Pathfinder.GenerationException
      */
-    public void exportTrajectories(File parentPath, String ext) throws Pathfinder.GenerationException {
+    public void exportTrajectoriesJaci(File parentPath, String ext) throws Pathfinder.GenerationException {
         updateTrajectories();
 
         File dir = parentPath.getParentFile();
@@ -118,16 +119,115 @@ public class ProfileGenerator
 
         switch (ext) {
             case ".csv":
-                Pathfinder.writeToCSV(new File(parentPath + "_source_detailed.csv"), source);
+                Pathfinder.writeToCSV(new File(parentPath + "_source_Jaci.csv"), source);
 
                 if (driveBase == DriveBase.SWERVE) {
-                    Pathfinder.writeToCSV(new File(parentPath + "_fl_detailed.csv"), fl);
-                    Pathfinder.writeToCSV(new File(parentPath + "_fr_detailed.csv"), fr);
-                    Pathfinder.writeToCSV(new File(parentPath + "_bl_detailed.csv"), bl);
-                    Pathfinder.writeToCSV(new File(parentPath + "_br_detailed.csv"), br);
+                    Pathfinder.writeToCSV(new File(parentPath + "_fl_Jaci.csv"), fl);
+                    Pathfinder.writeToCSV(new File(parentPath + "_fr_Jaci.csv"), fr);
+                    Pathfinder.writeToCSV(new File(parentPath + "_bl_Jaci.csv"), bl);
+                    Pathfinder.writeToCSV(new File(parentPath + "_br_Jaci.csv"), br);
                 } else {
-                    Pathfinder.writeToCSV(new File(parentPath + "_left_detailed.csv"), fl);
-                    Pathfinder.writeToCSV(new File(parentPath + "_right_detailed.csv"), fr);
+                    Pathfinder.writeToCSV(new File(parentPath + "_left_Jaci.csv"), fl);
+                    Pathfinder.writeToCSV(new File(parentPath + "_right_Jaci.csv"), fr);
+                }
+            break;
+            case ".traj":
+                Pathfinder.writeToFile(new File(parentPath + "_source_Jaci.traj"), source);
+
+                if (driveBase == DriveBase.SWERVE) {
+                    Pathfinder.writeToFile(new File(parentPath + "_fl_Jaci.traj"), fl);
+                    Pathfinder.writeToFile(new File(parentPath + "_fr_Jaci.traj"), fr);
+                    Pathfinder.writeToFile(new File(parentPath + "_bl_Jaci.traj"), bl);
+                    Pathfinder.writeToFile(new File(parentPath + "_br_Jaci.traj"), br);
+                } else {
+                    Pathfinder.writeToFile(new File(parentPath + "_left_Jaci.traj"), fl);
+                    Pathfinder.writeToFile(new File(parentPath + "_right_Jaci.traj"), fr);
+                }
+            break;
+            default:
+                throw new IllegalArgumentException("Invalid file extension");
+        }
+    }
+    
+    public void exportTrajectoriesTalon(File parentPath, String ext) throws Pathfinder.GenerationException, IOException {
+        updateTrajectories();
+
+        File dir = parentPath.getParentFile();
+
+        if (dir != null && !dir.exists() && dir.isDirectory()) {
+            if (!dir.mkdirs())
+                return;
+        }
+        switch (ext) {
+            case ".csv":
+                if (driveBase == DriveBase.SWERVE) {
+                	File flFile = new File(parentPath + "_fl_Talon.csv");
+			        File frFile = new File(parentPath + "_fr_Talon.csv");
+			        File blFile = new File(parentPath + "_bl_Talon.csv");
+			        File brFile = new File(parentPath + "_br_Talon.csv");
+			        FileWriter flfw = new FileWriter( flFile );
+					FileWriter frfw = new FileWriter( frFile );
+					FileWriter blfw = new FileWriter( blFile );
+					FileWriter brfw = new FileWriter( brFile );
+					PrintWriter flpw = new PrintWriter( flfw );
+					PrintWriter frpw = new PrintWriter( frfw );
+					PrintWriter blpw = new PrintWriter( blfw );
+					PrintWriter brpw = new PrintWriter( brfw );
+                	// CSV with position and velocity. To be used with Talon SRX Motion
+		    		// save front left path to CSV
+			    	for (int i = 0; i < fl.length(); i++) 
+			    	{			
+			    		Segment seg = fl.get(i);
+			    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    			
+			    	// save front right path to CSV
+			    	for (int i = 0; i < fr.length(); i++) 
+			    	{			
+			    		Segment seg = fr.get(i);
+			    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    	
+			    	// save back left path to CSV
+			    	for (int i = 0; i < bl.length(); i++) 
+			    	{			
+			    		Segment seg = bl.get(i);
+			    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    			
+			    	// save back right path to CSV
+			    	for (int i = 0; i < br.length(); i++) 
+			    	{			
+			    		Segment seg = br.get(i);
+			    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    	flpw.close();
+			    	frpw.close();
+			    	blpw.close();
+			    	brpw.close();
+                } else {
+                	File lFile = new File(parentPath + "_left_Talon.csv");
+			        File rFile = new File(parentPath + "_right_Talon.csv");
+			        FileWriter lfw = new FileWriter( lFile );
+					FileWriter rfw = new FileWriter( rFile );
+					PrintWriter lpw = new PrintWriter( lfw );
+					PrintWriter rpw = new PrintWriter( rfw );
+                	// CSV with position and velocity. To be used with Talon SRX Motion
+			    	// save left path to CSV
+			    	for (int i = 0; i < fl.length(); i++) 
+			    	{			
+			    		Segment seg = fl.get(i);
+			    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    			
+			    	// save right path to CSV
+			    	for (int i = 0; i < fr.length(); i++) 
+			    	{			
+			    		Segment seg = fr.get(i);
+			    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    	}
+			    	lpw.close();
+			    	rpw.close();
                 }
             break;
             case ".traj":

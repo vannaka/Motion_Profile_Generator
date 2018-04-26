@@ -391,12 +391,17 @@ public class MainUIController
                     int sourceDisplay = ((ChoiceBox<String>) pane.lookup("#choSourceDisplay"))
                             .getSelectionModel()
                             .getSelectedIndex();
+                    
+                    int csvType = ((ChoiceBox<String>) pane.lookup("#choCSVType"))
+                    		.getSelectionModel()
+                    		.getSelectedIndex();
 
                     boolean addWaypointOnClick = ((CheckBox) pane.lookup("#chkAddWaypointOnClick")).isSelected();
 
                     properties.setProperty("ui.overlayDir", overlayDir);
                     properties.setProperty("ui.sourceDisplay", "" + sourceDisplay);
                     properties.setProperty("ui.addWaypointOnClick", "" + addWaypointOnClick);
+                    properties.setProperty("ui.csvType", "" + csvType);
 
                     updateOverlayImg();
                     repopulatePosChart();
@@ -434,13 +439,24 @@ public class MainUIController
             String parentPath = result.getAbsolutePath(), ext = parentPath.substring(parentPath.lastIndexOf("."));
             parentPath = parentPath.substring(0, parentPath.lastIndexOf(ext));
 
+            String csvTypeStr = properties.getProperty("ui.csvType", "0");
+            int csvType = Integer.parseInt(csvTypeStr);
+            
             try {
-                backend.exportTrajectories(new File(parentPath), ext);
+            	if(csvType == 0) {
+            		backend.exportTrajectoriesJaci(new File(parentPath), ext);
+            	}
+            	else {
+            		backend.exportTrajectoriesTalon(new File(parentPath), ext);
+            	}
             } catch (Pathfinder.GenerationException e) {
                 Alert alert = AlertFactory.createExceptionAlert(e, "Invalid Trajectory!");
 
                 alert.showAndWait();
-            }
+            } catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
     }
     
