@@ -80,7 +80,7 @@ the "File" menu.
 
 ![alt text][logo2]
 
-[logo2]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/menubar.jpg
+[logo2]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/menubar.JPG
 
 - **File Menu**
 	- New: Clears all your waypoints and graphs allowing you to start over
@@ -99,7 +99,7 @@ the "File" menu.
     
 ![alt text][logo3]
 
-[logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/settings.jpg
+[logo3]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/settings.JPG
 **NOTE: Settings file saved to `%user.dir%\.motion-profile-generator\mpg.properties`**
 - Position graph overlay: 32:27 image to use as an overlay to the position chart
 		
