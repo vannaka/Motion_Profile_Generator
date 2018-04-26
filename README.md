@@ -57,7 +57,7 @@ the "File" menu.
  
 ![alt text][logo1]
 
-[logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/exportprofile.jpg
+[logo1]: https://github.com/vannaka/Motion_Profile_Generator/blob/JavaFX_ReWrite/images/exportprofile.JPG
 
 1. Enter the root name for the trajectory as the file name
 2. Choose the type of export you want to save the trajectories as
