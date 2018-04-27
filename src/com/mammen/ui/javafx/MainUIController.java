@@ -135,7 +135,7 @@ public class MainUIController
         choFitMethod.setValue(choFitMethod.getItems().get(0));
         choFitMethod.getSelectionModel().selectedItemProperty().addListener(this::updateFitMethod);
 
-        choUnits.getItems().addAll("Imperial", "Metric");
+        choUnits.getItems().addAll("Feet", "Inches", "Meters");
         choUnits.setValue(choUnits.getItems().get(0));
         choUnits.getSelectionModel().selectedItemProperty().addListener(this::updateUnits);
         
@@ -564,9 +564,9 @@ public class MainUIController
             unitsSelector.setResultConverter(buttonType -> {
                 if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
                     if (radMetric.selectedProperty().getValue())
-                        return ProfileGenerator.Units.METRIC;
+                        return ProfileGenerator.Units.METERS;
                     else
-                        return ProfileGenerator.Units.IMPERIAL;
+                        return ProfileGenerator.Units.FEET;
                 }
 
                 return null;
@@ -656,16 +656,21 @@ public class MainUIController
 	        double rnd_x;
 	        double rnd_y;
 	        
-	        if( backend.getUnits() == Units.IMPERIAL )
+	        if( backend.getUnits() == Units.FEET )
 	        {
 	        	
 		        rnd_x = Mathf.round(raw_x, 0.5);
 		        rnd_y = Mathf.round(raw_y, 0.5);
 	        }
-	        else if( backend.getUnits() == Units.METRIC )
+	        else if( backend.getUnits() == Units.METERS )
 	        {
 	        	rnd_x = Mathf.round(raw_x, 0.25);
 		        rnd_y = Mathf.round(raw_y, 0.25);
+	        }
+	        else if( backend.getUnits() == Units.INCHES)
+	        {
+	        	rnd_x = Mathf.round(raw_x, 0.75);
+	        	rnd_y = Mathf.round(raw_y, 0.75);
 	        }
 	        else
 	        {
@@ -833,6 +838,7 @@ public class MainUIController
 
         backend.setUnits(u);
         updateChartAxis();
+        waypointsList.clear();
     }
     
     private void updateOverlayImg() {
@@ -964,7 +970,7 @@ public class MainUIController
     {
         switch (backend.getUnits())
         {
-            case IMPERIAL:
+            case FEET:
                 axisPosX.setUpperBound(32);
                 axisPosX.setTickUnit(1);
                 axisPosX.setLabel("X-Position (ft)");
@@ -975,7 +981,7 @@ public class MainUIController
                 axisVel.setLabel("Velocity (ft/s)");
 
                 break;
-            case METRIC:
+            case METERS:
                 axisPosX.setUpperBound(10);
                 axisPosX.setTickUnit(0.5);
                 axisPosX.setLabel("X-Position (m)");
@@ -986,8 +992,18 @@ public class MainUIController
                 axisVel.setLabel("Velocity (m/s)");
 
                 break;
+            case INCHES:
+            	axisPosX.setUpperBound(384);
+                axisPosX.setTickUnit(12);
+                axisPosX.setLabel("X-Position (in)");
+                axisPosY.setUpperBound(324);
+                axisPosY.setTickUnit(12);
+                axisPosY.setLabel("Y-Position (in)");
+
+                axisVel.setLabel("Velocity (in/s)");
+                break;
             default:
-                backend.setUnits(ProfileGenerator.Units.IMPERIAL);
+                backend.setUnits(ProfileGenerator.Units.FEET);
                 updateChartAxis();
         }
     }

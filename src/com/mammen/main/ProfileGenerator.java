@@ -49,8 +49,9 @@ public class ProfileGenerator
     }
 
     public enum Units {
-        IMPERIAL("IMPERIAL"),
-        METRIC("METRIC");
+        FEET("FEET"),
+        METERS("METERS"),
+        INCHES("INCHES");
         
         private String label;
         
@@ -457,7 +458,7 @@ public class ProfileGenerator
 
         fitMethod = FitMethod.HERMITE_CUBIC;
         driveBase = DriveBase.TANK;
-        units = Units.IMPERIAL;
+        units = Units.FEET;
     }
     
     /**
