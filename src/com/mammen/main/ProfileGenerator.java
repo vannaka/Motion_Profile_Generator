@@ -50,8 +50,9 @@ public class ProfileGenerator
 
     public enum Units {
         FEET("FEET"),
-        METERS("METERS"),
-        INCHES("INCHES");
+        INCHES("INCHES"),
+        METERS("METERS");
+        
         
         private String label;
         

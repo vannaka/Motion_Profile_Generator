@@ -839,13 +839,7 @@ public class MainUIController
         backend.setUnits(u);
         backend.resetValues(choice);
         
-        txtTimeStep.setText("" + backend.getTimeStep());
-        txtVelocity.setText("" + backend.getVelocity());
-        txtAcceleration.setText("" + backend.getAcceleration());
-        txtJerk.setText("" + backend.getJerk());
-        txtWheelBaseW.setText("" + backend.getWheelBaseW());
-        txtWheelBaseD.setText("" + backend.getWheelBaseD());
-        
+        updateFrontend();
         updateChartAxis();
         waypointsList.clear();
     }
