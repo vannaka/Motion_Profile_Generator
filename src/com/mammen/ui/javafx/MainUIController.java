@@ -838,7 +838,6 @@ public class MainUIController
 
         backend.setUnits(u);
         backend.resetValues(choice);
-        System.out.println(choice);
         
         txtTimeStep.setText("" + backend.getTimeStep());
         txtVelocity.setText("" + backend.getVelocity());
