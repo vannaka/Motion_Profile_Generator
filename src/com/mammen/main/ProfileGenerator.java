@@ -98,7 +98,7 @@ public class ProfileGenerator
     {
     	POINTS = new ArrayList<>();
     	dbFactory = DocumentBuilderFactory.newInstance();
-    	resetValues();
+    	resetValues("FEET");
     }
     
     /**
@@ -447,18 +447,44 @@ public class ProfileGenerator
     /**
      * Resets configuration to default values
      */
-    public void resetValues() 
+    public void resetValues(String choUnits) 
     {
-        timeStep = 0.05;
-        velocity = 4;
-        acceleration = 3;
-        jerk = 60;
-        wheelBaseW = 1.464;
-        wheelBaseD = 0;
-
-        fitMethod = FitMethod.HERMITE_CUBIC;
-        driveBase = DriveBase.TANK;
-        units = Units.FEET;
+    	if(choUnits.equals("FEET")) {
+	        timeStep = 0.05;
+	        velocity = 4;
+	        acceleration = 3;
+	        jerk = 60;
+	        wheelBaseW = 1.464;
+	        wheelBaseD = 0;
+	
+	        fitMethod = FitMethod.HERMITE_CUBIC;
+	        driveBase = DriveBase.TANK;
+	        units = Units.FEET;
+    	}
+    	else if(choUnits.equals("METERS")) {
+    		timeStep = 0.05;
+	        velocity = 1.2192;
+	        acceleration = 0.9144;
+	        jerk = 18.288;
+	        wheelBaseW = 0.4462272;
+	        wheelBaseD = 0;
+	
+	        fitMethod = FitMethod.HERMITE_CUBIC;
+	        driveBase = DriveBase.TANK;
+	        units = Units.METERS;
+    	}
+    	else if(choUnits.equals("INCHES")) {
+    		timeStep = 0.05;
+	        velocity = 48;
+	        acceleration = 36;
+	        jerk = 720;
+	        wheelBaseW = 17.568;
+	        wheelBaseD = 0;
+	
+	        fitMethod = FitMethod.HERMITE_CUBIC;
+	        driveBase = DriveBase.TANK;
+	        units = Units.INCHES;
+    	}
     }
     
     /**

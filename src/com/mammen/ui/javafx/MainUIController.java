@@ -623,7 +623,7 @@ public class MainUIController
         result.ifPresent((ButtonType t) -> {
             if (t == ButtonType.OK) {
                 backend.clearWorkingFiles();
-                backend.resetValues();
+                backend.resetValues(choUnits.getSelectionModel().getSelectedItem().toUpperCase());
 
                 updateFrontend();
                 waypointsList.clear();
@@ -837,6 +837,16 @@ public class MainUIController
         ProfileGenerator.Units u = ProfileGenerator.Units.valueOf(choice);
 
         backend.setUnits(u);
+        backend.resetValues(choice);
+        System.out.println(choice);
+        
+        txtTimeStep.setText("" + backend.getTimeStep());
+        txtVelocity.setText("" + backend.getVelocity());
+        txtAcceleration.setText("" + backend.getAcceleration());
+        txtJerk.setText("" + backend.getJerk());
+        txtWheelBaseW.setText("" + backend.getWheelBaseW());
+        txtWheelBaseD.setText("" + backend.getWheelBaseD());
+        
         updateChartAxis();
         waypointsList.clear();
     }
