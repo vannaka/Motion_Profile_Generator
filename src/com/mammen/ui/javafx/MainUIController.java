@@ -658,7 +658,6 @@ public class MainUIController
 	        
 	        if( backend.getUnits() == Units.FEET )
 	        {
-	        	
 		        rnd_x = Mathf.round(raw_x, 0.5);
 		        rnd_y = Mathf.round(raw_y, 0.5);
 	        }
@@ -669,8 +668,8 @@ public class MainUIController
 	        }
 	        else if( backend.getUnits() == Units.INCHES)
 	        {
-	        	rnd_x = Mathf.round(raw_x, 0.75);
-	        	rnd_y = Mathf.round(raw_y, 0.75);
+	        	rnd_x = Mathf.round(raw_x, 6.0);
+	        	rnd_y = Mathf.round(raw_y, 6.0);
 	        }
 	        else
 	        {
