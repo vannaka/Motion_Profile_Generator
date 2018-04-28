@@ -656,17 +656,17 @@ public class MainUIController
 	        double rnd_x;
 	        double rnd_y;
 	        
-	        if( backend.getUnits() == Units.FEET )
+	        if( backend.getUnits() == ProfileGenerator.Units.FEET )
 	        {
 		        rnd_x = Mathf.round(raw_x, 0.5);
 		        rnd_y = Mathf.round(raw_y, 0.5);
 	        }
-	        else if( backend.getUnits() == Units.METERS )
+	        else if( backend.getUnits() == ProfileGenerator.Units.METERS )
 	        {
 	        	rnd_x = Mathf.round(raw_x, 0.25);
 		        rnd_y = Mathf.round(raw_y, 0.25);
 	        }
-	        else if( backend.getUnits() == Units.INCHES)
+	        else if( backend.getUnits() == ProfileGenerator.Units.INCHES)
 	        {
 	        	rnd_x = Mathf.round(raw_x, 6.0);
 	        	rnd_y = Mathf.round(raw_y, 6.0);
@@ -832,15 +832,65 @@ public class MainUIController
 
     private void updateUnits(ObservableValue<? extends String> observable, Object oldValue, Object newValue) 
     {
-        String choice = ((String) newValue).toUpperCase();
-        ProfileGenerator.Units u = ProfileGenerator.Units.valueOf(choice);
+        String new_str = ((String) newValue).toUpperCase();
+        String old_str = ((String) oldValue).toUpperCase();
+        ProfileGenerator.Units new_unit = ProfileGenerator.Units.valueOf(new_str);
+        ProfileGenerator.Units old_unit = ProfileGenerator.Units.valueOf(old_str);
 
-        backend.setUnits(u);
-        backend.resetValues(choice);
+        backend.setUnits(new_unit);
+        backend.resetValues(new_str);
         
-        updateFrontend();
-        updateChartAxis();
+        List<Waypoint> tmp = new ArrayList<>(backend.getWaypointsList());
+        
+        tmp.forEach((Waypoint wp) -> 
+        {
+        	double tmp_x = 0, tmp_y = 0;
+        	
+        	// convert to intermediate unit of feet
+        	switch(old_unit)
+        	{
+        	case FEET:
+        		tmp_x = wp.x;
+        		tmp_y = wp.y;
+        		break;
+        		
+        	case INCHES:
+        		tmp_x = Mathf.inchesToFeet( wp.x );
+        		tmp_y = Mathf.inchesToFeet( wp.y );
+        		break;
+        		
+        	case METERS:
+        		tmp_x = Mathf.meterToFeet( wp.x );
+        		tmp_y = Mathf.meterToFeet( wp.y );
+        		break;
+        	}
+        	
+        	// convert from intermediate unit of feet
+        	switch(new_unit)
+        	{
+        	case FEET:
+        		wp.x = tmp_x;
+        		wp.y = tmp_y;
+        		break;
+        		
+        	case INCHES:
+        		wp.x = Mathf.feetToInches( tmp_x );
+        		wp.y = Mathf.feetToInches( tmp_y );
+        		break;
+        		
+        	case METERS:
+        		wp.x = Mathf.feetToMeter( tmp_x );
+        		wp.y = Mathf.feetToMeter( tmp_y );
+        		break;
+        	}
+        });
+        
         waypointsList.clear();
+        waypointsList.addAll(tmp);
+        
+        
+        updateChartAxis();
+        updateFrontend();
     }
     
     private void updateOverlayImg() {
