@@ -30,4 +30,24 @@ public class Mathf
     {    	
     	return Math.round( val / multi ) * multi;
     }
+    
+    public static double meterToFeet( double meters )
+    {
+		return meters / 0.3048;
+    }
+    
+    public static double inchesToFeet( double inches )
+    {
+    	return inches / 12;
+    }
+    
+    public static double feetToMeter( double feet )
+    {
+    	return feet * 0.3048;
+    }
+    
+    public static double feetToInches( double feet )
+    {
+    	return feet * 12;
+    }
 }
