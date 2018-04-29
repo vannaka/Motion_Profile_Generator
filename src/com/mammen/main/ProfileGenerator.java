@@ -1,5 +1,6 @@
 package com.mammen.main;
 
+import com.mammen.util.Mathf;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
@@ -100,6 +101,91 @@ public class ProfileGenerator
     	POINTS = new ArrayList<>();
     	dbFactory = DocumentBuilderFactory.newInstance();
     	resetValues("FEET");
+    }
+    
+    public void updateWPUnits( Units old_unit, Units new_unit )
+    {
+    	POINTS.forEach((Waypoint wp) -> 
+        {
+        	double tmp_x = 0, tmp_y = 0;
+        	
+        	// convert to intermediate unit of feet
+        	switch(old_unit)
+        	{
+        	case FEET:
+        		tmp_x = wp.x;
+        		tmp_y = wp.y;
+        		break;
+        		
+        	case INCHES:
+        		tmp_x = Mathf.inchesToFeet( wp.x );
+        		tmp_y = Mathf.inchesToFeet( wp.y );
+        		break;
+        		
+        	case METERS:
+        		tmp_x = Mathf.meterToFeet( wp.x );
+        		tmp_y = Mathf.meterToFeet( wp.y );
+        		break;
+        	}
+        	
+        	// convert from intermediate unit of feet
+        	switch(new_unit)
+        	{
+        	case FEET:
+        		wp.x = tmp_x;
+        		wp.y = tmp_y;
+        		break;
+        		
+        	case INCHES:
+        		wp.x = Mathf.feetToInches( tmp_x );
+        		wp.y = Mathf.feetToInches( tmp_y );
+        		break;
+        		
+        	case METERS:
+        		wp.x = Mathf.feetToMeter( tmp_x );
+        		wp.y = Mathf.feetToMeter( tmp_y );
+        		break;
+        	}
+        });
+    }
+    
+    public void updateWBWUnits( Units old_unit, Units new_unit )
+    {
+        double tmp_WBW = 0;
+    	
+    	// convert to intermediate unit of feet
+    	switch(old_unit)
+    	{
+    	case FEET:
+    		tmp_WBW = wheelBaseW;
+    		break;
+    		
+    	case INCHES:
+    		tmp_WBW = Mathf.inchesToFeet( wheelBaseW );
+    		break;
+    		
+    	case METERS:
+    		tmp_WBW = Mathf.meterToFeet( wheelBaseW );
+    		break;
+    	}
+    	
+    	// convert from intermediate unit of feet
+    	switch(new_unit)
+    	{
+    	case FEET:
+    		wheelBaseW = tmp_WBW;
+    		break;
+    		
+    	case INCHES:
+    		wheelBaseW = Mathf.feetToInches( tmp_WBW );
+    		break;
+    		
+    	case METERS:
+    		wheelBaseW = Mathf.feetToMeter( tmp_WBW );
+    		break;
+    	}
+    	
+    	wheelBaseW = Mathf.round(wheelBaseW, 3);
     }
     
     /**
@@ -455,7 +541,7 @@ public class ProfileGenerator
 	        velocity = 4;
 	        acceleration = 3;
 	        jerk = 60;
-	        wheelBaseW = 1.464;
+	        //wheelBaseW = 1.464;
 	        wheelBaseD = 0;
 	
 	        fitMethod = FitMethod.HERMITE_CUBIC;
@@ -467,7 +553,7 @@ public class ProfileGenerator
 	        velocity = 1.2192;
 	        acceleration = 0.9144;
 	        jerk = 18.288;
-	        wheelBaseW = 0.4462272;
+	        //wheelBaseW = 0.4462272;
 	        wheelBaseD = 0;
 	
 	        fitMethod = FitMethod.HERMITE_CUBIC;
@@ -479,7 +565,7 @@ public class ProfileGenerator
 	        velocity = 48;
 	        acceleration = 36;
 	        jerk = 720;
-	        wheelBaseW = 17.568;
+	        //wheelBaseW = 17.568;
 	        wheelBaseD = 0;
 	
 	        fitMethod = FitMethod.HERMITE_CUBIC;
