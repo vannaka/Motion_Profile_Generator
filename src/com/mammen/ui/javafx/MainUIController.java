@@ -656,17 +656,17 @@ public class MainUIController
 	        double rnd_x;
 	        double rnd_y;
 	        
-	        if( backend.getUnits() == Units.FEET )
+	        if( backend.getUnits() == ProfileGenerator.Units.FEET )
 	        {
 		        rnd_x = Mathf.round(raw_x, 0.5);
 		        rnd_y = Mathf.round(raw_y, 0.5);
 	        }
-	        else if( backend.getUnits() == Units.METERS )
+	        else if( backend.getUnits() == ProfileGenerator.Units.METERS )
 	        {
 	        	rnd_x = Mathf.round(raw_x, 0.25);
 		        rnd_y = Mathf.round(raw_y, 0.25);
 	        }
-	        else if( backend.getUnits() == Units.INCHES)
+	        else if( backend.getUnits() == ProfileGenerator.Units.INCHES)
 	        {
 	        	rnd_x = Mathf.round(raw_x, 6.0);
 	        	rnd_y = Mathf.round(raw_y, 6.0);
@@ -832,15 +832,18 @@ public class MainUIController
 
     private void updateUnits(ObservableValue<? extends String> observable, Object oldValue, Object newValue) 
     {
-        String choice = ((String) newValue).toUpperCase();
-        ProfileGenerator.Units u = ProfileGenerator.Units.valueOf(choice);
+        String new_str = ((String) newValue).toUpperCase();
+        String old_str = ((String) oldValue).toUpperCase();
+        ProfileGenerator.Units new_unit = ProfileGenerator.Units.valueOf(new_str);
+        ProfileGenerator.Units old_unit = ProfileGenerator.Units.valueOf(old_str);
 
-        backend.setUnits(u);
-        backend.resetValues(choice);
+        backend.setUnits(new_unit);
+        //backend.resetValues(new_str);
         
-        updateFrontend();
+        backend.updateVarUnits(old_unit, new_unit);
+        
         updateChartAxis();
-        waypointsList.clear();
+        updateFrontend();
     }
     
     private void updateOverlayImg() {
