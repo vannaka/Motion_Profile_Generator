@@ -23,13 +23,31 @@ public class Mathf
      * Rounds the specified value to the closest specified multiple
      *
      * @param val    the number to round
-     * @param multiple the multiple (<1) to round to
+     * @param multi the multiple (<1) to round to
      * @return the rounded number
      */
-    public static double round( double val, double multiple )
+    public static double round( double val, double multi )
+    {    	
+    	return Math.round( val / multi ) * multi;
+    }
+    
+    public static double meterToFeet( double meters )
     {
-    	double div = 1 / multiple;
-    	
-    	return Math.round(val * div) / div;
+		return meters / 0.3048;
+    }
+    
+    public static double inchesToFeet( double inches )
+    {
+    	return inches / 12;
+    }
+    
+    public static double feetToMeter( double feet )
+    {
+    	return feet * 0.3048;
+    }
+    
+    public static double feetToInches( double feet )
+    {
+    	return feet * 12;
     }
 }

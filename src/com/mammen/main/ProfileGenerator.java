@@ -1,5 +1,6 @@
 package com.mammen.main;
 
+import com.mammen.util.Mathf;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
@@ -50,8 +51,9 @@ public class ProfileGenerator
 
     public enum Units {
         FEET("FEET"),
-        METERS("METERS"),
-        INCHES("INCHES");
+        INCHES("INCHES"),
+        METERS("METERS");
+        
         
         private String label;
         
@@ -98,7 +100,116 @@ public class ProfileGenerator
     {
     	POINTS = new ArrayList<>();
     	dbFactory = DocumentBuilderFactory.newInstance();
-    	resetValues();
+    	resetValues("FEET");
+    }
+    
+    public void updateVarUnits( Units old_unit, Units new_unit )
+    {
+    	// Convert each point in the waypoints list
+    	POINTS.forEach((Waypoint wp) -> 
+        {
+        	double tmp_x = 0, tmp_y = 0;
+        	
+        	// convert to intermediate unit of feet
+        	switch(old_unit)
+        	{
+        	case FEET:
+        		tmp_x = wp.x;
+        		tmp_y = wp.y;
+        		break;
+        		
+        	case INCHES:
+        		tmp_x = Mathf.inchesToFeet( wp.x );
+        		tmp_y = Mathf.inchesToFeet( wp.y );
+        		break;
+        		
+        	case METERS:
+        		tmp_x = Mathf.meterToFeet( wp.x );
+        		tmp_y = Mathf.meterToFeet( wp.y );
+        		break;
+        	}
+        	
+        	// convert from intermediate unit of feet
+        	switch(new_unit)
+        	{
+        	case FEET:
+        		wp.x = tmp_x;
+        		wp.y = tmp_y;
+        		break;
+        		
+        	case INCHES:
+        		wp.x = Mathf.feetToInches( tmp_x );
+        		wp.y = Mathf.feetToInches( tmp_y );
+        		break;
+        		
+        	case METERS:
+        		wp.x = Mathf.feetToMeter( tmp_x );
+        		wp.y = Mathf.feetToMeter( tmp_y );
+        		break;
+        	}
+        	
+        	wp.x = Mathf.round( wp.x, 4 );
+        	wp.y = Mathf.round( wp.y, 4 );
+        });
+    	
+    	// Convert each MP variable to the new unit
+    	double tmp_WBW = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
+    	
+    	// convert to intermediate unit of feet
+    	switch(old_unit)
+    	{
+    	case FEET:
+    		tmp_WBW = wheelBaseW;
+    		tmp_vel = velocity;
+    		tmp_acc = acceleration;
+    		tmp_jer = jerk;
+    		break;
+    		
+    	case INCHES:
+    		tmp_WBW = Mathf.inchesToFeet( wheelBaseW );
+    		tmp_vel = Mathf.inchesToFeet( velocity );
+    		tmp_acc = Mathf.inchesToFeet( acceleration );
+    		tmp_jer = Mathf.inchesToFeet( jerk );
+    		break;
+    		
+    	case METERS:
+    		tmp_WBW = Mathf.meterToFeet( wheelBaseW );
+    		tmp_vel = Mathf.meterToFeet( velocity );
+    		tmp_acc = Mathf.meterToFeet( acceleration );
+    		tmp_jer = Mathf.meterToFeet( jerk );
+    		break;
+    	}
+    	
+    	// convert from intermediate unit of feet
+    	switch(new_unit)
+    	{
+    	case FEET:
+    		wheelBaseW = tmp_WBW;
+    		velocity = tmp_vel;
+    		acceleration = tmp_acc;
+    		jerk = tmp_jer;
+    		break;
+    		
+    	case INCHES:
+    		wheelBaseW = Mathf.feetToInches( tmp_WBW );
+    		velocity = Mathf.feetToInches( tmp_vel );
+    		acceleration = Mathf.feetToInches( tmp_acc );
+    		jerk = Mathf.feetToInches( tmp_jer );
+    		
+    		break;
+    		
+    	case METERS:
+    		wheelBaseW = Mathf.feetToMeter( tmp_WBW );
+    		velocity = Mathf.feetToMeter( tmp_vel );
+    		acceleration = Mathf.feetToMeter( tmp_acc );
+    		jerk = Mathf.feetToMeter( tmp_jer );
+    		break;
+    	}
+    	
+    	wheelBaseW = Mathf.round( wheelBaseW, 4 );
+    	velocity = Mathf.round( velocity, 4 );
+    	acceleration = Mathf.round( acceleration, 4 );
+    	jerk = Mathf.round( jerk, 4 );
     }
     
     /**
@@ -447,18 +558,44 @@ public class ProfileGenerator
     /**
      * Resets configuration to default values
      */
-    public void resetValues() 
+    public void resetValues(String choUnits) 
     {
-        timeStep = 0.05;
-        velocity = 4;
-        acceleration = 3;
-        jerk = 60;
-        wheelBaseW = 1.464;
-        wheelBaseD = 0;
-
-        fitMethod = FitMethod.HERMITE_CUBIC;
-        driveBase = DriveBase.TANK;
-        units = Units.FEET;
+    	if(choUnits.equals("FEET")) {
+	        timeStep = 0.05;
+	        velocity = 4;
+	        acceleration = 3;
+	        jerk = 60;
+	        wheelBaseW = 1.464;
+	        wheelBaseD = 0;
+	
+	        fitMethod = FitMethod.HERMITE_CUBIC;
+	        driveBase = DriveBase.TANK;
+	        units = Units.FEET;
+    	}
+    	else if(choUnits.equals("METERS")) {
+    		timeStep = 0.05;
+	        velocity = 1.2192;
+	        acceleration = 0.9144;
+	        jerk = 18.288;
+	        wheelBaseW = 0.4462272;
+	        wheelBaseD = 0;
+	
+	        fitMethod = FitMethod.HERMITE_CUBIC;
+	        driveBase = DriveBase.TANK;
+	        units = Units.METERS;
+    	}
+    	else if(choUnits.equals("INCHES")) {
+    		timeStep = 0.05;
+	        velocity = 48;
+	        acceleration = 36;
+	        jerk = 720;
+	        wheelBaseW = 17.568;
+	        wheelBaseD = 0;
+	
+	        fitMethod = FitMethod.HERMITE_CUBIC;
+	        driveBase = DriveBase.TANK;
+	        units = Units.INCHES;
+    	}
     }
     
     /**
