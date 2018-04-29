@@ -838,10 +838,9 @@ public class MainUIController
         ProfileGenerator.Units old_unit = ProfileGenerator.Units.valueOf(old_str);
 
         backend.setUnits(new_unit);
-        backend.resetValues(new_str);
+        //backend.resetValues(new_str);
         
-        backend.updateWPUnits(old_unit, new_unit);
-        backend.updateWBWUnits(old_unit, new_unit);
+        backend.updateVarUnits(old_unit, new_unit);
         
         updateChartAxis();
         updateFrontend();
