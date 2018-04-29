@@ -840,54 +840,8 @@ public class MainUIController
         backend.setUnits(new_unit);
         backend.resetValues(new_str);
         
-        List<Waypoint> tmp = new ArrayList<>(backend.getWaypointsList());
-        
-        tmp.forEach((Waypoint wp) -> 
-        {
-        	double tmp_x = 0, tmp_y = 0;
-        	
-        	// convert to intermediate unit of feet
-        	switch(old_unit)
-        	{
-        	case FEET:
-        		tmp_x = wp.x;
-        		tmp_y = wp.y;
-        		break;
-        		
-        	case INCHES:
-        		tmp_x = Mathf.inchesToFeet( wp.x );
-        		tmp_y = Mathf.inchesToFeet( wp.y );
-        		break;
-        		
-        	case METERS:
-        		tmp_x = Mathf.meterToFeet( wp.x );
-        		tmp_y = Mathf.meterToFeet( wp.y );
-        		break;
-        	}
-        	
-        	// convert from intermediate unit of feet
-        	switch(new_unit)
-        	{
-        	case FEET:
-        		wp.x = tmp_x;
-        		wp.y = tmp_y;
-        		break;
-        		
-        	case INCHES:
-        		wp.x = Mathf.feetToInches( tmp_x );
-        		wp.y = Mathf.feetToInches( tmp_y );
-        		break;
-        		
-        	case METERS:
-        		wp.x = Mathf.feetToMeter( tmp_x );
-        		wp.y = Mathf.feetToMeter( tmp_y );
-        		break;
-        	}
-        });
-        
-        waypointsList.clear();
-        waypointsList.addAll(tmp);
-        
+        backend.updateWPUnits(old_unit, new_unit);
+        backend.updateWBWUnits(old_unit, new_unit);
         
         updateChartAxis();
         updateFrontend();
