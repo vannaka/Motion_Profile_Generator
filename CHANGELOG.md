@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2018-4-29
+### Added
+- Completly rewritten using JavaFX for the GUI
+- Added a settings menu with settings that will persist across runs
+- Settings now saved in xml in home directory
+- Added new unit (Inches)
+- Changable background image for position graph.
+- Export CSV type; Talon SRX or Jaci
+- Show waypoints on position graph.
+- Auto regenerage trajectory when any value is changed.
+- Other misc changes. Easter eggs?
+
+
 ## [2.3.0] - 2018-2-22
 ### Added
 - Added ability to choose between different units (Feet and Meters)
