@@ -1,6 +1,7 @@
 package com.mammen.main;
 	
 import com.mammen.util.NativeUtils;
+import com.mammen.util.OSValidator;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -45,10 +46,18 @@ public class Main extends Application
 	public static void main(String[] args) 
 	{
 		try {
-			//NativeUtils.loadLibraryFromJar("/pathfinderjava.dll");
-			NativeUtils.loadLibraryFromJar("/pathfinderjava.so");
-			//PathfinderJNI.libLoaded = true;
-			//System.out.println("Native Lib loaded");
+			
+			if (OSValidator.isWindows()) {
+				NativeUtils.loadLibraryFromJar("/pathfinderjava.dll");
+			} else if (OSValidator.isMac()) {
+				System.out.println("This is Mac");
+			} else if (OSValidator.isUnix()) {
+				NativeUtils.loadLibraryFromJar("/pathfinderjava.so");
+			} else if (OSValidator.isSolaris()) {
+				System.out.println("This is Solaris");
+			} else {
+				System.out.println("Your OS is not support!!");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.out.println("Failed to load lib");
