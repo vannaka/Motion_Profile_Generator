@@ -2,9 +2,7 @@ package com.mammen.util;
 
 public class Mathf
 {
-	private Mathf() {
-        // Do not instantiate
-    }
+	private Mathf() {}
 
     /**
      * Rounds the specified value to the specified number of decimal places

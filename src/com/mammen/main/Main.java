@@ -1,7 +1,10 @@
 package com.mammen.main;
 	
+import com.mammen.util.NativeUtils;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -41,6 +44,16 @@ public class Main extends Application
 	
 	public static void main(String[] args) 
 	{
+		try {
+			//NativeUtils.loadLibraryFromJar("/pathfinderjava.dll");
+			NativeUtils.loadLibraryFromJar("/pathfinderjava.so");
+			//PathfinderJNI.libLoaded = true;
+			//System.out.println("Native Lib loaded");
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Failed to load lib");
+		}
+		
 		launch(args);
 	}
 }
