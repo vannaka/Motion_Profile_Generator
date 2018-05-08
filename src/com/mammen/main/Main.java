@@ -50,13 +50,13 @@ public class Main extends Application
 			if (OSValidator.isWindows()) {
 				NativeUtils.loadLibraryFromJar("/pathfinderjava.dll");
 			} else if (OSValidator.isMac()) {
-				System.out.println("This is Mac");
+				NativeUtils.loadLibraryFromJar("/pathfinderjava.dylib");
 			} else if (OSValidator.isUnix()) {
 				NativeUtils.loadLibraryFromJar("/pathfinderjava.so");
 			} else if (OSValidator.isSolaris()) {
 				System.out.println("This is Solaris");
 			} else {
-				System.out.println("Your OS is not support!!");
+				//display os not supported error message
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
