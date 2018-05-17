@@ -703,9 +703,18 @@ public class MainUIController
 	
 	        if (rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
         		rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound()) 
-	        {	        	
-	        	Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
-	        	waypointsList.add(temp);
+	        {	   
+	        	if (OSValidator.isMac()) {
+	        		Optional<Waypoint> result = null;
+	        		
+	        		result = DialogFactory.createWaypointDialog(String.valueOf(rnd_x), String.valueOf(rnd_y)).showAndWait();
+	        		
+	        		result.ifPresent((Waypoint w) -> waypointsList.add(w));
+	        	}
+	        	else {
+	        		Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
+	        		waypointsList.add(temp);
+	        	}
 	        }
         
     	} 
