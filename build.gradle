@@ -1,0 +1,37 @@
+plugins {
+    id 'application'
+    id 'java'
+}
+
+mainClassName = "com.mammen.main.Main"
+version = "v3.0.0"
+
+sourceSets {
+    main.java {
+        srcDirs = ['src']; include '**/*.java'
+    }
+
+    main.resources {
+        srcDirs = ['src']; exclude '**/*.java'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'lib', include: '*.jar')
+}
+
+jar {
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    // Set up manifest to point the main class to the right class.
+    manifest {
+        attributes 'Main-Class': mainClassName
+        attributes 'Version': version
+    }
+	from ("lib/native_libs") {
+		into ("")
+	}
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.7'
+}
