@@ -48,4 +48,13 @@ public class AlertFactory
 
         return alert;
     }
+    
+    public static Alert createInvalidOSAlert(String msg) {
+    	Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Invalid OS");
+        alert.setHeaderText("Whoops!");
+        alert.setContentText(msg);
+    	
+    	return alert;
+    }
 }

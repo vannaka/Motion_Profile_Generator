@@ -11,13 +11,15 @@ import java.util.Properties;
 import com.mammen.ui.javafx.factory.SeriesFactory;
 import com.mammen.ui.javafx.factory.AlertFactory;
 import com.mammen.util.Mathf;
+import com.mammen.util.NativeUtils;
+import com.mammen.util.OSValidator;
 import com.mammen.ui.javafx.factory.DialogFactory;
 import com.mammen.main.ProfileGenerator;
-import com.mammen.main.ProfileGenerator.Units;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
+
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.FXCollections;
@@ -31,7 +33,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
@@ -122,6 +123,28 @@ public class MainUIController
     {
         backend = new ProfileGenerator();
         properties = PropWrapper.getProperties();
+        
+        try {
+			
+			if (OSValidator.isWindows()) {
+				NativeUtils.loadLibraryFromJar("/pathfinderjava.dll");
+			} else if (OSValidator.isMac()) {
+				NativeUtils.loadLibraryFromJar("/pathfinderjava.dylib");
+			} else if (OSValidator.isUnix()) {
+				NativeUtils.loadLibraryFromJar("/pathfinderjava.so");
+			} else {
+				//display OS not supported error message
+				Alert alert = AlertFactory.createInvalidOSAlert("You are attempting to use this app on an unsupported OS");
+
+	            alert.showAndWait();
+	            exit();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder lib!");
+
+            alert.showAndWait();
+		}
         
         workingDirectory = new File(properties.getProperty("file.workingDir", System.getProperty("user.dir")));
 
@@ -680,9 +703,18 @@ public class MainUIController
 	
 	        if (rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
         		rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound()) 
-	        {	        	
-	        	Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
-	        	waypointsList.add(temp);
+	        {	   
+	        	if (OSValidator.isMac()) {
+	        		Optional<Waypoint> result = null;
+	        		
+	        		result = DialogFactory.createWaypointDialog(String.valueOf(rnd_x), String.valueOf(rnd_y)).showAndWait();
+	        		
+	        		result.ifPresent((Waypoint w) -> waypointsList.add(w));
+	        	}
+	        	else {
+	        		Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
+	        		waypointsList.add(temp);
+	        	}
 	        }
         
     	} 

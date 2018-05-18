@@ -1,5 +1,5 @@
 package com.mammen.main;
-	
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
@@ -40,7 +40,7 @@ public class Main extends Application
 	}
 	
 	public static void main(String[] args) 
-	{
+	{	
 		launch(args);
 	}
 }
