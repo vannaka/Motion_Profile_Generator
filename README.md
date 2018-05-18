@@ -103,10 +103,10 @@ the "File" menu.
 **NOTE: Settings file saved to `%user.dir%\.motion-profile-generator\mpg.properties`**
 - Position graph overlay: 32:27 image to use as an overlay to the position chart
 
-## Environment / Build Information
-- You will need the Eclipse IDE with the e(fx)clipse add-on	
-- You will also need at least JDK 8
-- Install instructions for e(fx)clipse can be found [here](http://www.eclipse.org/efxclipse/install.html)
+## Build Information
+- You will need JDK 8
+- In the project folder run `gradle build`
+- The JAR artifact will be created in the build folder
 		
 ## Acknowledgments
 
