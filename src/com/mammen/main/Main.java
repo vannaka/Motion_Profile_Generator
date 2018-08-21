@@ -1,8 +1,5 @@
 package com.mammen.main;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.scene.Scene;

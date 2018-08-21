@@ -1,8 +1,10 @@
 package com.mammen.main;
 
 import com.mammen.util.Mathf;
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
@@ -17,6 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -432,15 +435,22 @@ public class ProfileGenerator
                 trajectoryEle.appendChild(waypointEle);
             }
 
-            OutputFormat format = new OutputFormat(dom);
-
-            format.setIndenting(true);
-
-            XMLSerializer xmlSerializer = new XMLSerializer(
-                    new FileOutputStream(workingProject), format
-            );
-
-            xmlSerializer.serialize(dom);
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(workingProject);
+                DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+                DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+                LSSerializer serializer = impl.createLSSerializer();
+                
+                serializer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+                
+                LSOutput lso = impl.createLSOutput();
+                lso.setByteStream(fos);
+                serializer.write(dom,lso);
+               
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     
@@ -545,6 +555,7 @@ public class ProfileGenerator
 
             // Make sure you aren't trying to save to another project file
             clearWorkingFiles();
+            botReader.close();
         }
     }
     
