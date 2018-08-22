@@ -7,31 +7,44 @@ mainClassName = "com.mammen.main.Main"
 version = "v3.0.0"
 
 sourceSets {
+    // Set top level dir of the java code
     main.java {
-        srcDirs = ['src']; include '**/*.java'
+        srcDirs = ['src/java']
+        include '**/*.java'
     }
 
+    // Set the top level dir of our resources
     main.resources {
-        srcDirs = ['src']; exclude '**/*.java'
+        srcDirs = ['src/java', 'src/resources']
+        exclude '**/*.java', 'lib'
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'lib', include: '*.jar')
+    // Add our lib as dependencies
+    compile files('src/resources/lib/Pathfinder/Pathfinder-Java-1.8.jar')
 }
 
 jar {
-    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    // Set up manifest to point the main class to the right class.
+    // Set up manifest to point the Main-Class attribute to the right class.
     manifest {
         attributes 'Main-Class': mainClassName
         attributes 'Version': version
     }
-	from ("lib/native_libs") {
-		into ("")
-	}
+
+    // Copy contents of depended jars into final jar
+    from( configurations.compile.collect { 
+        it.isDirectory() ? it : zipTree(it)
+    })
+
+    // Copy native Pathfinder libs into the jar
+	from( 'src/resources/lib/Pathfinder/native_libs' ){
+        include '**/*.dll', '**/*.dylib', '**/*.exp', '**/*.lib',  '**/*.so'
+        into( 'lib' )
+    }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
+wrapper {
+    // Set the version of our gradle wrapper
+    gradleVersion = '4.9'
 }

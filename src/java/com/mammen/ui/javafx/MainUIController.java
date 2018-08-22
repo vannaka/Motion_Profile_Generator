@@ -125,13 +125,12 @@ public class MainUIController
         properties = PropWrapper.getProperties();
         
         try {
-			
 			if (OSValidator.isWindows()) {
-				NativeUtils.loadLibraryFromJar("/pathfinderjava.dll");
+				NativeUtils.loadLibraryFromJar("/lib/pathfinderjava.dll");
 			} else if (OSValidator.isMac()) {
-				NativeUtils.loadLibraryFromJar("/pathfinderjava.dylib");
+				NativeUtils.loadLibraryFromJar("/lib/pathfinderjava.dylib");
 			} else if (OSValidator.isUnix()) {
-				NativeUtils.loadLibraryFromJar("/pathfinderjava.so");
+				NativeUtils.loadLibraryFromJar("/lib/pathfinderjava.so");
 			} else {
 				//display OS not supported error message
 				Alert alert = AlertFactory.createInvalidOSAlert("You are attempting to use this app on an unsupported OS");

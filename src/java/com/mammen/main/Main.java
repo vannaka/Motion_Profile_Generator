@@ -14,22 +14,17 @@ public class Main extends Application
 	{
 		try
 		{
-			Pane root = FXMLLoader.load(getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml"));
-			// Scene scene = new Scene(root);
-			// Dimension res = Toolkit.getDefaultToolkit().getScreenSize();
-	        // int width = res.width - 269;
-	        // int height = res.height - 111;
+			Pane root = FXMLLoader.load( getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml") );
 	        root.autosize();
 	        
-			primaryStage.setScene(new Scene(root));
+			primaryStage.setScene( new Scene(root) );
 			primaryStage.sizeToScene();
 			primaryStage.setTitle("Motion Profile Generator");
 			
-			// primaryStage.setWidth(width);
-	        // primaryStage.setHeight(height);
-	        // primaryStage.centerOnScreen();
+			primaryStage.setMinWidth( 1170 );
+	        primaryStage.setMinHeight( 790 );
 
-	        primaryStage.setResizable(false);
+	        primaryStage.setResizable( true );
 			primaryStage.show();
 		} 
 		catch(Exception e) 
