@@ -108,6 +108,7 @@ the "File" menu.
 - In the project folder run `gradle build`
 - The JAR artifact will be created in the build folder
 		
-## Acknowledgments
+## Libraries Used
 
-- [Jaci](https://github.com/JacisNonsense/Pathfinder) for the path generation code
+- **[Pathfinder](https://github.com/JacisNonsense/Pathfinder)** 
+- **[native-lib-loader](https://github.com/scijava/native-lib-loader)** 

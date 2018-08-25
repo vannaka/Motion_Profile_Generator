@@ -24,8 +24,8 @@ public class AboutDialogController {
     private Hyperlink
             hlLukeGithub,
             hlBlakeGithub,
-            hlJaciGithub,
-            hlVannakaGithub,
+            hlPathfinder,
+            hlNativeLibLoader,
             hlMITLicense;
 
     @FXML
@@ -48,7 +48,8 @@ public class AboutDialogController {
 
         hlLukeGithub.setOnAction((ActionEvent e) -> openLink("https://github.com/vannaka"));
         hlBlakeGithub.setOnAction((ActionEvent e) -> openLink("https://github.com/blake1029384756"));
-        hlJaciGithub.setOnAction((ActionEvent e) -> openLink("https://github.com/JacisNonsense"));
+        hlPathfinder.setOnAction((ActionEvent e) -> openLink("https://github.com/JacisNonsense/Pathfinder"));
+        hlNativeLibLoader.setOnAction((ActionEvent e) -> openLink("https://github.com/scijava/native-lib-loader"));
         hlMITLicense.setOnAction((ActionEvent e) -> openLink("https://opensource.org/licenses/MIT"));
 
         btnViewRepo.setOnAction((ActionEvent e) -> openLink("https://github.com/vannaka/Motion_Profile_Generator"));
