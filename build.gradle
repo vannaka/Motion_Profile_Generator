@@ -53,6 +53,12 @@ jar {
     }
 }
 
+// Run our application
+task runApp(type:Exec) {
+    commandLine 'java', '-jar', "build/libs/Motion_Profile_Generator-${version}.jar"
+    dependsOn build
+}
+
 wrapper {
     // Set the version of our gradle wrapper
     gradleVersion = '4.9'
