@@ -1,44 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonType?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DialogPane?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<DialogPane fx:id="root" maxHeight="224.0" minHeight="200.0" prefHeight="224.0" prefWidth="526.0" xmlns="http://javafx.com/javafx/8.0.172" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.SettingsDialogController">
+<DialogPane fx:id="root" maxHeight="300.0" minHeight="200.0" prefHeight="300.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.SettingsDialogController">
    <content>
-      <GridPane alignment="CENTER" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="8.0" prefWidth="455.0" vgap="10.0">
-        <columnConstraints>
-          <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
+      <AnchorPane>
          <children>
-            <Label text="Position Chart Background:" />
-            <TextField fx:id="txtOverlayDir" editable="false" GridPane.columnIndex="1" />
-            <Button fx:id="btnChooseOverlay" mnemonicParsing="false" onAction="#showChooseOverlayDialog" text="Find image..." GridPane.columnIndex="2" />
-            <ChoiceBox fx:id="choSourceDisplay" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label layoutX="38.0" layoutY="31.0" text="Source Trajectory Display:" GridPane.rowIndex="1" />
-            <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label text="CSV Type:" GridPane.rowIndex="2" />
-            <ChoiceBox fx:id="choCSVType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <AnchorPane layoutX="20.0" layoutY="20.0" prefHeight="234.0" prefWidth="191.0" style="-fx-background-color: #f0f7ff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+               <children>
+                  <AnchorPane prefHeight="207.0" prefWidth="52.0" style="-fx-background-color: #fff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <effect>
+                        <DropShadow />
+                     </effect>
+                     <children>
+                        <FontAwesomeIconView fill="#544d4d" glyphName="FILE" layoutX="20.0" layoutY="64.0" size="15" />
+                     </children>
+                  </AnchorPane>
+                  <Button fx:id="btn_general" accessibleText="General" graphicTextGap="45.0" layoutY="21.0" mnemonicParsing="false" onAction="#showGeneralSettings" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #80000000;" text="General" />
+                  <Button fx:id="btn_csv" accessibleText="General" graphicTextGap="45.0" layoutY="46.0" mnemonicParsing="false" onAction="#showCSVSettings" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #40000000;" text="CSV" />
+                  <FontAwesomeIconView fill="#544d4d" glyphName="MAGIC" layoutX="18.0" layoutY="38.0" size="15" />
+               </children>
+               <effect>
+                  <DropShadow />
+               </effect>
+            </AnchorPane>
+            <AnchorPane layoutX="231.0" prefHeight="152.0" prefWidth="424.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Pane fx:id="pnl_general" prefHeight="172.0" prefWidth="455.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <GridPane alignment="BASELINE_RIGHT" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="150.0" prefWidth="455.0" vgap="10.0">
+                          <columnConstraints>
+                            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <Label text="Position Chart Background:" />
+                              <TextField fx:id="txtOverlayDir" editable="false" GridPane.columnIndex="1" />
+                              <Button fx:id="btnChooseOverlay" mnemonicParsing="false" onAction="#showChooseOverlayDialog" text="Find image..." GridPane.columnIndex="2" />
+                              <ChoiceBox fx:id="choSourceDisplay" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label layoutX="38.0" layoutY="31.0" text="Source Trajectory Display:" GridPane.rowIndex="1" />
+                              <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                           </children>
+                        </GridPane>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" prefHeight="146.0" prefWidth="455.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <GridPane alignment="BASELINE_RIGHT" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="39.0" prefWidth="455.0" vgap="10.0">
+                           <columnConstraints>
+                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                           <children>
+                              <Label text="CSV Type:" />
+                              <ChoiceBox fx:id="choCSVType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" />
+                           </children>
+                        </GridPane>
+                        <ListView fx:id="lstview_1" layoutY="71.0" prefHeight="108.0" prefWidth="200.0" />
+                        <ListView fx:id="lstview_2" layoutX="224.0" layoutY="72.0" prefHeight="107.0" prefWidth="200.0" />
+                        <Label layoutX="57.0" layoutY="47.0" text="Available Values" />
+                        <Label layoutX="266.0" layoutY="47.0" text="Values in Custom CSV" />
+                     </children>
+                  </Pane>
+               </children>
+            </AnchorPane>
          </children>
-      </GridPane>
+      </AnchorPane>
    </content>
    <buttonTypes>
-      <ButtonType fx:constant="CANCEL" />
       <ButtonType fx:constant="APPLY" />
+      <ButtonType fx:constant="CANCEL" />
    </buttonTypes>
 </DialogPane>
