@@ -4,6 +4,10 @@ import com.mammen.ui.javafx.PropWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.beans.value.ObservableValue;
@@ -31,12 +35,13 @@ public class SettingsDialogController {
     private CheckBox chkAddWaypointOnClick;
 
     @FXML
-    private ListView lstview_1, lstview_2;
+    private ListView lst_availabel_vals, lst_chosen_vals;
 
     private Properties properties;
 
     @FXML
-    private void initialize() {
+    private void initialize()
+    {
         properties = PropWrapper.getProperties();
 
         txtOverlayDir.setText(properties.getProperty("ui.overlayDir", ""));
@@ -49,27 +54,28 @@ public class SettingsDialogController {
 
         chkAddWaypointOnClick.setSelected(Boolean.parseBoolean(properties.getProperty("ui.addWaypointOnClick", "false")));
 
-        lstview_1.setItems(FXCollections.observableArrayList("Delta Time", "X Point", "Y Point", "Position", "Velocity", "Acceleration", "Jerk", "Heading"));
+        lst_availabel_vals.setItems(FXCollections.observableArrayList("Delta Time", "X Point", "Y Point", "Position", "Velocity", "Acceleration", "Jerk", "Heading"));
 
         pnl_csv.setVisible(false);
         pnl_general.setVisible(true);
 
         if( (choCSVType.getSelectionModel().getSelectedItem() ).toUpperCase().equals("CUSTOM") )
         {
-            lstview_1.setDisable(false);
-            lstview_2.setDisable(false);
+            lst_availabel_vals.setDisable(false);
+            lst_chosen_vals.setDisable(false);
         }
         else
         {
-            lstview_1.setDisable(true);
-            lstview_2.setDisable(true);
+            lst_availabel_vals.setDisable(true);
+            lst_chosen_vals.setDisable(true);
         }
 
         choCSVType.getSelectionModel().selectedItemProperty().addListener( this::disableSettings );
     }
 
     @FXML
-    private void showChooseOverlayDialog() {
+    private void showChooseOverlayDialog()
+    {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
@@ -91,14 +97,16 @@ public class SettingsDialogController {
     }
 
     @FXML
-    private void showGeneralSettings(){
+    private void showGeneralSettings()
+    {
         pnl_general.toFront();
         pnl_csv.setVisible(false);
         pnl_general.setVisible(true);
     }
 
     @FXML
-    private void showCSVSettings() {
+    private void showCSVSettings()
+    {
         pnl_csv.toFront();
         pnl_csv.setVisible(true);
         pnl_general.setVisible(false);
@@ -109,13 +117,78 @@ public class SettingsDialogController {
     {
         if( ( (String)newValue ).toUpperCase().equals("CUSTOM") )
         {
-            lstview_1.setDisable(false);
-            lstview_2.setDisable(false);
+            lst_availabel_vals.setDisable(false);
+            lst_chosen_vals.setDisable(false);
         }
         else
         {
-            lstview_1.setDisable(true);
-            lstview_2.setDisable(true);
+            lst_availabel_vals.setDisable(true);
+            lst_chosen_vals.setDisable(true);
         }
     }
+
+    @FXML
+    private void lst_aval_onDragDetected()
+    {
+        Dragboard db = lst_availabel_vals.startDragAndDrop( TransferMode.MOVE );
+        ClipboardContent content = new ClipboardContent();
+        content.putString( lst_availabel_vals.getSelectionModel().getSelectedItems().toString() );
+        db.setContent( content );
+    }
+
+    @FXML
+    private void lst_chos_onDragOver( DragEvent event )
+    {
+        if( ( event.getGestureSource() != lst_chosen_vals )
+         && ( event.getDragboard().hasString()            ) )
+        {
+            event.acceptTransferModes( TransferMode.MOVE );
+        }
+    }
+
+    @FXML
+    private void lst_chos_onDragEnter( DragEvent event )
+    {
+        if( ( event.getGestureSource() != lst_chosen_vals )
+         && ( event.getDragboard().hasString()            ) )
+        {
+            // TODO: Set blue border
+        }
+    }
+
+    @FXML
+    private void lst_chos_onDragExit( DragEvent event )
+    {
+        if( ( event.getGestureSource() != lst_chosen_vals )
+         && ( event.getDragboard().hasString()            ) )
+        {
+            // TODO: Remove blue border
+        }
+    }
+
+    @FXML
+    private void lst_chos_onDragDrop( DragEvent event )
+    {
+        /* data dropped */
+        /* if there is a string data on dragboard, read it and use it */
+        Dragboard db = event.getDragboard();
+        boolean success = false;
+        if( db.hasString() )
+        {
+            lst_chosen_vals.getItems().add( db.getString() );
+            success = true;
+        }
+        /* let the source know whether the string was successfully
+         * transferred and used */
+        event.setDropCompleted( success );
+    }
+
+    @FXML
+    private void lst_aval_onDragDone( DragEvent event )
+    {
+        if (event.getTransferMode() == TransferMode.MOVE) {
+            lst_availabel_vals.getItems().remove( lst_availabel_vals.getSelectionModel().getSelectedIndex() );
+        }
+    }
+
 }

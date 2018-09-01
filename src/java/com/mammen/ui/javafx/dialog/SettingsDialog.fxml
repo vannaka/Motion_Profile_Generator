@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<DialogPane fx:id="root" maxHeight="300.0" minHeight="200.0" prefHeight="300.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.SettingsDialogController">
+<DialogPane fx:id="root" maxHeight="300.0" minHeight="200.0" prefHeight="300.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.SettingsDialogController">
    <content>
       <AnchorPane>
          <children>
@@ -81,8 +81,8 @@
                               <ChoiceBox fx:id="choCSVType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" />
                            </children>
                         </GridPane>
-                        <ListView fx:id="lstview_1" layoutY="71.0" prefHeight="108.0" prefWidth="200.0" />
-                        <ListView fx:id="lstview_2" layoutX="224.0" layoutY="72.0" prefHeight="107.0" prefWidth="200.0" />
+                        <ListView fx:id="lst_availabel_vals" layoutY="71.0" onDragDetected="#lst_aval_onDragDetected" onDragDone="#lst_aval_onDragDone" prefHeight="108.0" prefWidth="200.0" />
+                        <ListView fx:id="lst_chosen_vals" layoutX="224.0" layoutY="72.0" onDragDropped="#lst_chos_onDragDrop" onDragEntered="#lst_chos_onDragEnter" onDragExited="#lst_chos_onDragExit" onDragOver="#lst_chos_onDragOver" prefHeight="107.0" prefWidth="200.0" />
                         <Label layoutX="57.0" layoutY="47.0" text="Available Values" />
                         <Label layoutX="266.0" layoutY="47.0" text="Values in Custom CSV" />
                      </children>
