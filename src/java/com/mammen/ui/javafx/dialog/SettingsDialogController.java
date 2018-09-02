@@ -152,7 +152,8 @@ public class SettingsDialogController {
         if( ( event.getGestureSource() != lst_chosen_vals )
          && ( event.getDragboard().hasString()            ) )
         {
-            // TODO: Set blue border
+            // Set blue border
+            lst_chosen_vals.setStyle( "-fx-border-color: DodgerBlue" );
         }
     }
 
@@ -162,7 +163,8 @@ public class SettingsDialogController {
         if( ( event.getGestureSource() != lst_chosen_vals )
          && ( event.getDragboard().hasString()            ) )
         {
-            // TODO: Remove blue border
+            // Remove blue border
+            lst_chosen_vals.setStyle("");
         }
     }
 
