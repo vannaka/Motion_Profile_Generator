@@ -20,8 +20,8 @@ public class Main extends Application
 			primaryStage.setScene( new Scene(root) );
 			primaryStage.sizeToScene();
 			primaryStage.setTitle("Motion Profile Generator");
-			primaryStage.setMinWidth( 1170 );
-	        primaryStage.setMinHeight( 790 );
+			primaryStage.setMinWidth( 1280 ); //1170
+	        primaryStage.setMinHeight( 720 ); //790
 	        primaryStage.setResizable( true );
 
 			primaryStage.show();
