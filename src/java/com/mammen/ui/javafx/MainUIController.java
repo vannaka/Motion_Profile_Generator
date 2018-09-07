@@ -102,10 +102,13 @@ public class MainUIController
         mnuHelpAbout;
 
     @FXML
-    private ChoiceBox<String> 
-    	choDriveBase, 
-    	choFitMethod,
-    	choUnits;
+    private ChoiceBox<ProfileGenerator.FitMethod> choFitMethod;
+
+    @FXML
+    private ChoiceBox<ProfileGenerator.DriveBase> choDriveBase;
+
+    @FXML
+    private ChoiceBox<ProfileGenerator.Units> choUnits;
 
     @FXML
     private Button
@@ -128,31 +131,40 @@ public class MainUIController
         // Load Pathfinder native lib
         try
         {
-            NativeLoader.loadLibrary("pathfinderjava");
+            NativeLoader.loadLibrary("pathfinderjava" );
 		}
-		catch (IOException e)
+		catch( IOException e )
         {
 			e.printStackTrace();
-			Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder lib!");
+			Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder lib!" );
 
             alert.showAndWait();
 		}
-        
-        workingDirectory = new File(properties.getProperty("file.workingDir", System.getProperty("user.dir")));
 
-        btnDelete.setDisable(true);
+        // Retrieve the working dir from our properties file.
+        // If the path isn't a dir for some reason, default to the user directory
+		workingDirectory = new File( properties.getProperty("file.workingDir", System.getProperty("user.dir") ) );
+        if( !workingDirectory.exists() || !workingDirectory.isDirectory() )
+        {
+            workingDirectory = new File( System.getProperty("user.dir") );
+        }
 
-        choDriveBase.getItems().addAll("Tank", "Swerve");
-        choDriveBase.setValue(choDriveBase.getItems().get(0));
-        choDriveBase.getSelectionModel().selectedItemProperty().addListener(this::updateDriveBase);
+        btnDelete.setDisable( true );
 
-        choFitMethod.getItems().addAll("Cubic", "Quintic");
-        choFitMethod.setValue(choFitMethod.getItems().get(0));
-        choFitMethod.getSelectionModel().selectedItemProperty().addListener(this::updateFitMethod);
+        // Populate drive base ChoiceBox
+        choDriveBase.getItems().setAll( ProfileGenerator.DriveBase.values() );
+        choDriveBase.setValue( ProfileGenerator.DriveBase.TANK );
+        choDriveBase.getSelectionModel().selectedItemProperty().addListener( this::updateDriveBase );
 
-        choUnits.getItems().addAll("Feet", "Inches", "Meters");
-        choUnits.setValue(choUnits.getItems().get(0));
-        choUnits.getSelectionModel().selectedItemProperty().addListener(this::updateUnits);
+        // Populate fit method ChoiceBox
+        choFitMethod.getItems().setAll( ProfileGenerator.FitMethod.values() );
+        choFitMethod.setValue( ProfileGenerator.FitMethod.HERMITE_CUBIC );
+        choFitMethod.getSelectionModel().selectedItemProperty().addListener( this::updateFitMethod );
+
+        // Populate units ChoiceBox
+        choUnits.getItems().setAll( ProfileGenerator.Units.values() );
+        choUnits.setValue( ProfileGenerator.Units.FEET );
+        choUnits.getSelectionModel().selectedItemProperty().addListener( this::updateUnits );
         
         Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
             (TableColumn<Waypoint, Double> param) -> {
@@ -379,11 +391,14 @@ public class MainUIController
         updateOverlayImg();
         updateFrontend();
         
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            properties.setProperty("file.workingDir", workingDirectory.getAbsolutePath());
-            try {
+        Runtime.getRuntime().addShutdownHook( new Thread(() -> {
+            properties.setProperty( "file.workingDir", workingDirectory.getAbsolutePath() );
+            try
+            {
                 PropWrapper.storeProperties();
-            } catch (IOException e) {
+            }
+            catch( IOException e )
+            {
                 e.printStackTrace();
             }
         }));
@@ -477,7 +492,8 @@ public class MainUIController
     }
     
     @FXML
-    private void showSaveAsDialog() {
+    private void showSaveAsDialog()
+    {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setInitialDirectory(workingDirectory);
@@ -486,27 +502,30 @@ public class MainUIController
                 new FileChooser.ExtensionFilter("Extensive Markup Language", "*.xml")
         );
 
-        File result = fileChooser.showSaveDialog(root.getScene().getWindow());
+        File result = fileChooser.showSaveDialog( root.getScene().getWindow() );
 
         if (result != null)
-            try {
+        {
+            try
+            {
                 workingDirectory = result.getParentFile();
-
-                backend.saveProjectAs(result);
-
-                mnuFileSave.setDisable(false);
-            } catch (Exception e) {
-                Alert alert = AlertFactory.createExceptionAlert(e);
-
+                backend.saveProjectAs( result );
+                mnuFileSave.setDisable( false );
+            }
+            catch( Exception e )
+            {
+                Alert alert = AlertFactory.createExceptionAlert( e );
                 alert.showAndWait();
+            }
         }
     }
     
     @FXML
-    private void showOpenDialog() {
+    private void showOpenDialog()
+    {
         FileChooser fileChooser = new FileChooser();
 
-        fileChooser.setInitialDirectory(workingDirectory);
+        fileChooser.setInitialDirectory( workingDirectory );
         fileChooser.setTitle("Open Project");
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Extensive Markup Language", "*.xml")
@@ -514,8 +533,10 @@ public class MainUIController
 
         File result = fileChooser.showOpenDialog(root.getScene().getWindow());
 
-        if (result != null) {
-            try {
+        if (result != null)
+        {
+            try
+            {
                 workingDirectory = result.getParentFile();
                 backend.loadProject(result);
 
@@ -524,17 +545,19 @@ public class MainUIController
 
                 generateTrajectories();
 
-                mnuFileSave.setDisable(false);
-            } catch (Exception e) {
-                Alert alert = AlertFactory.createExceptionAlert(e);
-
+                mnuFileSave.setDisable( false );
+            }
+            catch( Exception e )
+            {
+                Alert alert = AlertFactory.createExceptionAlert( e );
                 alert.showAndWait();
             }
         }
     }
     
     @FXML
-    private void showImportDialog() {
+    private void showImportDialog()
+    {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setInitialDirectory(workingDirectory);
@@ -545,7 +568,8 @@ public class MainUIController
 
         File result = fileChooser.showOpenDialog(root.getScene().getWindow());
 
-        if (result != null) {
+        if (result != null)
+        {
             Dialog<ProfileGenerator.Units> unitsSelector = new Dialog<>();
             Optional<ProfileGenerator.Units> unitsResult = null;
             GridPane grid = new GridPane();
@@ -608,26 +632,31 @@ public class MainUIController
     }
     
     @FXML
-    private void save() {
+    private void save()
+    {
         updateBackend();
 
-        try {
+        try
+        {
             backend.saveWorkingProject();
-        } catch (Exception e) {
-            Alert alert = AlertFactory.createExceptionAlert(e);
-
+        }
+        catch( Exception e )
+        {
+            Alert alert = AlertFactory.createExceptionAlert( e );
             alert.showAndWait();
         }
     }
     
     @FXML
-    private void exit() {
-        System.exit(0);
+    private void exit()
+    {
+        System.exit(0 );
     } 
     
     @FXML
-    private void resetData() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+    private void resetData()
+    {
+        Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
 
         alert.setTitle("Create New Project?");
         alert.setHeaderText("Confirm Reset");
@@ -638,7 +667,7 @@ public class MainUIController
         result.ifPresent((ButtonType t) -> {
             if (t == ButtonType.OK) {
                 backend.clearWorkingFiles();
-                backend.resetValues(choUnits.getSelectionModel().getSelectedItem().toUpperCase());
+                backend.resetValues( choUnits.getSelectionModel().getSelectedItem() );
 
                 updateFrontend();
                 waypointsList.clear();
@@ -801,7 +830,7 @@ public class MainUIController
 
         choDriveBase.setValue(choDriveBase.getItems().get(backend.getDriveBase().ordinal()));
         choFitMethod.setValue(choFitMethod.getItems().get(backend.getFitMethod().ordinal()));
-        choUnits.setValue(choUnits.getItems().get(backend.getUnits().ordinal()));
+        choUnits.setValue( backend.getUnits() );
 
         refreshWaypointTable();
     }
@@ -831,40 +860,30 @@ public class MainUIController
         return true;
     }
      
-    private void updateDriveBase(ObservableValue<? extends String> observable, Object oldValue, Object newValue)
+    private void updateDriveBase(ObservableValue<? extends ProfileGenerator.DriveBase> observable, ProfileGenerator.DriveBase oldValue, ProfileGenerator.DriveBase newValue)
     {
-        String choice = ((String) newValue).toUpperCase();
-        ProfileGenerator.DriveBase db = ProfileGenerator.DriveBase.valueOf(choice);
+        backend.setDriveBase( newValue );
 
-        backend.setDriveBase(db);
-
-        txtWheelBaseD.setDisable(db == ProfileGenerator.DriveBase.TANK);
-        lblWheelBaseD.setDisable(db == ProfileGenerator.DriveBase.TANK);
+        // Disable for tank drive
+        txtWheelBaseD.setDisable( newValue == ProfileGenerator.DriveBase.TANK );
+        lblWheelBaseD.setDisable( newValue == ProfileGenerator.DriveBase.TANK );
 
         generateTrajectories();
     }
 
-    private void updateFitMethod(ObservableValue<? extends String> observable, Object oldValue, Object newValue) 
+    private void updateFitMethod(ObservableValue<? extends ProfileGenerator.FitMethod> observable, ProfileGenerator.FitMethod oldValue, ProfileGenerator.FitMethod newValue)
     {
-        String choice = ((String) newValue).toUpperCase();
-        Trajectory.FitMethod fm = Trajectory.FitMethod.valueOf("HERMITE_" + choice);
-
-        backend.setFitMethod(fm);
+        backend.setFitMethod( newValue );
 
         generateTrajectories();
     }
 
-    private void updateUnits(ObservableValue<? extends String> observable, Object oldValue, Object newValue) 
+    private void updateUnits(ObservableValue<? extends ProfileGenerator.Units> observable, ProfileGenerator.Units oldValue, ProfileGenerator.Units newValue)
     {
-        String new_str = ((String) newValue).toUpperCase();
-        String old_str = ((String) oldValue).toUpperCase();
-        ProfileGenerator.Units new_unit = ProfileGenerator.Units.valueOf(new_str);
-        ProfileGenerator.Units old_unit = ProfileGenerator.Units.valueOf(old_str);
-
-        backend.setUnits(new_unit);
+        backend.setUnits( newValue );
         //backend.resetValues(new_str);
         
-        backend.updateVarUnits(old_unit, new_unit);
+        backend.updateVarUnits( oldValue, newValue );
         
         updateChartAxis();
         updateFrontend();

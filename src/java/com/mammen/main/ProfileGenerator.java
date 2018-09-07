@@ -9,7 +9,6 @@ import org.w3c.dom.ls.LSSerializer;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Trajectory.Config;
-import jaci.pathfinder.Trajectory.FitMethod;
 import jaci.pathfinder.Trajectory.Segment;
 import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.modifiers.SwerveModifier;
@@ -34,14 +33,16 @@ import java.util.stream.Stream;
 public class ProfileGenerator 
 {
 	public static final String PROJECT_EXTENSION = "xml";
-	
-	public enum DriveBase {
-        TANK("TANK"),
-        SWERVE("SWERVE");
+
+	// Types of drive bases
+	public enum DriveBase
+    {
+        TANK( "Tank" ),
+        SWERVE( "Swerve" );
         
         private String label;
 
-		DriveBase(String label)
+		DriveBase( String label )
 		{
             this.label = label;
         }
@@ -52,22 +53,49 @@ public class ProfileGenerator
         }
     }
 
-    public enum Units {
-        FEET("FEET"),
-        INCHES("INCHES"),
-        METERS("METERS");
-        
-        
+    // Units of every value
+    public enum Units
+    {
+        FEET( "Feet" ),
+        INCHES( "Inches" ),
+        METERS( "Meter" );
+
         private String label;
-        
-        Units(String label)
+
+        Units( String label )
         {
-        	this.label = label;
+            this.label = label;
         }
-        
+
         public String toString()
         {
             return label;
+        }
+    }
+
+    // This enum mirrors jaci.pathfinder.Trajectory.FitMethod for use internally.
+    public enum FitMethod
+    {
+        HERMITE_CUBIC( "Cubic", Trajectory.FitMethod.HERMITE_CUBIC ),
+        HERMITE_QUINTIC( "Quintic", Trajectory.FitMethod.HERMITE_QUINTIC );
+
+        private String label;
+        private jaci.pathfinder.Trajectory.FitMethod pf_fitMethod;
+
+        FitMethod( String label, Trajectory.FitMethod fitMethod )
+        {
+            this.label = label;
+            this.pf_fitMethod = fitMethod;
+        }
+
+        public String toString()
+        {
+            return label;
+        }
+
+        public Trajectory.FitMethod getPfFitMethod()
+        {
+            return pf_fitMethod;
         }
     }
     
@@ -103,63 +131,63 @@ public class ProfileGenerator
     {
     	POINTS = new ArrayList<>();
     	dbFactory = DocumentBuilderFactory.newInstance();
-    	resetValues("FEET");
+    	resetValues( Units.FEET );
     }
     
     public void updateVarUnits( Units old_unit, Units new_unit )
     {
     	// Convert each point in the waypoints list
-    	POINTS.forEach((Waypoint wp) -> 
+        for( Waypoint wp : POINTS )
         {
-        	double tmp_x = 0, tmp_y = 0;
-        	
-        	// convert to intermediate unit of feet
-        	switch(old_unit)
-        	{
-        	case FEET:
-        		tmp_x = wp.x;
-        		tmp_y = wp.y;
-        		break;
-        		
-        	case INCHES:
-        		tmp_x = Mathf.inchesToFeet( wp.x );
-        		tmp_y = Mathf.inchesToFeet( wp.y );
-        		break;
-        		
-        	case METERS:
-        		tmp_x = Mathf.meterToFeet( wp.x );
-        		tmp_y = Mathf.meterToFeet( wp.y );
-        		break;
-        	}
-        	
-        	// convert from intermediate unit of feet
-        	switch(new_unit)
-        	{
-        	case FEET:
-        		wp.x = tmp_x;
-        		wp.y = tmp_y;
-        		break;
-        		
-        	case INCHES:
-        		wp.x = Mathf.feetToInches( tmp_x );
-        		wp.y = Mathf.feetToInches( tmp_y );
-        		break;
-        		
-        	case METERS:
-        		wp.x = Mathf.feetToMeter( tmp_x );
-        		wp.y = Mathf.feetToMeter( tmp_y );
-        		break;
-        	}
-        	
-        	wp.x = Mathf.round( wp.x, 4 );
-        	wp.y = Mathf.round( wp.y, 4 );
-        });
-    	
-    	// Convert each MP variable to the new unit
+            double tmp_x = 0, tmp_y = 0;
+
+            // convert to intermediate unit of feet
+            switch( old_unit )
+            {
+                case FEET:
+                    tmp_x = wp.x;
+                    tmp_y = wp.y;
+                    break;
+
+                case INCHES:
+                    tmp_x = Mathf.inchesToFeet(wp.x);
+                    tmp_y = Mathf.inchesToFeet(wp.y);
+                    break;
+
+                case METERS:
+                    tmp_x = Mathf.meterToFeet(wp.x);
+                    tmp_y = Mathf.meterToFeet(wp.y);
+                    break;
+            }
+
+            // convert from intermediate unit of feet
+            switch( new_unit )
+            {
+                case FEET:
+                    wp.x = tmp_x;
+                    wp.y = tmp_y;
+                    break;
+
+                case INCHES:
+                    wp.x = Mathf.feetToInches(tmp_x);
+                    wp.y = Mathf.feetToInches(tmp_y);
+                    break;
+
+                case METERS:
+                    wp.x = Mathf.feetToMeter(tmp_x);
+                    wp.y = Mathf.feetToMeter(tmp_y);
+                    break;
+            }
+
+            wp.x = Mathf.round(wp.x, 4);
+            wp.y = Mathf.round(wp.y, 4);
+        }
+
+        // Convert each MP variable to the new unit
     	double tmp_WBW = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
     	
     	// convert to intermediate unit of feet
-    	switch(old_unit)
+    	switch( old_unit )
     	{
     	case FEET:
     		tmp_WBW = wheelBaseW;
@@ -184,7 +212,7 @@ public class ProfileGenerator
     	}
     	
     	// convert from intermediate unit of feet
-    	switch(new_unit)
+    	switch( new_unit )
     	{
     	case FEET:
     		wheelBaseW = tmp_WBW;
@@ -217,10 +245,6 @@ public class ProfileGenerator
     
     /**
      * Exports all trajectories to the parent folder, with the given root name and file extension.
-     *
-     * @param parentPath the absolute file path to save to, excluding file extension
-     * @param ext        the file extension to save to, can be {@code *.csv} or {@code *.traj}
-     * @throws Pathfinder.GenerationException
      */
     public void exportTrajectoriesJaci(File parentPath, String ext) throws Pathfinder.GenerationException {
         updateTrajectories();
@@ -391,9 +415,6 @@ public class ProfileGenerator
 
     /**
      * Saves the working project.
-     *
-     * @throws IOException
-     * @throws ParserConfigurationException
      */
     public void saveWorkingProject() throws IOException, ParserConfigurationException {
         if (workingProject != null) {
@@ -409,8 +430,8 @@ public class ProfileGenerator
             trajectoryEle.setAttribute("jerk", "" + jerk);
             trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW);
             trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD);
-            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.toString());
-            trajectoryEle.setAttribute("driveBase", "" + driveBase.toString());
+            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.toString() );
+            trajectoryEle.setAttribute("driveBase", "" + driveBase.toString() );
             trajectoryEle.setAttribute("units", "" + units.toString());
 
             dom.appendChild(trajectoryEle);
@@ -456,11 +477,6 @@ public class ProfileGenerator
     
     /**
      * Loads a project from file.
-     *
-     * @param path the absolute file path to load the project from
-     * @throws IOException
-     * @throws ParserConfigurationException
-     * @throws SAXException
      */
     public void loadProject(File path) throws IOException, ParserConfigurationException, SAXException {
         if (!path.exists() || path.isDirectory())
@@ -562,72 +578,69 @@ public class ProfileGenerator
     /**
      * Clears the working project files
      */
-    public void clearWorkingFiles() {
+    public void clearWorkingFiles()
+    {
         workingProject = null;
     }
     
     /**
-     * Resets configuration to default values
+     * Resets configuration to default values for the given unit.
      */
-    public void resetValues(String choUnits) 
+    public void resetValues( Units unit )
     {
-    	if(choUnits.equals("FEET")) {
+        switch( unit )
+    	{
+        case FEET:
 	        timeStep = 0.05;
 	        velocity = 4;
 	        acceleration = 3;
 	        jerk = 60;
 	        wheelBaseW = 1.464;
-	        wheelBaseD = 0;
+	        wheelBaseD = 1.464;
 	
 	        fitMethod = FitMethod.HERMITE_CUBIC;
 	        driveBase = DriveBase.TANK;
 	        units = Units.FEET;
-    	}
-    	else if(choUnits.equals("METERS")) {
+	        break;
+
+        case METERS:
     		timeStep = 0.05;
 	        velocity = 1.2192;
 	        acceleration = 0.9144;
 	        jerk = 18.288;
 	        wheelBaseW = 0.4462272;
-	        wheelBaseD = 0;
+	        wheelBaseD = 0.4462272;
 	
 	        fitMethod = FitMethod.HERMITE_CUBIC;
 	        driveBase = DriveBase.TANK;
 	        units = Units.METERS;
-    	}
-    	else if(choUnits.equals("INCHES")) {
+	        break;
+
+        case INCHES:
     		timeStep = 0.05;
 	        velocity = 48;
 	        acceleration = 36;
 	        jerk = 720;
 	        wheelBaseW = 17.568;
-	        wheelBaseD = 0;
+	        wheelBaseD = 17.568;
 	
 	        fitMethod = FitMethod.HERMITE_CUBIC;
 	        driveBase = DriveBase.TANK;
 	        units = Units.INCHES;
+	        break;
     	}
     }
     
     /**
      * Adds a waypoint to the list of waypoints
-     *
-     * @param x     the x-location of the waypoint
-     * @param y     the y-location of the waypoint
-     * @param angle the angle of direction at the point, in radians
      */
     public void addPoint( double x, double y, double angle ) 
     {
-        POINTS.add(new Waypoint(x, y, angle));
+        POINTS.add( new Waypoint( x, y, angle ) );
     }
     
     /**
      * Adds a waypoint to the list of waypoints
-     *
-     * @param index the index of the waypoint to edit
-     * @param x     the x-location of the waypoint
-     * @param y     the y-location of the waypoint
-     * @param angle the angle of direction at the point, in radians
      */
     public void editWaypoint( int index, double x, double y, double angle )
     {
@@ -636,7 +649,8 @@ public class ProfileGenerator
         POINTS.get(index).angle = angle;
     }
     
-    public void removePoint(int index) {
+    public void removePoint(int index)
+    {
         POINTS.remove(index);
     }
 
@@ -664,8 +678,8 @@ public class ProfileGenerator
      */
     public void updateTrajectories() throws Pathfinder.GenerationException 
     {
-        Config config = new Config( fitMethod, Config.SAMPLES_HIGH, timeStep, velocity, acceleration, jerk );
-        source = Pathfinder.generate( POINTS.toArray(new Waypoint[1]), config );
+        Config config = new Config( fitMethod.getPfFitMethod(), Config.SAMPLES_HIGH, timeStep, velocity, acceleration, jerk );
+        source = Pathfinder.generate( POINTS.toArray( new Waypoint[1] ), config );
 
         if (driveBase == DriveBase.SWERVE) 
         {
@@ -738,7 +752,7 @@ public class ProfileGenerator
     }
 
     public void setFitMethod(FitMethod fitMethod)
-{
+    {
         this.fitMethod = fitMethod;
     }
 
