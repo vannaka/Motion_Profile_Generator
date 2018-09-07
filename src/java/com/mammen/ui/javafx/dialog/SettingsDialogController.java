@@ -1,13 +1,11 @@
 package com.mammen.ui.javafx.dialog;
 
+import com.mammen.main.ProfileGenerator;
 import com.mammen.ui.javafx.PropWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.beans.value.ObservableValue;
@@ -15,7 +13,8 @@ import javafx.beans.value.ObservableValue;
 import java.io.File;
 import java.util.Properties;
 
-public class SettingsDialogController {
+public class SettingsDialogController
+{
     @FXML
     private Pane root, pnl_general, pnl_csv;
 
@@ -35,9 +34,11 @@ public class SettingsDialogController {
     private CheckBox chkAddWaypointOnClick;
 
     @FXML
-    private ListView lst_availabel_vals, lst_chosen_vals;
+    private ListView<ProfileGenerator.ProfileElements> lst_availabel_vals, lst_chosen_vals;
 
     private Properties properties;
+
+    private static DataFormat profileElementFormat = new DataFormat("com.mammen.ProfileGenerator.ProfileElements");
 
     @FXML
     private void initialize()
@@ -54,7 +55,7 @@ public class SettingsDialogController {
 
         chkAddWaypointOnClick.setSelected(Boolean.parseBoolean(properties.getProperty("ui.addWaypointOnClick", "false")));
 
-        lst_availabel_vals.setItems(FXCollections.observableArrayList("Delta Time", "X Point", "Y Point", "Position", "Velocity", "Acceleration", "Jerk", "Heading"));
+        lst_availabel_vals.getItems().setAll( ProfileGenerator.ProfileElements.values() );
 
         pnl_csv.setVisible(false);
         pnl_general.setVisible(true);
@@ -132,15 +133,16 @@ public class SettingsDialogController {
     {
         Dragboard db = lst_availabel_vals.startDragAndDrop( TransferMode.MOVE );
         ClipboardContent content = new ClipboardContent();
-        content.putString( lst_availabel_vals.getSelectionModel().getSelectedItems().toString() );
+        //content.putString( lst_availabel_vals.getSelectionModel().getSelectedItems().toString() );
+        content.put( profileElementFormat, lst_availabel_vals.getSelectionModel().getSelectedItem() );
         db.setContent( content );
     }
 
     @FXML
     private void lst_chos_onDragOver( DragEvent event )
     {
-        if( ( event.getGestureSource() != lst_chosen_vals )
-         && ( event.getDragboard().hasString()            ) )
+        if( ( event.getGestureSource() != lst_chosen_vals               )
+         && ( event.getDragboard().hasContent( profileElementFormat ) ) )
         {
             event.acceptTransferModes( TransferMode.MOVE );
         }
@@ -149,8 +151,8 @@ public class SettingsDialogController {
     @FXML
     private void lst_chos_onDragEnter( DragEvent event )
     {
-        if( ( event.getGestureSource() != lst_chosen_vals )
-         && ( event.getDragboard().hasString()            ) )
+        if( ( event.getGestureSource() != lst_chosen_vals               )
+         && ( event.getDragboard().hasContent( profileElementFormat ) ) )
         {
             // Set blue border
             lst_chosen_vals.setStyle( "-fx-border-color: DodgerBlue" );
@@ -175,9 +177,9 @@ public class SettingsDialogController {
         /* if there is a string data on dragboard, read it and use it */
         Dragboard db = event.getDragboard();
         boolean success = false;
-        if( db.hasString() )
+        if( db.hasContent( profileElementFormat ) )
         {
-            lst_chosen_vals.getItems().add( db.getString() );
+            lst_chosen_vals.getItems().add( (ProfileGenerator.ProfileElements)db.getContent( profileElementFormat ) );
             success = true;
         }
         /* let the source know whether the string was successfully

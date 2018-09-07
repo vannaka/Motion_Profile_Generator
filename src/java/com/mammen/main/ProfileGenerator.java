@@ -98,6 +98,30 @@ public class ProfileGenerator
             return pf_fitMethod;
         }
     }
+
+    public enum ProfileElements
+    {
+        DELTA_TIME( "Delta Time" ),
+        POINT_X( "X Point" ),
+        POINT_Y( "Y Point" ),
+        POSITION( "Position" ),
+        VELOCITY( "Velocity" ),
+        ACCELERATION( "Acceleration" ),
+        JERK( "Jerk" ),
+        HEADING( "Heading" );
+
+        private String label;
+
+        ProfileElements( String label )
+        {
+            this.label = label;
+        }
+
+        public String toString()
+        {
+            return label;
+        }
+    }
     
     private double timeStep;
     private double velocity;
