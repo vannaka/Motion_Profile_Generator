@@ -246,60 +246,74 @@ public class ProfileGenerator
     /**
      * Exports all trajectories to the parent folder, with the given root name and file extension.
      */
-    public void exportTrajectoriesJaci(File parentPath, String ext) throws Pathfinder.GenerationException {
+    public void exportTrajectoriesJaci( File parentPath, String ext ) throws Pathfinder.GenerationException
+    {
         updateTrajectories();
 
         File dir = parentPath.getParentFile();
 
-        if (dir != null && !dir.exists() && dir.isDirectory()) {
-            if (!dir.mkdirs())
+        if( dir != null && !dir.exists() && dir.isDirectory() )
+        {
+            if( !dir.mkdirs() )
                 return;
         }
 
-        switch (ext) {
+        switch( ext )
+        {
             case ".csv":
-                Pathfinder.writeToCSV(new File(parentPath + "_source_Jaci.csv"), source);
+                Pathfinder.writeToCSV( new File(parentPath + "_source_Jaci.csv"), source );
 
-                if (driveBase == DriveBase.SWERVE) {
-                    Pathfinder.writeToCSV(new File(parentPath + "_fl_Jaci.csv"), fl);
-                    Pathfinder.writeToCSV(new File(parentPath + "_fr_Jaci.csv"), fr);
-                    Pathfinder.writeToCSV(new File(parentPath + "_bl_Jaci.csv"), bl);
-                    Pathfinder.writeToCSV(new File(parentPath + "_br_Jaci.csv"), br);
-                } else {
-                    Pathfinder.writeToCSV(new File(parentPath + "_left_Jaci.csv"), fl);
-                    Pathfinder.writeToCSV(new File(parentPath + "_right_Jaci.csv"), fr);
+                if( driveBase == DriveBase.SWERVE )
+                {
+                    Pathfinder.writeToCSV(new File(parentPath + "_fl_Jaci.csv"), fl );
+                    Pathfinder.writeToCSV(new File(parentPath + "_fr_Jaci.csv"), fr );
+                    Pathfinder.writeToCSV(new File(parentPath + "_bl_Jaci.csv"), bl );
+                    Pathfinder.writeToCSV(new File(parentPath + "_br_Jaci.csv"), br );
                 }
-            break;
+                else
+                {
+                    Pathfinder.writeToCSV(new File(parentPath + "_left_Jaci.csv"), fl );
+                    Pathfinder.writeToCSV(new File(parentPath + "_right_Jaci.csv"), fr );
+                }
+                break;
+
             case ".traj":
-                Pathfinder.writeToFile(new File(parentPath + "_source_Jaci.traj"), source);
+                Pathfinder.writeToFile(new File(parentPath + "_source_Jaci.traj"), source );
 
-                if (driveBase == DriveBase.SWERVE) {
-                    Pathfinder.writeToFile(new File(parentPath + "_fl_Jaci.traj"), fl);
-                    Pathfinder.writeToFile(new File(parentPath + "_fr_Jaci.traj"), fr);
-                    Pathfinder.writeToFile(new File(parentPath + "_bl_Jaci.traj"), bl);
-                    Pathfinder.writeToFile(new File(parentPath + "_br_Jaci.traj"), br);
-                } else {
-                    Pathfinder.writeToFile(new File(parentPath + "_left_Jaci.traj"), fl);
-                    Pathfinder.writeToFile(new File(parentPath + "_right_Jaci.traj"), fr);
+                if( driveBase == DriveBase.SWERVE )
+                {
+                    Pathfinder.writeToFile(new File(parentPath + "_fl_Jaci.traj"), fl );
+                    Pathfinder.writeToFile(new File(parentPath + "_fr_Jaci.traj"), fr );
+                    Pathfinder.writeToFile(new File(parentPath + "_bl_Jaci.traj"), bl );
+                    Pathfinder.writeToFile(new File(parentPath + "_br_Jaci.traj"), br );
                 }
-            break;
+                else
+                {
+                    Pathfinder.writeToFile(new File(parentPath + "_left_Jaci.traj"), fl );
+                    Pathfinder.writeToFile(new File(parentPath + "_right_Jaci.traj"), fr );
+                }
+                break;
+
             default:
-                throw new IllegalArgumentException("Invalid file extension");
+                throw new IllegalArgumentException( "Invalid file extension" );
         }
     }
     
-    public void exportTrajectoriesTalon(File parentPath, String ext) throws Pathfinder.GenerationException, IOException {
+    public void exportTrajectoriesTalon( File parentPath, String ext ) throws Pathfinder.GenerationException, IOException
+    {
         updateTrajectories();
 
         File dir = parentPath.getParentFile();
 
-        if (dir != null && !dir.exists() && dir.isDirectory()) {
-            if (!dir.mkdirs())
+        if( dir != null && !dir.exists() && dir.isDirectory() )
+        {
+            if( !dir.mkdirs() )
                 return;
         }
-        switch (ext) {
+        switch( ext ) {
             case ".csv":
-                if (driveBase == DriveBase.SWERVE) {
+                if( driveBase == DriveBase.SWERVE )
+                {
                 	File flFile = new File(parentPath + "_fl_Talon.csv");
 			        File frFile = new File(parentPath + "_fr_Talon.csv");
 			        File blFile = new File(parentPath + "_bl_Talon.csv");
@@ -314,37 +328,39 @@ public class ProfileGenerator
 					PrintWriter brpw = new PrintWriter( brfw );
                 	// CSV with position and velocity. To be used with Talon SRX Motion
 		    		// save front left path to CSV
-			    	for (int i = 0; i < fl.length(); i++) 
+			    	for( int i = 0; i < fl.length(); i++ )
 			    	{			
 			    		Segment seg = fl.get(i);
-			    		flpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    		flpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    			
 			    	// save front right path to CSV
-			    	for (int i = 0; i < fr.length(); i++) 
+			    	for( int i = 0; i < fr.length(); i++ )
 			    	{			
 			    		Segment seg = fr.get(i);
-			    		frpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    		frpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    	
 			    	// save back left path to CSV
-			    	for (int i = 0; i < bl.length(); i++) 
+			    	for( int i = 0; i < bl.length(); i++ )
 			    	{			
 			    		Segment seg = bl.get(i);
-			    		blpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    		blpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    			
 			    	// save back right path to CSV
-			    	for (int i = 0; i < br.length(); i++) 
+			    	for( int i = 0; i < br.length(); i++ )
 			    	{			
 			    		Segment seg = br.get(i);
-			    		brpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000));
+			    		brpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    	flpw.close();
 			    	frpw.close();
 			    	blpw.close();
 			    	brpw.close();
-                } else {
+                }
+                else
+                    {
                 	File lFile = new File(parentPath + "_left_Talon.csv");
 			        File rFile = new File(parentPath + "_right_Talon.csv");
 			        FileWriter lfw = new FileWriter( lFile );
@@ -368,20 +384,25 @@ public class ProfileGenerator
 			    	lpw.close();
 			    	rpw.close();
                 }
-            break;
-            case ".traj":
-                Pathfinder.writeToFile(new File(parentPath + "_source_detailed.traj"), source);
+                break;
 
-                if (driveBase == DriveBase.SWERVE) {
-                    Pathfinder.writeToFile(new File(parentPath + "_fl_detailed.traj"), fl);
-                    Pathfinder.writeToFile(new File(parentPath + "_fr_detailed.traj"), fr);
-                    Pathfinder.writeToFile(new File(parentPath + "_bl_detailed.traj"), bl);
-                    Pathfinder.writeToFile(new File(parentPath + "_br_detailed.traj"), br);
-                } else {
-                    Pathfinder.writeToFile(new File(parentPath + "_left_detailed.traj"), fl);
-                    Pathfinder.writeToFile(new File(parentPath + "_right_detailed.traj"), fr);
+            case ".traj":
+                Pathfinder.writeToFile( new File(parentPath + "_source_detailed.traj"), source );
+
+                if( driveBase == DriveBase.SWERVE )
+                {
+                    Pathfinder.writeToFile( new File(parentPath + "_fl_detailed.traj"), fl );
+                    Pathfinder.writeToFile( new File(parentPath + "_fr_detailed.traj"), fr );
+                    Pathfinder.writeToFile( new File(parentPath + "_bl_detailed.traj"), bl );
+                    Pathfinder.writeToFile( new File(parentPath + "_br_detailed.traj"), br );
                 }
-            break;
+                else
+                {
+                    Pathfinder.writeToFile( new File(parentPath + "_left_detailed.traj"), fl );
+                    Pathfinder.writeToFile( new File(parentPath + "_right_detailed.traj"), fr );
+                }
+                break;
+
             default:
                 throw new IllegalArgumentException("Invalid file extension");
         }
@@ -389,23 +410,21 @@ public class ProfileGenerator
     
     /**
      * Saves the project in XML format.
-     *
-     * @param path the absolute file path to save to, including file name and extension
-     * @throws IOException
-     * @throws ParserConfigurationException
      */
-    public void saveProjectAs(File path) throws IOException, ParserConfigurationException {
-        if (!path.getAbsolutePath().endsWith("." + PROJECT_EXTENSION))
+    public void saveProjectAs( File path ) throws IOException, ParserConfigurationException
+    {
+        if( !path.getAbsolutePath().endsWith("." + PROJECT_EXTENSION) )
             path = new File(path + "." + PROJECT_EXTENSION);
 
         File dir = path.getParentFile();
 
-        if (dir != null && !dir.exists() && dir.isDirectory()) {
+        if( dir != null && !dir.exists() && dir.isDirectory() )
+        {
             if (!dir.mkdirs())
                 return;
         }
 
-        if (path.exists() && !path.delete())
+        if( path.exists() && !path.delete() )
             return;
 
         workingProject = path;
@@ -416,60 +435,66 @@ public class ProfileGenerator
     /**
      * Saves the working project.
      */
-    public void saveWorkingProject() throws IOException, ParserConfigurationException {
-        if (workingProject != null) {
+    public void saveWorkingProject() throws IOException, ParserConfigurationException
+    {
+        if( workingProject != null )
+        {
             // Create document
             DocumentBuilder db = dbFactory.newDocumentBuilder();
             Document dom = db.newDocument();
 
-            Element trajectoryEle = dom.createElement("Trajectory");
+            Element trajectoryEle = dom.createElement("Trajectory" );
 
-            trajectoryEle.setAttribute("dt", "" + timeStep);
-            trajectoryEle.setAttribute("velocity", "" + velocity);
-            trajectoryEle.setAttribute("acceleration", "" + acceleration);
-            trajectoryEle.setAttribute("jerk", "" + jerk);
-            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW);
-            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD);
-            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.toString() );
+            trajectoryEle.setAttribute("dt", "" + timeStep );
+            trajectoryEle.setAttribute("velocity", "" + velocity );
+            trajectoryEle.setAttribute("acceleration", "" + acceleration );
+            trajectoryEle.setAttribute("jerk", "" + jerk );
+            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW );
+            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD );
+            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getPfFitMethod().toString() );
             trajectoryEle.setAttribute("driveBase", "" + driveBase.toString() );
-            trajectoryEle.setAttribute("units", "" + units.toString());
+            trajectoryEle.setAttribute("units", "" + units.toString() );
 
-            dom.appendChild(trajectoryEle);
+            dom.appendChild( trajectoryEle );
 
-            for (Waypoint w : POINTS) {
-                Element waypointEle = dom.createElement("Waypoint");
-                Element xEle = dom.createElement("X");
-                Element yEle = dom.createElement("Y");
-                Element angleEle = dom.createElement("Angle");
-                Text xText = dom.createTextNode("" + w.x);
-                Text yText = dom.createTextNode("" + w.y);
-                Text angleText = dom.createTextNode("" + w.angle);
+            for( Waypoint w : POINTS )
+            {
+                Element waypointEle = dom.createElement("Waypoint" );
+                Element xEle = dom.createElement("X" );
+                Element yEle = dom.createElement("Y" );
+                Element angleEle = dom.createElement("Angle" );
+                Text xText = dom.createTextNode("" + w.x );
+                Text yText = dom.createTextNode("" + w.y );
+                Text angleText = dom.createTextNode("" + w.angle );
 
-                xEle.appendChild(xText);
-                yEle.appendChild(yText);
-                angleEle.appendChild(angleText);
+                xEle.appendChild( xText );
+                yEle.appendChild( yText );
+                angleEle.appendChild( angleText );
 
-                waypointEle.appendChild(xEle);
-                waypointEle.appendChild(yEle);
-                waypointEle.appendChild(angleEle);
+                waypointEle.appendChild( xEle );
+                waypointEle.appendChild( yEle );
+                waypointEle.appendChild( angleEle );
 
-                trajectoryEle.appendChild(waypointEle);
+                trajectoryEle.appendChild( waypointEle );
             }
 
             FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream(workingProject);
+            try
+            {
+                fos = new FileOutputStream( workingProject );
                 DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-                DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+                DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS" );
                 LSSerializer serializer = impl.createLSSerializer();
                 
-                serializer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+                serializer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE );
                 
                 LSOutput lso = impl.createLSOutput();
-                lso.setByteStream(fos);
-                serializer.write(dom,lso);
+                lso.setByteStream( fos );
+                serializer.write( dom,lso );
                
-            } catch (Exception e) {
+            }
+            catch( Exception e )
+            {
                 throw new RuntimeException(e);
             }
         }
@@ -478,33 +503,37 @@ public class ProfileGenerator
     /**
      * Loads a project from file.
      */
-    public void loadProject(File path) throws IOException, ParserConfigurationException, SAXException {
-        if (!path.exists() || path.isDirectory())
+    public void loadProject( File path ) throws IOException, ParserConfigurationException, SAXException
+    {
+        if( !path.exists() || path.isDirectory() )
             return;
 
-        if (path.getAbsolutePath().toLowerCase().endsWith("." + PROJECT_EXTENSION)) {
+        if( path.getAbsolutePath().toLowerCase().endsWith( "." + PROJECT_EXTENSION ) )
+        {
             DocumentBuilder db = dbFactory.newDocumentBuilder();
 
             Document dom = db.parse(path);
 
             Element docEle = dom.getDocumentElement();
 
-            timeStep = Double.parseDouble(docEle.getAttribute("dt"));
-            velocity = Double.parseDouble(docEle.getAttribute("velocity"));
-            acceleration = Double.parseDouble(docEle.getAttribute("acceleration"));
-            jerk = Double.parseDouble(docEle.getAttribute("jerk"));
-            wheelBaseW = Double.parseDouble(docEle.getAttribute("wheelBaseW"));
-            wheelBaseD = Double.parseDouble(docEle.getAttribute("wheelBaseD"));
+            timeStep = Double.parseDouble( docEle.getAttribute("dt" ) );
+            velocity = Double.parseDouble( docEle.getAttribute("velocity" ) );
+            acceleration = Double.parseDouble( docEle.getAttribute("acceleration" ) );
+            jerk = Double.parseDouble( docEle.getAttribute("jerk" ) );
+            wheelBaseW = Double.parseDouble( docEle.getAttribute("wheelBaseW" ) );
+            wheelBaseD = Double.parseDouble( docEle.getAttribute("wheelBaseD" ) );
 
-            driveBase = DriveBase.valueOf(docEle.getAttribute("driveBase"));
-            fitMethod = FitMethod.valueOf(docEle.getAttribute("fitMethod"));
-            units = Units.valueOf(docEle.getAttribute("units"));
+            driveBase = DriveBase.valueOf( docEle.getAttribute("driveBase" ) );
+            fitMethod = FitMethod.valueOf( docEle.getAttribute("fitMethod" ) );
+            units = Units.valueOf( docEle.getAttribute("units") );
 
-            NodeList waypointEleList = docEle.getElementsByTagName("Waypoint");
+            NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
 
             POINTS.clear();
-            if (waypointEleList != null && waypointEleList.getLength() > 0) {
-                for (int i = 0; i < waypointEleList.getLength(); i++) {
+            if( waypointEleList != null && waypointEleList.getLength() > 0 )
+            {
+                for( int i = 0; i < waypointEleList.getLength(); i++ )
+                {
                     Element waypointEle = (Element) waypointEleList.item(i);
 
                     String
@@ -512,11 +541,11 @@ public class ProfileGenerator
                             yText = waypointEle.getElementsByTagName("Y").item(0).getTextContent(),
                             angleText = waypointEle.getElementsByTagName("Angle").item(0).getTextContent();
 
-                    POINTS.add(new Waypoint(
-                            Double.parseDouble(xText),
-                            Double.parseDouble(yText),
-                            Double.parseDouble(angleText)
-                    ));
+                    POINTS.add( new Waypoint(
+                                        Double.parseDouble(xText),
+                                        Double.parseDouble(yText),
+                                        Double.parseDouble(angleText)
+                                        ));
                 }
             }
 
@@ -527,16 +556,13 @@ public class ProfileGenerator
     /**
      * Imports a properties (*.bot) file into the generator.
      * This import method should work with properties files generated from version 2.3.0.
-     *
-     * @param path     the file path of the bot file
-     * @param botUnits the units to use for this bot file
-     * @throws IOException
      */
-    public void importBotFile(File path, Units botUnits) throws IOException, NumberFormatException {
-        if (!path.exists() || path.isDirectory())
+    public void importBotFile( File path, Units botUnits ) throws IOException, NumberFormatException {
+        if( !path.exists() || path.isDirectory() )
             return;
 
-        if (path.getAbsolutePath().toLowerCase().endsWith(".bot")) {
+        if( path.getAbsolutePath().toLowerCase().endsWith(".bot") )
+        {
             BufferedReader botReader = new BufferedReader(new FileReader(path));
             Stream<String> botStream = botReader.lines();
             List<String> botLines = botStream.collect(Collectors.toList());
@@ -559,14 +585,15 @@ public class ProfileGenerator
                 driveBase = DriveBase.SWERVE;
 
             // GLHF parse the rest of the file I guess...
-            for (int i = 7; i < botLines.size(); i++) {
-                String[] waypointVals = botLines.get(i).split(",");
+            for( int i = 7; i < botLines.size(); i++ )
+            {
+                String[] waypointVals = botLines.get(i).split("," );
 
                 POINTS.add(new Waypoint(
-                    Double.parseDouble(waypointVals[0].trim()),
-                    Double.parseDouble(waypointVals[1].trim()),
-                    Math.toRadians(Double.parseDouble(waypointVals[2].trim()))
-                ));
+                                    Double.parseDouble(waypointVals[0].trim()),
+                                    Double.parseDouble(waypointVals[1].trim()),
+                                    Math.toRadians(Double.parseDouble(waypointVals[2].trim()))
+                                    ));
             }
 
             // Make sure you aren't trying to save to another project file
