@@ -37,33 +37,42 @@ public class ProfileGenerator
 	// Types of drive bases
 	public enum DriveBase
     {
-        TANK( "Tank" ),
-        SWERVE( "Swerve" );
+        TANK( "TANK", "Tank" ),
+        SWERVE( "SWERVE", "Swerve" );
         
         private String label;
+        private String internalLabel;
 
-		DriveBase( String label )
+		DriveBase( String internalLabel, String label )
 		{
+		    this.internalLabel = internalLabel;
             this.label = label;
         }
 
         public String toString()
         {
             return label;
+        }
+
+        public String getInternalLabel()
+        {
+            return internalLabel;
         }
     }
 
     // Units of every value
     public enum Units
     {
-        FEET( "Feet" ),
-        INCHES( "Inches" ),
-        METERS( "Meter" );
+        FEET( "FEET", "Feet" ),
+        INCHES( "INCHES", "Inches" ),
+        METERS( "METERS", "Meter" );
 
         private String label;
+        private String internalLabel;
 
-        Units( String label )
+        Units( String internalLabel, String label )
         {
+            this.internalLabel = internalLabel;
             this.label = label;
         }
 
@@ -71,19 +80,27 @@ public class ProfileGenerator
         {
             return label;
         }
+
+        public String getInternalLabel()
+        {
+            return internalLabel;
+        }
     }
 
     // This enum mirrors jaci.pathfinder.Trajectory.FitMethod for use internally.
     public enum FitMethod
     {
-        HERMITE_CUBIC( "Cubic", Trajectory.FitMethod.HERMITE_CUBIC ),
-        HERMITE_QUINTIC( "Quintic", Trajectory.FitMethod.HERMITE_QUINTIC );
+        HERMITE_CUBIC( "HERMITE_CUBIC", "Cubic", Trajectory.FitMethod.HERMITE_CUBIC ),
+        HERMITE_QUINTIC( "HERMITE_QUINTIC", "Quintic", Trajectory.FitMethod.HERMITE_QUINTIC );
+
 
         private String label;
+        private String internalLabel;
         private jaci.pathfinder.Trajectory.FitMethod pf_fitMethod;
 
-        FitMethod( String label, Trajectory.FitMethod fitMethod )
+        FitMethod( String internalLabel, String label, Trajectory.FitMethod fitMethod )
         {
+            this.internalLabel = internalLabel;
             this.label = label;
             this.pf_fitMethod = fitMethod;
         }
@@ -91,6 +108,11 @@ public class ProfileGenerator
         public String toString()
         {
             return label;
+        }
+
+        public String getInternalLabel()
+        {
+            return internalLabel;
         }
 
         public Trajectory.FitMethod getPfFitMethod()
@@ -101,25 +123,32 @@ public class ProfileGenerator
 
     public enum ProfileElements
     {
-        DELTA_TIME( "Delta Time" ),
-        POINT_X( "X Point" ),
-        POINT_Y( "Y Point" ),
-        POSITION( "Position" ),
-        VELOCITY( "Velocity" ),
-        ACCELERATION( "Acceleration" ),
-        JERK( "Jerk" ),
-        HEADING( "Heading" );
+        DELTA_TIME( "DELTA_TIME", "Delta Time" ),
+        POINT_X( "POINT_X", "X Point" ),
+        POINT_Y( "POINT_Y", "Y Point" ),
+        POSITION( "POSITION", "Position" ),
+        VELOCITY( "VELOCITY", "Velocity" ),
+        ACCELERATION( "ACCELERATION", "Acceleration" ),
+        JERK( "JERK", "Jerk" ),
+        HEADING( "HEADING", "Heading" );
 
+        private String internalLabel;
         private String label;
 
-        ProfileElements( String label )
+        ProfileElements( String internalLabel, String label )
         {
+            this.internalLabel = internalLabel;
             this.label = label;
         }
 
         public String toString()
         {
             return label;
+        }
+
+        public String getInternalLabel()
+        {
+            return internalLabel;
         }
     }
     
@@ -475,9 +504,9 @@ public class ProfileGenerator
             trajectoryEle.setAttribute("jerk", "" + jerk );
             trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW );
             trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD );
-            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getPfFitMethod().toString() );
-            trajectoryEle.setAttribute("driveBase", "" + driveBase.toString() );
-            trajectoryEle.setAttribute("units", "" + units.toString() );
+            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getInternalLabel() );
+            trajectoryEle.setAttribute("driveBase", "" + driveBase.getInternalLabel() );
+            trajectoryEle.setAttribute("units", "" + units.getInternalLabel() );
 
             dom.appendChild( trajectoryEle );
 
@@ -548,8 +577,8 @@ public class ProfileGenerator
             wheelBaseD = Double.parseDouble( docEle.getAttribute("wheelBaseD" ) );
 
             driveBase = DriveBase.valueOf( docEle.getAttribute("driveBase" ) );
-            fitMethod = FitMethod.valueOf( docEle.getAttribute("fitMethod" ) );
             units = Units.valueOf( docEle.getAttribute("units") );
+            fitMethod = FitMethod.valueOf( docEle.getAttribute("fitMethod" ) );
 
             NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
 

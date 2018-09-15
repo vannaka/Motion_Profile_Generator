@@ -405,25 +405,28 @@ public class MainUIController
     }
     
     @FXML
-    private void showSettingsDialog() {
+    private void showSettingsDialog()
+    {
         Dialog<Boolean> settingsDialog = DialogFactory.createSettingsDialog();
         Optional<Boolean> result = null;
 
         // Wait for the result
         result = settingsDialog.showAndWait();
 
-        result.ifPresent((Boolean b) -> {
-            if (b) {
-                try {
+        result.ifPresent( (Boolean b) -> {
+            if( b )
+            {
+                try
+                {
                     DialogPane pane = settingsDialog.getDialogPane();
 
-                    String overlayDir = ((TextField) pane.lookup("#txtOverlayDir")).getText().trim();
+                    String overlayDir = ( (TextField)pane.lookup("#txtOverlayDir" ) ).getText().trim();
 
-                    int sourceDisplay = ((ChoiceBox<String>) pane.lookup("#choSourceDisplay"))
+                    int sourceDisplay = ( (ChoiceBox)pane.lookup("#choSourceDisplay") )
                             .getSelectionModel()
                             .getSelectedIndex();
                     
-                    int csvType = ((ChoiceBox<String>) pane.lookup("#choCSVType"))
+                    int csvType = ( (ChoiceBox)pane.lookup("#choCSVType") )
                     		.getSelectionModel()
                     		.getSelectedIndex();
 
@@ -437,9 +440,10 @@ public class MainUIController
                     updateOverlayImg();
                     repopulatePosChart();
                     PropWrapper.storeProperties();
-                } catch (IOException e) {
-                    Alert alert = AlertFactory.createExceptionAlert(e);
-
+                }
+                catch( IOException e )
+                {
+                    Alert alert = AlertFactory.createExceptionAlert( e );
                     alert.showAndWait();
                 }
             }
@@ -447,14 +451,16 @@ public class MainUIController
     }
     
     @FXML
-    private void openAboutDialog() {
+    private void openAboutDialog()
+    {
         Dialog<Boolean> aboutDialog = DialogFactory.createAboutDialog();
 
         aboutDialog.showAndWait();
     }
     
     @FXML
-    private void showExportDialog() {
+    private void showExportDialog()
+    {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));

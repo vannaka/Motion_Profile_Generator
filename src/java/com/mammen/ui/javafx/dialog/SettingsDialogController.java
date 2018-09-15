@@ -45,30 +45,30 @@ public class SettingsDialogController
     {
         properties = PropWrapper.getProperties();
 
-        txtOverlayDir.setText(properties.getProperty("ui.overlayDir", ""));
+        txtOverlayDir.setText( properties.getProperty("ui.overlayDir", "") );
 
-        choSourceDisplay.setItems(FXCollections.observableArrayList("None", "Waypoints only", "Waypoints + Source"));
-        choSourceDisplay.getSelectionModel().select(Integer.parseInt(properties.getProperty("ui.sourceDisplay", "2")));
+        choSourceDisplay.setItems( FXCollections.observableArrayList("None", "Waypoints only", "Waypoints + Source") );
+        choSourceDisplay.getSelectionModel().select( Integer.parseInt( properties.getProperty("ui.sourceDisplay", "2") ) );
 
-        choCSVType.setItems(FXCollections.observableArrayList("Jaci", "Talon SRX", "Custom"));
-        choCSVType.getSelectionModel().select(Integer.parseInt(properties.getProperty("ui.csvType", "0")));
+        choCSVType.setItems( FXCollections.observableArrayList("Jaci", "Talon SRX", "Custom") );
+        choCSVType.getSelectionModel().select( Integer.parseInt( properties.getProperty("ui.csvType", "0") ) );
 
-        chkAddWaypointOnClick.setSelected(Boolean.parseBoolean(properties.getProperty("ui.addWaypointOnClick", "false")));
+        chkAddWaypointOnClick.setSelected( Boolean.parseBoolean( properties.getProperty("ui.addWaypointOnClick", "false") ) );
 
         lst_availabel_vals.getItems().setAll( ProfileGenerator.ProfileElements.values() );
 
-        pnl_csv.setVisible(false);
-        pnl_general.setVisible(true);
+        pnl_csv.setVisible( false );
+        pnl_general.setVisible( true );
 
-        if( (choCSVType.getSelectionModel().getSelectedItem() ).toUpperCase().equals("CUSTOM") )
+        if( choCSVType.getSelectionModel().getSelectedItem().toUpperCase().equals("CUSTOM") )
         {
-            lst_availabel_vals.setDisable(false);
-            lst_chosen_vals.setDisable(false);
+            lst_availabel_vals.setDisable( false );
+            lst_chosen_vals.setDisable( false );
         }
         else
         {
-            lst_availabel_vals.setDisable(true);
-            lst_chosen_vals.setDisable(true);
+            lst_availabel_vals.setDisable(  true );
+            lst_chosen_vals.setDisable( true );
         }
 
         choCSVType.getSelectionModel().selectedItemProperty().addListener( this::disableSettings );
