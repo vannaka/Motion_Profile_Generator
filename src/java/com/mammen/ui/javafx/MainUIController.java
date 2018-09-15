@@ -121,6 +121,8 @@ public class MainUIController
     private Properties properties;
 
     private File workingDirectory;
+
+    private boolean disblUnitConv = false;
     
     @FXML
     public void initialize() 
@@ -546,7 +548,10 @@ public class MainUIController
                 workingDirectory = result.getParentFile();
                 backend.loadProject(result);
 
+                // Temporarily disable unit conversion so we can update the units without 'converting' them unnecessarily.
+                disblUnitConv = true;
                 updateFrontend();
+
                 updateChartAxis();
 
                 generateTrajectories();
@@ -886,13 +891,21 @@ public class MainUIController
 
     private void updateUnits(ObservableValue<? extends ProfileGenerator.Units> observable, ProfileGenerator.Units oldValue, ProfileGenerator.Units newValue)
     {
-        backend.setUnits( newValue );
-        //backend.resetValues(new_str);
-        
-        backend.updateVarUnits( oldValue, newValue );
-        
-        updateChartAxis();
-        updateFrontend();
+        if( disblUnitConv )
+        {
+            // Only re-enable when the problematic event comes through
+            disblUnitConv = false;
+        }
+        else
+        {
+            backend.setUnits( newValue );
+            //backend.resetValues(new_str);
+
+            backend.updateVarUnits( oldValue, newValue );
+
+            updateChartAxis();
+            updateFrontend();
+        }
     }
     
     private void updateOverlayImg() {
