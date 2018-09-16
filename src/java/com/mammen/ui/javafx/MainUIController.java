@@ -432,12 +432,30 @@ public class MainUIController
                     		.getSelectionModel()
                     		.getSelectedIndex();
 
+                    String availList = ((ListView)pane.lookup("#lst_availabel_vals"))
+                            .getItems()
+                            .toString()
+                            .replace(", ", ",")
+                            .replace("[", "")
+                            .replace("]", "")
+                            .replace(" ", "_");
+
+                    String chosList = ((ListView)pane.lookup("#lst_chosen_vals"))
+                            .getItems()
+                            .toString()
+                            .replace(", ", ",")
+                            .replace("[", "")
+                            .replace("]", "")
+                            .replace(" ", "_");
+
                     boolean addWaypointOnClick = ((CheckBox) pane.lookup("#chkAddWaypointOnClick")).isSelected();
 
                     properties.setProperty("ui.overlayDir", overlayDir);
                     properties.setProperty("ui.sourceDisplay", "" + sourceDisplay);
                     properties.setProperty("ui.addWaypointOnClick", "" + addWaypointOnClick);
                     properties.setProperty("ui.csvType", "" + csvType);
+                    properties.setProperty("csv.avail", "" + availList);
+                    properties.setProperty("csv.chos", "" + chosList);
 
                     updateOverlayImg();
                     repopulatePosChart();
@@ -493,7 +511,6 @@ public class MainUIController
 
                 alert.showAndWait();
             } catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
         }

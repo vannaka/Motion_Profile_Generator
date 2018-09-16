@@ -124,13 +124,14 @@ public class ProfileGenerator
     public enum ProfileElements
     {
         DELTA_TIME( "DELTA_TIME", "Delta Time" ),
-        POINT_X( "POINT_X", "X Point" ),
-        POINT_Y( "POINT_Y", "Y Point" ),
+        X_POINT( "X_POINT", "X Point" ),
+        Y_POINT( "Y_POINT", "Y Point" ),
         POSITION( "POSITION", "Position" ),
         VELOCITY( "VELOCITY", "Velocity" ),
         ACCELERATION( "ACCELERATION", "Acceleration" ),
         JERK( "JERK", "Jerk" ),
-        HEADING( "HEADING", "Heading" );
+        HEADING( "HEADING", "Heading" ),
+        NULL(null, null);
 
         private String internalLabel;
         private String label;

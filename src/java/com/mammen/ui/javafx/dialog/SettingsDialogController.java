@@ -2,16 +2,20 @@ package com.mammen.ui.javafx.dialog;
 
 import com.mammen.main.ProfileGenerator;
 import com.mammen.ui.javafx.PropWrapper;
+import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.beans.value.ObservableValue;
 
 import java.io.File;
-import java.util.Properties;
+import java.util.*;
 
 public class SettingsDialogController
 {
@@ -55,7 +59,44 @@ public class SettingsDialogController
 
         chkAddWaypointOnClick.setSelected( Boolean.parseBoolean( properties.getProperty("ui.addWaypointOnClick", "false") ) );
 
-        lst_availabel_vals.getItems().setAll( ProfileGenerator.ProfileElements.values() );
+        List<String> s_ListAvail = new LinkedList<String>(Arrays.asList(properties.getProperty("csv.avail").split(",")));
+
+        List<ProfileGenerator.ProfileElements> p_ListAvail = new ArrayList<>();
+
+        if(s_ListAvail.size() > 1) {
+            for (int i = 0; i < s_ListAvail.size(); i++) {
+                String s = s_ListAvail
+                        .get(i)
+                        .toUpperCase()
+                        .trim()
+                        .replace(" ", "_");
+                ProfileGenerator.ProfileElements s1 = ProfileGenerator.ProfileElements.valueOf(s);
+                p_ListAvail.add(i, s1);
+            }
+            lst_availabel_vals.getItems().setAll(p_ListAvail);
+        }else {
+            lst_availabel_vals.getItems().setAll(ProfileGenerator.ProfileElements.NULL);
+        }
+
+        List<String> s_ListChose = new LinkedList<String>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
+
+        List<ProfileGenerator.ProfileElements> p_ListChose = new ArrayList<>();
+
+        if(s_ListChose.size() > 1 || !s_ListChose.contains(null)) {
+
+            for (int i = 0; i < s_ListChose.size(); i++) {
+                String s = s_ListChose
+                        .get(i)
+                        .toUpperCase()
+                        .trim()
+                        .replace(" ", "_");
+                ProfileGenerator.ProfileElements s1 = ProfileGenerator.ProfileElements.valueOf(s);
+                p_ListChose.add(i, s1);
+            }
+            lst_chosen_vals.getItems().setAll(p_ListChose);
+        }else {
+            lst_chosen_vals.getItems().setAll(ProfileGenerator.ProfileElements.NULL);
+        }
 
         pnl_csv.setVisible( false );
         pnl_general.setVisible( true );
@@ -72,6 +113,52 @@ public class SettingsDialogController
         }
 
         choCSVType.getSelectionModel().selectedItemProperty().addListener( this::disableSettings );
+
+        lst_chosen_vals.setCellFactory(lv -> {
+            ListCell<ProfileGenerator.ProfileElements> cell = new ListCell<ProfileGenerator.ProfileElements>() {
+
+                @Override
+                protected void updateItem(ProfileGenerator.ProfileElements item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.toString());
+                    }
+                }
+            };
+            cell.setOnDragOver(event -> {
+                if( ( event.getGestureSource() != lst_chosen_vals               )
+                        && ( event.getDragboard().hasContent( profileElementFormat ) ) )
+                {
+                    event.acceptTransferModes( TransferMode.MOVE );
+                }
+            });
+            cell.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+                if (db.hasContent( profileElementFormat )) {
+                    if (cell.isEmpty()) {
+                        lst_chosen_vals.getItems().add( (ProfileGenerator.ProfileElements)db.getContent( profileElementFormat ) );
+                        lst_chosen_vals.getItems().remove(ProfileGenerator.ProfileElements.NULL);
+                        success = true;
+                    } else {
+                        int index = cell.getIndex();
+                        if (lst_chosen_vals.getItems().contains(ProfileGenerator.ProfileElements.NULL)){
+                            lst_chosen_vals.getItems().remove(ProfileGenerator.ProfileElements.NULL);
+                        }
+                        lst_chosen_vals.getItems().add(index, (ProfileGenerator.ProfileElements)db.getContent( profileElementFormat ));
+                        success = true;
+                    }
+                    event.setDropCompleted( success);
+                }
+            });
+
+            // highlight cells when drag target
+            cell.setOnDragEntered(event -> cell.setStyle("-fx-border-color: DodgerBlue"));
+            cell.setOnDragExited(event -> cell.setStyle(""));
+            return cell ;
+        });
     }
 
     @FXML
@@ -128,6 +215,8 @@ public class SettingsDialogController
         }
     }
 
+    //Drag from avialable to chosen
+
     @FXML
     private void lst_aval_onDragDetected()
     {
@@ -139,39 +228,47 @@ public class SettingsDialogController
     }
 
     @FXML
-    private void lst_chos_onDragOver( DragEvent event )
+    private void lst_aval_onDragDone( DragEvent event )
     {
-        if( ( event.getGestureSource() != lst_chosen_vals               )
-         && ( event.getDragboard().hasContent( profileElementFormat ) ) )
+        /*
+        if (event.getTransferMode() == TransferMode.MOVE) {
+            lst_availabel_vals.getItems().remove( lst_availabel_vals.getSelectionModel().getSelectedIndex() );
+        }*/
+
+        if (event.getTransferMode() == TransferMode.MOVE) {
+            if(lst_availabel_vals.getItems().size() == 1) {
+                lst_availabel_vals.getItems().remove(lst_availabel_vals.getSelectionModel().getSelectedIndex());
+                lst_availabel_vals.getItems().add(ProfileGenerator.ProfileElements.NULL);
+                return;
+            }
+            lst_availabel_vals.getItems().remove(lst_availabel_vals.getSelectionModel().getSelectedIndex());
+        }
+    }
+
+    /* Drag from chosen to available*/
+
+    @FXML
+    private void lst_chos_onDragDetected()
+    {
+        Dragboard db = lst_chosen_vals.startDragAndDrop( TransferMode.MOVE );
+        ClipboardContent content = new ClipboardContent();
+        //content.putString( lst_availabel_vals.getSelectionModel().getSelectedItems().toString() );
+        content.put( profileElementFormat, lst_chosen_vals.getSelectionModel().getSelectedItem() );
+        db.setContent( content );
+    }
+
+    @FXML
+    private void lst_avail_onDragOver( DragEvent event )
+    {
+        if( ( event.getGestureSource() != lst_availabel_vals               )
+                && ( event.getDragboard().hasContent( profileElementFormat ) ) )
         {
             event.acceptTransferModes( TransferMode.MOVE );
         }
     }
 
     @FXML
-    private void lst_chos_onDragEnter( DragEvent event )
-    {
-        if( ( event.getGestureSource() != lst_chosen_vals               )
-         && ( event.getDragboard().hasContent( profileElementFormat ) ) )
-        {
-            // Set blue border
-            lst_chosen_vals.setStyle( "-fx-border-color: DodgerBlue" );
-        }
-    }
-
-    @FXML
-    private void lst_chos_onDragExit( DragEvent event )
-    {
-        if( ( event.getGestureSource() != lst_chosen_vals )
-         && ( event.getDragboard().hasString()            ) )
-        {
-            // Remove blue border
-            lst_chosen_vals.setStyle("");
-        }
-    }
-
-    @FXML
-    private void lst_chos_onDragDrop( DragEvent event )
+    private void lst_avail_onDragDrop( DragEvent event )
     {
         /* data dropped */
         /* if there is a string data on dragboard, read it and use it */
@@ -179,7 +276,10 @@ public class SettingsDialogController
         boolean success = false;
         if( db.hasContent( profileElementFormat ) )
         {
-            lst_chosen_vals.getItems().add( (ProfileGenerator.ProfileElements)db.getContent( profileElementFormat ) );
+            if (lst_availabel_vals.getItems().contains(ProfileGenerator.ProfileElements.NULL)){
+                lst_availabel_vals.getItems().remove(ProfileGenerator.ProfileElements.NULL);
+            }
+            lst_availabel_vals.getItems().add((ProfileGenerator.ProfileElements)db.getContent( profileElementFormat ));
             success = true;
         }
         /* let the source know whether the string was successfully
@@ -188,10 +288,15 @@ public class SettingsDialogController
     }
 
     @FXML
-    private void lst_aval_onDragDone( DragEvent event )
+    private void lst_chos_onDragDone( DragEvent event )
     {
         if (event.getTransferMode() == TransferMode.MOVE) {
-            lst_availabel_vals.getItems().remove( lst_availabel_vals.getSelectionModel().getSelectedIndex() );
+            if(lst_chosen_vals.getItems().size() == 1) {
+                lst_chosen_vals.getItems().remove(lst_chosen_vals.getSelectionModel().getSelectedIndex());
+                lst_chosen_vals.getItems().add(ProfileGenerator.ProfileElements.NULL);
+                return;
+            }
+            lst_chosen_vals.getItems().remove(lst_chosen_vals.getSelectionModel().getSelectedIndex());
         }
     }
 
