@@ -280,6 +280,7 @@ public class SettingsDialogController
                 lst_availabel_vals.getItems().remove(ProfileGenerator.ProfileElements.NULL);
             }
             lst_availabel_vals.getItems().add((ProfileGenerator.ProfileElements)db.getContent( profileElementFormat ));
+            lst_availabel_vals.getItems().sort(Comparator.comparing(ProfileGenerator.ProfileElements::getIndex));
             success = true;
         }
         /* let the source know whether the string was successfully

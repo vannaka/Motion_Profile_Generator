@@ -123,24 +123,28 @@ public class ProfileGenerator
 
     public enum ProfileElements
     {
-        DELTA_TIME( "DELTA_TIME", "Delta Time" ),
-        X_POINT( "X_POINT", "X Point" ),
-        Y_POINT( "Y_POINT", "Y Point" ),
-        POSITION( "POSITION", "Position" ),
-        VELOCITY( "VELOCITY", "Velocity" ),
-        ACCELERATION( "ACCELERATION", "Acceleration" ),
-        JERK( "JERK", "Jerk" ),
-        HEADING( "HEADING", "Heading" ),
-        NULL(null, null);
+        DELTA_TIME( "DELTA_TIME", "Delta Time", 1 ),
+        X_POINT( "X_POINT", "X Point", 2 ),
+        Y_POINT( "Y_POINT", "Y Point", 3 ),
+        POSITION( "POSITION", "Position", 4 ),
+        VELOCITY( "VELOCITY", "Velocity", 5 ),
+        ACCELERATION( "ACCELERATION", "Acceleration", 6 ),
+        JERK( "JERK", "Jerk", 7 ),
+        HEADING( "HEADING", "Heading", 8 ),
+        NULL(null, null, 0);
 
         private String internalLabel;
         private String label;
+        private int index;
 
-        ProfileElements( String internalLabel, String label )
+        ProfileElements( String internalLabel, String label, int index )
         {
             this.internalLabel = internalLabel;
             this.label = label;
+            this.index = index;
         }
+
+        public int getIndex() {return index;}
 
         public String toString()
         {
