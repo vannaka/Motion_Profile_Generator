@@ -128,7 +128,7 @@ public class SettingsDialogController
                 }
             };
             cell.setOnDragOver(event -> {
-                if( ( event.getGestureSource() != lst_chosen_vals               )
+                if( (( event.getGestureSource() == lst_chosen_vals ) || (event.getGestureSource() == lst_availabel_vals))
                         && ( event.getDragboard().hasContent( profileElementFormat ) ) )
                 {
                     event.acceptTransferModes( TransferMode.MOVE );
