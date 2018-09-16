@@ -22,17 +22,10 @@
          <children>
             <AnchorPane layoutX="20.0" layoutY="20.0" prefWidth="191.0" style="-fx-background-color: #f0f7ff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
                <children>
-                  <AnchorPane prefWidth="52.0" style="-fx-background-color: #fff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <effect>
-                        <DropShadow />
-                     </effect>
-                     <children>
-                        <FontAwesomeIconView fill="#544d4d" glyphName="FILE" layoutX="20.0" layoutY="64.0" size="15" />
-                     </children>
-                  </AnchorPane>
-                  <Button fx:id="btn_general" accessibleText="General" graphicTextGap="45.0" layoutY="21.0" mnemonicParsing="false" onAction="#showGeneralSettings" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #80000000;" text="General" />
-                  <Button fx:id="btn_csv" accessibleText="General" graphicTextGap="45.0" layoutY="46.0" mnemonicParsing="false" onAction="#showCSVSettings" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #40000000;" text="CSV" />
+                  <Button fx:id="btn_general" accessibleText="General" graphicTextGap="45.0" layoutY="21.0" mnemonicParsing="false" onAction="#showGeneralSettings" onMouseClicked="#btn_gen_styles" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #80000000;" text="General" />
+                  <Button fx:id="btn_csv" accessibleText="General" graphicTextGap="45.0" layoutY="46.0" mnemonicParsing="false" onAction="#showCSVSettings" onMouseClicked="#btn_csv_styles" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #40000000;" text="CSV" />
                   <FontAwesomeIconView fill="#544d4d" glyphName="MAGIC" layoutX="18.0" layoutY="38.0" size="15" />
+                  <FontAwesomeIconView fill="#544d4d" glyphName="FILE" layoutX="18.0" layoutY="63.0" size="15" />
                </children>
                <effect>
                   <DropShadow />

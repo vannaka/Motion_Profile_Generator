@@ -450,7 +450,7 @@ public class MainUIController
 
                     boolean addWaypointOnClick = ((CheckBox) pane.lookup("#chkAddWaypointOnClick")).isSelected();
 
-                    properties.setProperty("ui.overlayDir", overlayDir);
+                    properties.setProperty("ui.overlayImg", overlayDir);
                     properties.setProperty("ui.sourceDisplay", "" + sourceDisplay);
                     properties.setProperty("ui.addWaypointOnClick", "" + addWaypointOnClick);
                     properties.setProperty("ui.csvType", "" + csvType);
@@ -926,7 +926,7 @@ public class MainUIController
     }
     
     private void updateOverlayImg() {
-        String dir = properties.getProperty("ui.overlayDir", "");
+        String dir = properties.getProperty("ui.overlayImg", "");
 
         if (!dir.isEmpty()) {
             try {

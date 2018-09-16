@@ -49,7 +49,9 @@ public class SettingsDialogController
     {
         properties = PropWrapper.getProperties();
 
-        txtOverlayDir.setText( properties.getProperty("ui.overlayDir", "") );
+        btn_gen_styles();
+
+        txtOverlayDir.setText( properties.getProperty("ui.overlayImg", "") );
 
         choSourceDisplay.setItems( FXCollections.observableArrayList("None", "Waypoints only", "Waypoints + Source") );
         choSourceDisplay.getSelectionModel().select( Integer.parseInt( properties.getProperty("ui.sourceDisplay", "2") ) );
@@ -299,6 +301,34 @@ public class SettingsDialogController
             }
             lst_chosen_vals.getItems().remove(lst_chosen_vals.getSelectionModel().getSelectedIndex());
         }
+    }
+
+    /* Button Effects */
+
+    @FXML
+    private void btn_gen_styles()
+    {
+        btn_general.setStyle("-fx-background-color: DodgerBlue; " +
+                "-fx-text-fill: #FFFFFF");
+
+        btn_csv.setStyle("-fx-border-color: transparent; " +
+                "-fx-border-width: 0; " +
+                "-fx-background-radius: 0; " +
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: #000000");
+    }
+
+    @FXML
+    private void btn_csv_styles()
+    {
+        btn_csv.setStyle("-fx-background-color: DodgerBlue; " +
+                "-fx-text-fill: #FFFFFF");
+
+        btn_general.setStyle("-fx-border-color: transparent; " +
+                "-fx-border-width: 0; " +
+                "-fx-background-radius: 0; " +
+                "-fx-background-color: transparent;" +
+                "-fx-text-fill: #000000");
     }
 
 }

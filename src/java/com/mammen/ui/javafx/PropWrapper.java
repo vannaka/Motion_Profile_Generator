@@ -24,7 +24,7 @@ public class PropWrapper {
 
                     propInstance.put("ui.overlayImg", "");
                     propInstance.put("ui.sourceDisplay", "2");
-                    propInstance.put("ui.csvTpye", "0");
+                    propInstance.put("ui.csvType", "0");
                     propInstance.put("ui.addWaypointOnClick", "false");
                     propInstance.put("csv.avail", "Delta Time, X Point, Y Point, Position, Velocity, Acceleration, Jerk, Heading");
                     propInstance.put("csv.chos", "null");
