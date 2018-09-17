@@ -16,7 +16,10 @@ public class Main extends Application
 		{
 			Pane root = FXMLLoader.load( getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml") );
 	        root.autosize();
-	        
+
+	        FXMLLoader loader = new FXMLLoader( getClass().getResource("/com/mammen/ui/javafx/graphs/PosGraphController.fxml") );
+	        loader.getController();
+
 			primaryStage.setScene( new Scene(root) );
 			primaryStage.sizeToScene();
 			primaryStage.setTitle("Motion Profile Generator");

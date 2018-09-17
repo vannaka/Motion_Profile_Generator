@@ -26,7 +26,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="root" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="681.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.MainUIController">
+<VBox fx:id="root" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="681.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.MainUIController">
   <children>
     <MenuBar maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="1052.0" VBox.vgrow="NEVER">
       <menus>
@@ -200,18 +200,7 @@
               <tabs>
                 <Tab text="Position View">
                      <content>
-                        <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">
-                           <children>
-                              <LineChart fx:id="chtPosition" alternativeRowFillVisible="false" animated="false" axisSortingPolicy="NONE" legendSide="RIGHT" legendVisible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#addPointOnClick" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                 <xAxis>
-                                    <NumberAxis fx:id="axisPosX" autoRanging="false" label="X-Position (ft)" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" side="BOTTOM" tickUnit="1.0" upperBound="32.0" />
-                                 </xAxis>
-                                 <yAxis>
-                                    <NumberAxis fx:id="axisPosY" autoRanging="false" label="Y-Position (ft)" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" side="LEFT" tickUnit="1.0" upperBound="27.0" />
-                                 </yAxis>
-                              </LineChart>
-                           </children>
-                        </AnchorPane>
+                         <fx:include fx:id="posGraph" source="graphs/PosGraphUI.fxml" />
                      </content>
                 </Tab>
                 <Tab text="Velocity View">

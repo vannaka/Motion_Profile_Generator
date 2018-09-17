@@ -8,17 +8,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import com.mammen.ui.javafx.factory.SeriesFactory;
 import com.mammen.ui.javafx.factory.AlertFactory;
-import com.mammen.util.Mathf;
-import com.mammen.util.OSValidator;
+import com.mammen.ui.javafx.graphs.PosGraphController;
+import com.mammen.ui.javafx.graphs.VelGraph;
 import com.mammen.ui.javafx.factory.DialogFactory;
 import com.mammen.main.ProfileGenerator;
 
 import jaci.pathfinder.Pathfinder;
-import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
 
+import javafx.scene.layout.AnchorPane;
 import org.scijava.nativelib.NativeLoader;
 
 import javafx.beans.value.ObservableValue;
@@ -30,10 +29,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
@@ -41,7 +38,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
@@ -75,13 +71,10 @@ public class MainUIController
 
     @FXML
     private LineChart<Double, Double>
-        chtPosition,
         chtVelocity;
 
     @FXML
     private NumberAxis
-        axisPosX,
-        axisPosY,
         axisTime,
         axisVel;
 
@@ -116,19 +109,38 @@ public class MainUIController
         btnClearPoints,
         btnDelete;
 
+    // Linked to backend waypoints list.
+    // Changes to this are mirrored by backend list.
+    // Fires events on any change.
     private ObservableList<Waypoint> waypointsList;
-    
+
+    // Interface for property manipulation.
     private Properties properties;
 
+    // Last directory saved/exported to.
     private File workingDirectory;
 
+    // Prevent unit conversion for next unit change event.
     private boolean disblUnitConv = false;
+
+    // Reference to the PosGraphController class that JavaFX creates when it loads the fxml file.
+    // This has to be named exactly like this
+    @FXML
+    private PosGraphController posGraphController;
+
+    private VelGraph velGraph;
     
     @FXML
     public void initialize() 
     {
         backend = new ProfileGenerator();
         properties = PropWrapper.getProperties();
+        waypointsList = FXCollections.observableList( backend.getWaypointsList() );
+
+        posGraphController.setBackend( backend );
+        posGraphController.setPointsList( waypointsList );
+
+        velGraph = new VelGraph( chtVelocity, backend, waypointsList );
 
         // Load Pathfinder native lib
         try
@@ -151,6 +163,7 @@ public class MainUIController
             workingDirectory = new File( System.getProperty("user.dir") );
         }
 
+        // Disable delete btn until we have points to delete.
         btnDelete.setDisable( true );
 
         // Populate drive base ChoiceBox
@@ -167,12 +180,13 @@ public class MainUIController
         choUnits.getItems().setAll( ProfileGenerator.Units.values() );
         choUnits.setValue( ProfileGenerator.Units.FEET );
         choUnits.getSelectionModel().selectedItemProperty().addListener( this::updateUnits );
-        
+
+        // Make sure only doubles are entered for waypoints.
         Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
             (TableColumn<Waypoint, Double> param) -> {
                 TextFieldTableCell<Waypoint, Double> cell = new TextFieldTableCell<>();
 
-                cell.setConverter(new DoubleStringConverter());
+                cell.setConverter( new DoubleStringConverter() );
 
                 return cell;
         };
@@ -376,7 +390,6 @@ public class MainUIController
             }
         });
 
-        waypointsList = FXCollections.observableList(backend.getWaypointsList());
         waypointsList.addListener( (ListChangeListener<Waypoint>) c ->
         {
             // Disable btn if no points exist
@@ -389,8 +402,8 @@ public class MainUIController
             }
 
             // Redraw new chart to show new changes
-            repopulatePosChart();
-            repopulateVelChart();
+            posGraphController.refresh();
+            velGraph.refresh();
         });
 
         tblWaypoints.setItems(waypointsList);
@@ -399,7 +412,7 @@ public class MainUIController
                 btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1)
         );
 
-        updateOverlayImg();
+        posGraphController.setBGImg( properties.getProperty("ui.overlayImg", "") );
         updateFrontend();
         
         Runtime.getRuntime().addShutdownHook( new Thread(() -> {
@@ -466,8 +479,9 @@ public class MainUIController
                     properties.setProperty("csv.avail", "" + availList);
                     properties.setProperty("csv.chos", "" + chosList);
 
-                    updateOverlayImg();
-                    repopulatePosChart();
+                    posGraphController.setBGImg( overlayDir );
+                    posGraphController.refresh();
+
                     PropWrapper.storeProperties();
                 }
                 catch( IOException e )
@@ -597,6 +611,7 @@ public class MainUIController
                 disblUnitConv = true;
                 updateFrontend();
 
+                posGraphController.updateAxis( backend.getUnits() );
                 updateChartAxis();
 
                 generateTrajectories();
@@ -727,79 +742,13 @@ public class MainUIController
 
                 updateFrontend();
                 waypointsList.clear();
+
+                posGraphController.updateAxis( backend.getUnits() );
                 updateChartAxis();
 
                 mnuFileSave.setDisable(true);
             }
         });
-    }
-    
-    @FXML
-    private void addPointOnClick(MouseEvent event)
-    {   
-    	boolean addWaypointOnClick = Boolean.parseBoolean(
-                properties.getProperty("ui.addWaypointOnClick", "false")
-        );
-    	
-    	if (addWaypointOnClick) 
-    	{
-    		// get pixel location
-	        Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
-	        double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
-	        double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
-	
-	        // get location in units (ft, m, in)
-	        double raw_x = axisPosX.getValueForDisplay(xLocal).doubleValue();
-	        double raw_y = axisPosY.getValueForDisplay(yLocal).doubleValue();
-	        
-	        // round location
-	        double rnd_x;
-	        double rnd_y;
-	        
-	        if( backend.getUnits() == ProfileGenerator.Units.FEET )
-	        {
-		        rnd_x = Mathf.round(raw_x, 0.5);
-		        rnd_y = Mathf.round(raw_y, 0.5);
-	        }
-	        else if( backend.getUnits() == ProfileGenerator.Units.METERS )
-	        {
-	        	rnd_x = Mathf.round(raw_x, 0.25);
-		        rnd_y = Mathf.round(raw_y, 0.25);
-	        }
-	        else if( backend.getUnits() == ProfileGenerator.Units.INCHES)
-	        {
-	        	rnd_x = Mathf.round(raw_x, 6.0);
-	        	rnd_y = Mathf.round(raw_y, 6.0);
-	        }
-	        else
-	        {
-	        	rnd_x = Mathf.round(raw_x, 2);
-		        rnd_y = Mathf.round(raw_y, 2);
-	        }
-	        
-	
-	        if (rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
-        		rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound()) 
-	        {	   
-	        	if (OSValidator.isMac()) {
-	        		Optional<Waypoint> result = null;
-	        		
-	        		result = DialogFactory.createWaypointDialog(String.valueOf(rnd_x), String.valueOf(rnd_y)).showAndWait();
-	        		
-	        		result.ifPresent((Waypoint w) -> waypointsList.add(w));
-	        	}
-	        	else {
-	        		Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
-	        		waypointsList.add(temp);
-	        	}
-	        }
-        
-    	} 
-    	else 
-    	{
-            event.consume();
-        }
-
     }
 
     @FXML
@@ -914,6 +863,7 @@ public class MainUIController
             {
                 backend.updateTrajectories();
             }
+            // The given points cannot for a valid path
             catch( Pathfinder.GenerationException e )
             {
                 Toolkit.getDefaultToolkit().beep();
@@ -930,8 +880,8 @@ public class MainUIController
             }
 
             // Update the chart with the new path.
-            repopulatePosChart();
-            repopulateVelChart();
+            posGraphController.refresh();
+            velGraph.refresh();
 
             return true;
         }
@@ -974,169 +924,29 @@ public class MainUIController
 
             backend.updateVarUnits( oldValue, newValue );
 
+            posGraphController.updateAxis( backend.getUnits() );
             updateChartAxis();
             updateFrontend();
         }
     }
-    
-    private void updateOverlayImg() {
-        String dir = properties.getProperty("ui.overlayImg", "");
 
-        if (!dir.isEmpty()) {
-            try {
-                File img = new File(dir);
-                chtPosition.lookup(".chart-plot-background").setStyle(
-                    "-fx-background-image: url(" + img.toURI().toString() + ");" +
-                    "-fx-background-size: stretch;" +
-                    "-fx-background-position: top right;" +
-                    "-fx-background-repeat: no-repeat;"
-                );
-            } catch (Exception e) {
-                Alert alert = AlertFactory.createExceptionAlert(e);
 
-                alert.showAndWait();
-            }
-        }
-    } 
-	
-    private void repopulatePosChart() 
-    {
-        XYChart.Series<Double, Double> waypointSeries;
-
-        // Clear data from position graph
-        chtPosition.getData().clear();
-
-        // Start by drawing drive train trajectories
-        if (waypointsList.size() > 1) 
-        {
-            XYChart.Series<Double, Double>
-                    flSeries = SeriesFactory.buildPositionSeries(backend.getFrontLeftTrajectory()),
-                    frSeries = SeriesFactory.buildPositionSeries(backend.getFrontRightTrajectory());
-
-            if (backend.getDriveBase() == ProfileGenerator.DriveBase.SWERVE)
-            {
-                XYChart.Series<Double, Double>
-                        blSeries = SeriesFactory.buildPositionSeries(backend.getBackLeftTrajectory()),
-                        brSeries = SeriesFactory.buildPositionSeries(backend.getBackRightTrajectory());
-
-                chtPosition.getData().addAll(blSeries, brSeries, flSeries, frSeries);
-                flSeries.getNode().setStyle("-fx-stroke: red");
-                frSeries.getNode().setStyle("-fx-stroke: red");
-                blSeries.getNode().setStyle("-fx-stroke: blue");
-                brSeries.getNode().setStyle("-fx-stroke: blue");
-
-                for (XYChart.Data<Double, Double> data : blSeries.getData())
-                    data.getNode().setVisible(false);
-
-                for (XYChart.Data<Double, Double> data : brSeries.getData())
-                    data.getNode().setVisible(false);
-            }
-            else 
-            {
-                chtPosition.getData().addAll(flSeries, frSeries);
-
-                flSeries.getNode().setStyle("-fx-stroke: magenta");
-                frSeries.getNode().setStyle("-fx-stroke: magenta");
-            }
-
-            for (XYChart.Data<Double, Double> data : flSeries.getData())
-                data.getNode().setVisible(false);
-
-            for (XYChart.Data<Double, Double> data : frSeries.getData())
-                data.getNode().setVisible(false);
-        }
-        
-        String srcDisplayStr = properties.getProperty("ui.sourceDisplay", "2");
-        int sourceDisplay = Integer.parseInt(srcDisplayStr);
-
-        // Draw source (center) trajectory and waypoints on top of everything
-        if ( !waypointsList.isEmpty() && sourceDisplay > 0)
-        {
-            waypointSeries = SeriesFactory.buildWaypointsSeries(waypointsList.toArray(new Waypoint[1]));
-
-            if ( waypointsList.size() > 1 && sourceDisplay == 2) 
-            {
-                XYChart.Series<Double, Double> sourceSeries =
-                        SeriesFactory.buildPositionSeries(backend.getSourceTrajectory());
-                chtPosition.getData().add(sourceSeries);
-                sourceSeries.getNode().setStyle("-fx-stroke: orange");
-
-                for (XYChart.Data<Double, Double> data : sourceSeries.getData())
-                    data.getNode().setVisible(false);
-            }
-
-            chtPosition.getData().add(waypointSeries);
-            waypointSeries.getNode().setStyle("-fx-stroke: transparent");
-            for (XYChart.Data<Double, Double> data : waypointSeries.getData())
-                data.getNode().setStyle("-fx-background-color: orange, white");
-        }
-    }
-
-    private void repopulateVelChart()
-    {
-        // Clear data from velocity graph
-        chtVelocity.getData().clear();
-
-        if (waypointsList.size() > 1) {
-            XYChart.Series<Double, Double>
-                    flSeries = SeriesFactory.buildVelocitySeries(backend.getFrontLeftTrajectory()),
-                    frSeries = SeriesFactory.buildVelocitySeries(backend.getFrontRightTrajectory());
-
-            chtVelocity.getData().addAll(flSeries, frSeries);
-
-            if (backend.getDriveBase() == ProfileGenerator.DriveBase.SWERVE) {
-                XYChart.Series<Double, Double>
-                        blSeries = SeriesFactory.buildVelocitySeries(backend.getBackLeftTrajectory()),
-                        brSeries = SeriesFactory.buildVelocitySeries(backend.getBackRightTrajectory());
-
-                chtVelocity.getData().addAll(blSeries, brSeries);
-
-                flSeries.setName("Front Left Trajectory");
-                frSeries.setName("Front Right Trajectory");
-                blSeries.setName("Back Left Trajectory");
-                brSeries.setName("Back Right Trajectory");
-            } 
-            else 
-            {
-                flSeries.setName("Left Trajectory");
-                frSeries.setName("Right Trajectory");
-            }
-        }
-    }
 
     private void updateChartAxis() 
     {
         switch (backend.getUnits())
         {
             case FEET:
-                axisPosX.setUpperBound(32);
-                axisPosX.setTickUnit(1);
-                axisPosX.setLabel("X-Position (ft)");
-                axisPosY.setUpperBound(27);
-                axisPosY.setTickUnit(1);
-                axisPosY.setLabel("Y-Position (ft)");
 
                 axisVel.setLabel("Velocity (ft/s)");
 
                 break;
             case METERS:
-                axisPosX.setUpperBound(10);
-                axisPosX.setTickUnit(0.5);
-                axisPosX.setLabel("X-Position (m)");
-                axisPosY.setUpperBound(8.23);
-                axisPosY.setTickUnit(0.5);
-                axisPosY.setLabel("Y-Position (m)");
 
                 axisVel.setLabel("Velocity (m/s)");
 
                 break;
             case INCHES:
-            	axisPosX.setUpperBound(384);
-                axisPosX.setTickUnit(12);
-                axisPosX.setLabel("X-Position (in)");
-                axisPosY.setUpperBound(324);
-                axisPosY.setTickUnit(12);
-                axisPosY.setLabel("Y-Position (in)");
 
                 axisVel.setLabel("Velocity (in/s)");
                 break;

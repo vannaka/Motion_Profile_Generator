@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.graphs.PosGraphController">
+    <children>
+        <LineChart fx:id="posGraph" alternativeRowFillVisible="false" animated="false" axisSortingPolicy="NONE" legendSide="RIGHT" legendVisible="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#addPointOnClick" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <xAxis>
+                <NumberAxis fx:id="axisPosX" autoRanging="false" label="X-Position (ft)" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" side="BOTTOM" tickUnit="1.0" upperBound="32.0" />
+            </xAxis>
+            <yAxis>
+                <NumberAxis fx:id="axisPosY" autoRanging="false" label="Y-Position (ft)" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" side="LEFT" tickUnit="1.0" upperBound="27.0" />
+            </yAxis>
+        </LineChart>
+    </children>
+</AnchorPane>
