@@ -379,11 +379,18 @@ public class MainUIController
         waypointsList = FXCollections.observableList(backend.getWaypointsList());
         waypointsList.addListener( (ListChangeListener<Waypoint>) c ->
         {
+            // Disable btn if no points exist
             btnClearPoints.setDisable( waypointsList.size() == 0 );
-            if( !generateTrajectories() )
+
+            // If the traj failed to generate then remove the problematic point.
+            if( waypointsList.size() > 1 && !generateTrajectories() )
             {
-                waypointsList.remove(waypointsList.size() - 1);
+                waypointsList.remove(waypointsList.size() - 1 );
             }
+
+            // Redraw new chart to show new changes
+            repopulatePosChart();
+            repopulateVelChart();
         });
 
         tblWaypoints.setItems(waypointsList);
@@ -818,8 +825,9 @@ public class MainUIController
         
         Optional<ButtonType> result = alert.showAndWait();
         
-        result.ifPresent((ButtonType t) -> {
-            if (t.getButtonData() == ButtonBar.ButtonData.OK_DONE)
+        result.ifPresent( (ButtonType t) ->
+        {
+            if( t.getButtonData() == ButtonBar.ButtonData.OK_DONE )
                 waypointsList.clear();
         });
     }
@@ -831,13 +839,18 @@ public class MainUIController
         double d = 0;
         boolean validInput = true;
 
-        try {
+        try
+        {
             d = Double.parseDouble(val);
 
             validInput = d > 0;
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e)
+        {
             validInput = false;
-        } finally {
+        }
+        finally
+        {
             if (validInput)
                 generateTrajectories();
             else
@@ -857,7 +870,8 @@ public class MainUIController
     }
     
     @FXML
-    private void updateBackend() {
+    private void updateBackend()
+    {
         backend.setTimeStep(Double.parseDouble( txtTimeStep.getText().trim() ));
         backend.setVelocity(Double.parseDouble( txtVelocity.getText().trim() ));
         backend.setAcceleration(Double.parseDouble( txtAcceleration.getText().trim() ));
@@ -867,9 +881,10 @@ public class MainUIController
     }
 
     /**
-     * Updates all fields and views in the UI.
+     * Updates all fields and views in the UI from data from the backend.
      */
-    private void updateFrontend() {
+    private void updateFrontend()
+    {
         txtTimeStep.setText("" + backend.getTimeStep());
         txtVelocity.setText("" + backend.getVelocity());
         txtAcceleration.setText("" + backend.getAcceleration());
@@ -883,12 +898,18 @@ public class MainUIController
 
         refreshWaypointTable();
     }
-    
-    private boolean generateTrajectories() {
-        updateBackend();
 
+    /**
+     * Generates a path from the current set of waypoints and updates the graph with the new path.
+     * @return True if the path was successfully generated. False otherwise.
+     */
+    private boolean generateTrajectories()
+    {
+        // Need at least two points to generate a path.
         if( waypointsList.size() > 1 )
         {
+            updateBackend();
+
             try
             {
                 backend.updateTrajectories();
@@ -897,22 +918,28 @@ public class MainUIController
             {
                 Toolkit.getDefaultToolkit().beep();
 
-                Alert alert = new Alert(Alert.AlertType.WARNING);
+                Alert alert = new Alert( Alert.AlertType.WARNING );
 
-                alert.setTitle("Invalid Trajectory");
-                alert.setHeaderText("Invalid trajectory point!");
-                alert.setContentText("The trajectory point is invalid because one of the waypoints is invalid! " +
-                        "Please check the waypoints and try again.");
+                alert.setTitle( "Invalid Trajectory" );
+                alert.setHeaderText( "Invalid trajectory point!" );
+                alert.setContentText( "The trajectory point is invalid because one of the waypoints is invalid! " +
+                        "Please check the waypoints and try again." );
                 alert.showAndWait();
 
                 return false;
             }
-        }
-        
-        repopulatePosChart();
-        repopulateVelChart();
 
-        return true;
+            // Update the chart with the new path.
+            repopulatePosChart();
+            repopulateVelChart();
+
+            return true;
+        }
+        // Not enough points to generate a path.
+        else
+        {
+            return false;
+        }
     }
      
     private void updateDriveBase(ObservableValue<? extends ProfileGenerator.DriveBase> observable, ProfileGenerator.DriveBase oldValue, ProfileGenerator.DriveBase newValue)
