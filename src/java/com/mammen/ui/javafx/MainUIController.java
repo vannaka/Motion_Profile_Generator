@@ -367,7 +367,7 @@ public class MainUIController
             }
         });
 
-        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>() 
+        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
@@ -377,11 +377,13 @@ public class MainUIController
         });
 
         waypointsList = FXCollections.observableList(backend.getWaypointsList());
-        waypointsList.addListener((ListChangeListener<Waypoint>) c -> 
+        waypointsList.addListener( (ListChangeListener<Waypoint>) c ->
         {
             btnClearPoints.setDisable( waypointsList.size() == 0 );
-            if (!generateTrajectories())
-                waypointsList.remove(waypointsList.size());
+            if( !generateTrajectories() )
+            {
+                waypointsList.remove(waypointsList.size() - 1);
+            }
         });
 
         tblWaypoints.setItems(waypointsList);
@@ -481,6 +483,17 @@ public class MainUIController
     @FXML
     private void showExportDialog()
     {
+        if( waypointsList.size() < 2 )
+        {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+
+            alert.setTitle("Not enough waypoints");
+            alert.setHeaderText("Not enough waypoints");
+            alert.setContentText("More than one waypoint needed to export a path.");
+            alert.showAndWait();
+            return;
+        }
+
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
@@ -492,25 +505,33 @@ public class MainUIController
 
         File result = fileChooser.showSaveDialog(root.getScene().getWindow());
 
-        if (result != null && generateTrajectories()) {
+        if( result != null )
+        {
             String parentPath = result.getAbsolutePath(), ext = parentPath.substring(parentPath.lastIndexOf("."));
             parentPath = parentPath.substring(0, parentPath.lastIndexOf(ext));
 
             String csvTypeStr = properties.getProperty("ui.csvType", "0");
             int csvType = Integer.parseInt(csvTypeStr);
             
-            try {
-            	if(csvType == 0) {
+            try
+            {
+            	if( csvType == 0 )
+            	{
             		backend.exportTrajectoriesJaci(new File(parentPath), ext);
             	}
-            	else {
+            	else
+                {
             		backend.exportTrajectoriesTalon(new File(parentPath), ext);
             	}
-            } catch (Pathfinder.GenerationException e) {
+            }
+            catch( Pathfinder.GenerationException e )
+            {
                 Alert alert = AlertFactory.createExceptionAlert(e, "Invalid Trajectory!");
 
                 alert.showAndWait();
-            } catch (IOException e) {
+            }
+            catch( IOException e )
+            {
 				e.printStackTrace();
 			}
         }
@@ -866,10 +887,14 @@ public class MainUIController
     private boolean generateTrajectories() {
         updateBackend();
 
-        if (waypointsList.size() > 1) {
-            try {
+        if( waypointsList.size() > 1 )
+        {
+            try
+            {
                 backend.updateTrajectories();
-            } catch (Pathfinder.GenerationException e) {
+            }
+            catch( Pathfinder.GenerationException e )
+            {
                 Toolkit.getDefaultToolkit().beep();
 
                 Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -879,6 +904,8 @@ public class MainUIController
                 alert.setContentText("The trajectory point is invalid because one of the waypoints is invalid! " +
                         "Please check the waypoints and try again.");
                 alert.showAndWait();
+
+                return false;
             }
         }
         
