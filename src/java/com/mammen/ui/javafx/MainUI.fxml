@@ -204,20 +204,9 @@
                      </content>
                 </Tab>
                 <Tab text="Velocity View">
-                  <content>
-                    <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">
-                           <children>
-                              <LineChart fx:id="chtVelocity" animated="false" axisSortingPolicy="NONE" createSymbols="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                <xAxis>
-                                  <NumberAxis fx:id="axisTime" label="Time (s)" tickUnit="1.0" upperBound="15.0" />
-                                </xAxis>
-                                <yAxis>
-                                  <NumberAxis fx:id="axisVel" label="Velocity (ft/s)" side="LEFT" />
-                                </yAxis>
-                              </LineChart>
-                           </children>
-                        </AnchorPane>
-                  </content>
+                    <content>
+                        <fx:include fx:id="velGraph" source="graphs/VelGraphUI.fxml" />
+                    </content>
                 </Tab>
               </tabs>
             </TabPane>

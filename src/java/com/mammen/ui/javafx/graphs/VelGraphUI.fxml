@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.graphs.VelGraphController">
+    <children>
+        <LineChart fx:id="velGraph" animated="false" axisSortingPolicy="NONE" createSymbols="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <xAxis>
+                <NumberAxis fx:id="axisTime" label="Time (s)" tickUnit="1.0" upperBound="15.0" />
+            </xAxis>
+            <yAxis>
+                <NumberAxis fx:id="axisVel" label="Velocity (ft/s)" side="LEFT" />
+            </yAxis>
+        </LineChart>
+    </children>
+</AnchorPane>

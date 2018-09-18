@@ -4,20 +4,49 @@ import com.mammen.main.ProfileGenerator;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
-public class VelGraph
+public class VelGraphController
 {
+    @FXML
     private LineChart<Double, Double> velGraph;
+
+    @FXML
+    private NumberAxis axisTime, axisVel;
+
     private ProfileGenerator backend;
     private ObservableList<Waypoint> waypointsList;
 
-    public VelGraph( LineChart<Double, Double> velGraph, ProfileGenerator backend, ObservableList<Waypoint> waypointsList )
+    @FXML
+    public void initialize()
     {
-        this.velGraph = velGraph;
+    }
+
+    public void setup( ProfileGenerator backend, ObservableList<Waypoint> waypointsList )
+    {
         this.backend = backend;
         this.waypointsList = waypointsList;
+    } /* setup() */
+
+    public void updateAxis( ProfileGenerator.Units units )
+    {
+        switch( units )
+        {
+            case FEET:
+                axisVel.setLabel("Velocity (ft/s)");
+                break;
+
+            case METERS:
+                axisVel.setLabel("Velocity (m/s)");
+                break;
+
+            case INCHES:
+                axisVel.setLabel("Velocity (in/s)");
+                break;
+        }
     }
 
     /**

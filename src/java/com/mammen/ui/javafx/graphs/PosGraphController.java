@@ -9,6 +9,7 @@ import jaci.pathfinder.Waypoint;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -40,15 +41,11 @@ public class PosGraphController
         dsplyWaypoints = true;
     }
 
-    public void setBackend( ProfileGenerator backend )
+    public void setup( ProfileGenerator backend, ObservableList<Waypoint> waypointsList )
     {
         this.backend = backend;
-    }
-
-    public void setPointsList( ObservableList<Waypoint> waypointsList )
-    {
         this.waypointsList = waypointsList;
-    }
+    } /* setup() */
 
     /**
      * Displays the given image behind the graph.
@@ -278,7 +275,7 @@ public class PosGraphController
             {
                 // Clicking to add point not working on Mac???
                 if (OSValidator.isMac()) {
-                    Optional<Waypoint> result = null;
+                    Optional<Waypoint> result;
 
                     result = DialogFactory.createWaypointDialog(String.valueOf(rnd_x), String.valueOf(rnd_y)).showAndWait();
 

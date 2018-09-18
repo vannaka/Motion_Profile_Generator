@@ -10,14 +10,13 @@ import java.util.Properties;
 
 import com.mammen.ui.javafx.factory.AlertFactory;
 import com.mammen.ui.javafx.graphs.PosGraphController;
-import com.mammen.ui.javafx.graphs.VelGraph;
+import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.factory.DialogFactory;
 import com.mammen.main.ProfileGenerator;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Waypoint;
 
-import javafx.scene.layout.AnchorPane;
 import org.scijava.nativelib.NativeLoader;
 
 import javafx.beans.value.ObservableValue;
@@ -74,11 +73,6 @@ public class MainUIController
         chtVelocity;
 
     @FXML
-    private NumberAxis
-        axisTime,
-        axisVel;
-
-    @FXML
     private TableColumn<Waypoint, Double>
         colWaypointX,
         colWaypointY,
@@ -127,8 +121,11 @@ public class MainUIController
     // This has to be named exactly like this
     @FXML
     private PosGraphController posGraphController;
+    private PosGraphController posGraph;
 
-    private VelGraph velGraph;
+    @FXML
+    private VelGraphController velGraphController;
+    private VelGraphController velGraph;
     
     @FXML
     public void initialize() 
@@ -137,10 +134,14 @@ public class MainUIController
         properties = PropWrapper.getProperties();
         waypointsList = FXCollections.observableList( backend.getWaypointsList() );
 
-        posGraphController.setBackend( backend );
-        posGraphController.setPointsList( waypointsList );
+        // Setup position graph
+        posGraph = posGraphController;  // Alias because it looks better.
+        posGraph.setup( backend, waypointsList );
+        posGraph.setBGImg( properties.getProperty("ui.overlayImg", "") );
 
-        velGraph = new VelGraph( chtVelocity, backend, waypointsList );
+        // Setup velocity graph
+        velGraph = velGraphController;  // Alias because it looks better.
+        velGraph.setup( backend, waypointsList );
 
         // Load Pathfinder native lib
         try
@@ -402,7 +403,7 @@ public class MainUIController
             }
 
             // Redraw new chart to show new changes
-            posGraphController.refresh();
+            posGraph.refresh();
             velGraph.refresh();
         });
 
@@ -412,7 +413,6 @@ public class MainUIController
                 btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1)
         );
 
-        posGraphController.setBGImg( properties.getProperty("ui.overlayImg", "") );
         updateFrontend();
         
         Runtime.getRuntime().addShutdownHook( new Thread(() -> {
@@ -426,7 +426,7 @@ public class MainUIController
                 e.printStackTrace();
             }
         }));
-    }
+    } /* initialize() */
     
     @FXML
     private void showSettingsDialog()
@@ -479,8 +479,8 @@ public class MainUIController
                     properties.setProperty("csv.avail", "" + availList);
                     properties.setProperty("csv.chos", "" + chosList);
 
-                    posGraphController.setBGImg( overlayDir );
-                    posGraphController.refresh();
+                    posGraph.setBGImg( overlayDir );
+                    posGraph.refresh();
 
                     PropWrapper.storeProperties();
                 }
@@ -491,7 +491,7 @@ public class MainUIController
                 }
             }
         });
-    }
+    } /* showSettingsDialog() */
     
     @FXML
     private void openAboutDialog()
@@ -499,7 +499,7 @@ public class MainUIController
         Dialog<Boolean> aboutDialog = DialogFactory.createAboutDialog();
 
         aboutDialog.showAndWait();
-    }
+    } /* openAboutDialog() */
     
     @FXML
     private void showExportDialog()
@@ -556,7 +556,7 @@ public class MainUIController
 				e.printStackTrace();
 			}
         }
-    }
+    } /* showExportDialog() */
     
     @FXML
     private void showSaveAsDialog()
@@ -585,7 +585,7 @@ public class MainUIController
                 alert.showAndWait();
             }
         }
-    }
+    } /* showSaveAsDialog() */
     
     @FXML
     private void showOpenDialog()
@@ -598,21 +598,21 @@ public class MainUIController
                 new FileChooser.ExtensionFilter("Extensive Markup Language", "*.xml")
         );
 
-        File result = fileChooser.showOpenDialog(root.getScene().getWindow());
+        File result = fileChooser.showOpenDialog( root.getScene().getWindow() );
 
-        if (result != null)
+        if( result != null )
         {
             try
             {
                 workingDirectory = result.getParentFile();
-                backend.loadProject(result);
+                backend.loadProject( result );
 
                 // Temporarily disable unit conversion so we can update the units without 'converting' them unnecessarily.
                 disblUnitConv = true;
                 updateFrontend();
 
-                posGraphController.updateAxis( backend.getUnits() );
-                updateChartAxis();
+                posGraph.updateAxis( backend.getUnits() );
+                velGraph.updateAxis( backend.getUnits() );
 
                 generateTrajectories();
 
@@ -624,7 +624,7 @@ public class MainUIController
                 alert.showAndWait();
             }
         }
-    }
+    } /* showOpenDialog() */
     
     @FXML
     private void showImportDialog()
@@ -700,7 +700,7 @@ public class MainUIController
                 }
             });
         }
-    }
+    } /* showImportDialog() */
     
     @FXML
     private void save()
@@ -716,13 +716,13 @@ public class MainUIController
             Alert alert = AlertFactory.createExceptionAlert( e );
             alert.showAndWait();
         }
-    }
+    } /* save() */
     
     @FXML
     private void exit()
     {
         System.exit(0 );
-    } 
+    } /* exit() */
     
     @FXML
     private void resetData()
@@ -743,13 +743,13 @@ public class MainUIController
                 updateFrontend();
                 waypointsList.clear();
 
-                posGraphController.updateAxis( backend.getUnits() );
-                updateChartAxis();
+                posGraph.updateAxis( backend.getUnits() );
+                velGraph.updateAxis( backend.getUnits() );
 
                 mnuFileSave.setDisable(true);
             }
         });
-    }
+    } /* resetData() */
 
     @FXML
     private void showAddPointDialog() 
@@ -761,7 +761,7 @@ public class MainUIController
         result = waypointDialog.showAndWait();
 
         result.ifPresent((Waypoint w) -> waypointsList.add(w));
-    }
+    } /* showAddPointDialog() */
     
     @FXML
     private void showClearPointsDialog() 
@@ -779,7 +779,7 @@ public class MainUIController
             if( t.getButtonData() == ButtonBar.ButtonData.OK_DONE )
                 waypointsList.clear();
         });
-    }
+    } /* showClearPointsDialog() */
     
     @FXML
     private void validateFieldEdit(ActionEvent event)
@@ -805,7 +805,7 @@ public class MainUIController
             else
                 Toolkit.getDefaultToolkit().beep();
         }
-    }
+    } /* validateFieldEdit() */
     
     @FXML
     private void deletePoints() 
@@ -816,18 +816,18 @@ public class MainUIController
         int lastIndex = selectedIndicies.get(selectedIndicies.size() - 1);
 
         waypointsList.remove(firstIndex, lastIndex + 1);
-    }
+    } /* deletePoints() */
     
     @FXML
     private void updateBackend()
     {
-        backend.setTimeStep(Double.parseDouble( txtTimeStep.getText().trim() ));
-        backend.setVelocity(Double.parseDouble( txtVelocity.getText().trim() ));
-        backend.setAcceleration(Double.parseDouble( txtAcceleration.getText().trim() ));
-        backend.setJerk(Double.parseDouble( txtJerk.getText().trim() ));
-        backend.setWheelBaseW(Double.parseDouble( txtWheelBaseW.getText().trim() ));
-        backend.setWheelBaseD(Double.parseDouble( txtWheelBaseD.getText().trim() ));
-    }
+        backend.setTimeStep( Double.parseDouble( txtTimeStep.getText().trim() ) );
+        backend.setVelocity( Double.parseDouble( txtVelocity.getText().trim() ) );
+        backend.setAcceleration( Double.parseDouble( txtAcceleration.getText().trim() ) );
+        backend.setJerk( Double.parseDouble( txtJerk.getText().trim() ) );
+        backend.setWheelBaseW( Double.parseDouble( txtWheelBaseW.getText().trim() ) );
+        backend.setWheelBaseD( Double.parseDouble( txtWheelBaseD.getText().trim() ) );
+    } /* updateBackend() */
 
     /**
      * Updates all fields and views in the UI from data from the backend.
@@ -846,7 +846,7 @@ public class MainUIController
         choUnits.setValue( backend.getUnits() );
 
         refreshWaypointTable();
-    }
+    } /* updateFrontend() */
 
     /**
      * Generates a path from the current set of waypoints and updates the graph with the new path.
@@ -880,7 +880,7 @@ public class MainUIController
             }
 
             // Update the chart with the new path.
-            posGraphController.refresh();
+            posGraph.refresh();
             velGraph.refresh();
 
             return true;
@@ -890,9 +890,9 @@ public class MainUIController
         {
             return false;
         }
-    }
+    } /* generateTrajectories() */
      
-    private void updateDriveBase(ObservableValue<? extends ProfileGenerator.DriveBase> observable, ProfileGenerator.DriveBase oldValue, ProfileGenerator.DriveBase newValue)
+    private void updateDriveBase( ObservableValue<? extends ProfileGenerator.DriveBase> observable, ProfileGenerator.DriveBase oldValue, ProfileGenerator.DriveBase newValue )
     {
         backend.setDriveBase( newValue );
 
@@ -901,16 +901,16 @@ public class MainUIController
         lblWheelBaseD.setDisable( newValue == ProfileGenerator.DriveBase.TANK );
 
         generateTrajectories();
-    }
+    } /* updateDriveBase() */
 
-    private void updateFitMethod(ObservableValue<? extends ProfileGenerator.FitMethod> observable, ProfileGenerator.FitMethod oldValue, ProfileGenerator.FitMethod newValue)
+    private void updateFitMethod( ObservableValue<? extends ProfileGenerator.FitMethod> observable, ProfileGenerator.FitMethod oldValue, ProfileGenerator.FitMethod newValue )
     {
         backend.setFitMethod( newValue );
 
         generateTrajectories();
-    }
+    } /* updateFitMethod() */
 
-    private void updateUnits(ObservableValue<? extends ProfileGenerator.Units> observable, ProfileGenerator.Units oldValue, ProfileGenerator.Units newValue)
+    private void updateUnits( ObservableValue<? extends ProfileGenerator.Units> observable, ProfileGenerator.Units oldValue, ProfileGenerator.Units newValue )
     {
         if( disblUnitConv )
         {
@@ -924,37 +924,11 @@ public class MainUIController
 
             backend.updateVarUnits( oldValue, newValue );
 
-            posGraphController.updateAxis( backend.getUnits() );
-            updateChartAxis();
+            posGraph.updateAxis( backend.getUnits() );
+            velGraph.updateAxis( backend.getUnits() );
             updateFrontend();
         }
-    }
-
-
-
-    private void updateChartAxis() 
-    {
-        switch (backend.getUnits())
-        {
-            case FEET:
-
-                axisVel.setLabel("Velocity (ft/s)");
-
-                break;
-            case METERS:
-
-                axisVel.setLabel("Velocity (m/s)");
-
-                break;
-            case INCHES:
-
-                axisVel.setLabel("Velocity (in/s)");
-                break;
-            default:
-                backend.setUnits(ProfileGenerator.Units.FEET);
-                updateChartAxis();
-        }
-    }
+    } /* updateUnits() */
 
     /**
      * Refreshes the waypoints table by clearing the waypoint list and repopulating it.
@@ -966,6 +940,6 @@ public class MainUIController
         List<Waypoint> tmp = new ArrayList<>(backend.getWaypointsList());
         waypointsList.clear();
         waypointsList.addAll(tmp);
-    }
+    } /* refreshWaypointTable() */
     
 }
