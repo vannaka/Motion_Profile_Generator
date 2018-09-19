@@ -53,19 +53,6 @@ public class MainUIController
     private Pane root;
 
     @FXML
-    private TextField
-        txtTimeStep,
-        txtVelocity,
-        txtAcceleration,
-        txtJerk,
-        txtWheelBaseW,
-        txtWheelBaseD;
-
-    @FXML
-    private Label
-        lblWheelBaseD;
-
-    @FXML
     private TableView<Waypoint> tblWaypoints;
 
     @FXML
@@ -89,15 +76,6 @@ public class MainUIController
         mnuHelpAbout;
 
     @FXML
-    private ChoiceBox<ProfileGenerator.FitMethod> choFitMethod;
-
-    @FXML
-    private ChoiceBox<ProfileGenerator.DriveBase> choDriveBase;
-
-    @FXML
-    private ChoiceBox<ProfileGenerator.Units> choUnits;
-
-    @FXML
     private Button
         btnAddPoint,
         btnClearPoints,
@@ -113,9 +91,6 @@ public class MainUIController
 
     // Last directory saved/exported to.
     private File workingDirectory;
-
-    // Prevent unit conversion for next unit change event.
-    private boolean disblUnitConv = false;
 
     // Reference to the PosGraphController class that JavaFX creates when it loads the fxml file.
     // This has to be named exactly like this
@@ -167,20 +142,7 @@ public class MainUIController
         // Disable delete btn until we have points to delete.
         btnDelete.setDisable( true );
 
-        // Populate drive base ChoiceBox
-        choDriveBase.getItems().setAll( ProfileGenerator.DriveBase.values() );
-        choDriveBase.setValue( ProfileGenerator.DriveBase.TANK );
-        choDriveBase.getSelectionModel().selectedItemProperty().addListener( this::updateDriveBase );
 
-        // Populate fit method ChoiceBox
-        choFitMethod.getItems().setAll( ProfileGenerator.FitMethod.values() );
-        choFitMethod.setValue( ProfileGenerator.FitMethod.HERMITE_CUBIC );
-        choFitMethod.getSelectionModel().selectedItemProperty().addListener( this::updateFitMethod );
-
-        // Populate units ChoiceBox
-        choUnits.getItems().setAll( ProfileGenerator.Units.values() );
-        choUnits.setValue( ProfileGenerator.Units.FEET );
-        choUnits.getSelectionModel().selectedItemProperty().addListener( this::updateUnits );
 
         // Make sure only doubles are entered for waypoints.
         Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
@@ -205,157 +167,6 @@ public class MainUIController
 
                 generateTrajectories();
         };
-
-        txtTimeStep.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-        txtVelocity.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-        txtAcceleration.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-        txtJerk.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-        txtWheelBaseW.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-        txtWheelBaseD.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-
-        txtTimeStep.focusedProperty().addListener((observable, oldValue, newValue) ->
-        {
-            if (!newValue) // On unfocus
-            { 
-                String val = txtTimeStep.getText().trim();
-                double d = 0;
-
-                if (val.isEmpty())
-                {
-                    val = "0.02";
-                    txtTimeStep.setText(val);
-                } 
-                else 
-                {
-                    d = Double.parseDouble(val);
-                    if (d != 0)
-                    {
-                        txtTimeStep.setText("" + Math.abs(d));
-                        generateTrajectories();
-                    }
-                }
-            }
-        });
-
-        txtVelocity.focusedProperty().addListener((observable, oldValue, newValue) -> 
-        {
-            if (!newValue) // On unfocus
-            { 
-                String val = txtVelocity.getText().trim();
-                double d = 0;
-
-                if (val.isEmpty())
-                {
-                    val = "4.0";
-                    txtVelocity.setText(val);
-                } 
-                else 
-                {
-                    d = Double.parseDouble(val);
-                    if (d != 0)
-                    {
-                        txtVelocity.setText("" + Math.abs(d));
-                        generateTrajectories();
-                    }
-                }
-            }
-        });
-
-        txtAcceleration.focusedProperty().addListener((observable, oldValue, newValue) ->
-        {
-            if (!newValue) // On unfocus
-            {
-                String val = txtAcceleration.getText().trim();
-                double d = 0;
-
-                if (val.isEmpty())
-                {
-                    val = "3.0";
-                    txtAcceleration.setText(val);
-                } 
-                else 
-                {
-                    d = Double.parseDouble(val);
-                    if (d != 0)
-                    {
-                        txtAcceleration.setText("" + Math.abs(d));
-                        generateTrajectories();
-                    }
-                }
-            }
-        });
-
-        txtJerk.focusedProperty().addListener((observable, oldValue, newValue) -> 
-        {
-            if (!newValue) // On unfocus
-            { 
-                String val = txtJerk.getText().trim();
-                double d = 0;
-
-                if (val.isEmpty())
-                {
-                    val = "60.0";
-                    txtJerk.setText(val);
-                } 
-                else
-                {
-                    d = Double.parseDouble(val);
-                    if (d != 0) 
-                    {
-                        txtJerk.setText("" + Math.abs(d));
-                        generateTrajectories();
-                    }
-                }
-            }
-        });
-
-        txtWheelBaseW.focusedProperty().addListener((observable, oldValue, newValue) -> 
-        {
-            if (!newValue) // On unfocus
-            {
-                String val = txtWheelBaseW.getText().trim();
-                double d = 0;
-
-                if (val.isEmpty())
-                {
-                    val = "1.464";
-                    txtWheelBaseW.setText(val);
-                }
-                else 
-                {
-                    d = Double.parseDouble(val);
-                    if (d != 0)
-                    {
-                        txtWheelBaseW.setText("" + Math.abs(d));
-                        generateTrajectories();
-                    }
-                }
-            }
-        });
-
-        txtWheelBaseD.focusedProperty().addListener((observable, oldValue, newValue) ->
-        {
-            if (!newValue) // On unfocus
-            {
-                String val = txtWheelBaseD.getText().trim();
-                double d = 0;
-
-                if (val.isEmpty()) 
-                {
-                    val = "1.464";
-                    txtWheelBaseD.setText(val);
-                } 
-                else 
-                {
-                    d = Double.parseDouble(val);
-                    if (d != 0)
-                    {
-                        txtWheelBaseD.setText( "" + Math.abs(d) );
-                        generateTrajectories();
-                    }
-                }
-            }
-        });
         
         colWaypointX.setCellFactory(doubleCallback);
         colWaypointY.setCellFactory(doubleCallback);
@@ -782,32 +593,6 @@ public class MainUIController
     } /* showClearPointsDialog() */
     
     @FXML
-    private void validateFieldEdit(ActionEvent event)
-    {
-        String val = ((TextField) event.getSource()).getText().trim();
-        double d = 0;
-        boolean validInput = true;
-
-        try
-        {
-            d = Double.parseDouble(val);
-
-            validInput = d > 0;
-        }
-        catch (NumberFormatException e)
-        {
-            validInput = false;
-        }
-        finally
-        {
-            if (validInput)
-                generateTrajectories();
-            else
-                Toolkit.getDefaultToolkit().beep();
-        }
-    } /* validateFieldEdit() */
-    
-    @FXML
     private void deletePoints() 
     {
         List<Integer> selectedIndicies = tblWaypoints.getSelectionModel().getSelectedIndices();
@@ -891,44 +676,6 @@ public class MainUIController
             return false;
         }
     } /* generateTrajectories() */
-     
-    private void updateDriveBase( ObservableValue<? extends ProfileGenerator.DriveBase> observable, ProfileGenerator.DriveBase oldValue, ProfileGenerator.DriveBase newValue )
-    {
-        backend.setDriveBase( newValue );
-
-        // Disable for tank drive
-        txtWheelBaseD.setDisable( newValue == ProfileGenerator.DriveBase.TANK );
-        lblWheelBaseD.setDisable( newValue == ProfileGenerator.DriveBase.TANK );
-
-        generateTrajectories();
-    } /* updateDriveBase() */
-
-    private void updateFitMethod( ObservableValue<? extends ProfileGenerator.FitMethod> observable, ProfileGenerator.FitMethod oldValue, ProfileGenerator.FitMethod newValue )
-    {
-        backend.setFitMethod( newValue );
-
-        generateTrajectories();
-    } /* updateFitMethod() */
-
-    private void updateUnits( ObservableValue<? extends ProfileGenerator.Units> observable, ProfileGenerator.Units oldValue, ProfileGenerator.Units newValue )
-    {
-        if( disblUnitConv )
-        {
-            // Only re-enable when the problematic event comes through
-            disblUnitConv = false;
-        }
-        else
-        {
-            backend.setUnits( newValue );
-            //backend.resetValues(new_str);
-
-            backend.updateVarUnits( oldValue, newValue );
-
-            posGraph.updateAxis( backend.getUnits() );
-            velGraph.updateAxis( backend.getUnits() );
-            updateFrontend();
-        }
-    } /* updateUnits() */
 
     /**
      * Refreshes the waypoints table by clearing the waypoint list and repopulating it.
@@ -937,7 +684,7 @@ public class MainUIController
     {
         // Bad way to update the waypoint list...
         // However, TableView.refresh() is apparently borked?
-        List<Waypoint> tmp = new ArrayList<>(backend.getWaypointsList());
+        List<Waypoint> tmp = new ArrayList<>( backend.getWaypointsList() );
         waypointsList.clear();
         waypointsList.addAll(tmp);
     } /* refreshWaypointTable() */

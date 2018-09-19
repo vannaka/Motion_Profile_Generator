@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.motion_vars.MotionVarsController">
+            <!--maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">-->
+
+    <TitledPane alignment="BOTTOM_CENTER" animated="false" collapsible="false" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" text="Motion Variables" textAlignment="CENTER" underline="true">
+        <font>
+            <Font size="15.0" />
+        </font>
+        <content>
+            <GridPane alignment="CENTER" focusTraversable="true" hgap="10.0" prefHeight="289.0" prefWidth="311.0" vgap="10.0">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" minWidth="10.0" percentWidth="25.0" prefWidth="100.0" />
+                    <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" maxWidth="89.0" minWidth="10.0" percentWidth="25.0" prefWidth="80.0" />
+                    <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" maxWidth="80.0" minWidth="10.0" percentWidth="25.0" prefWidth="79.0" />
+                    <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" minWidth="10.0" percentWidth="25.0" prefWidth="100.0" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints maxHeight="92.0" minHeight="5.0" percentHeight="25.0" prefHeight="48.0" valignment="CENTER" vgrow="ALWAYS" />
+                    <RowConstraints maxHeight="188.0" minHeight="10.0" percentHeight="25.0" prefHeight="55.0" valignment="CENTER" vgrow="ALWAYS" />
+                    <RowConstraints maxHeight="208.0" minHeight="10.0" percentHeight="25.0" prefHeight="57.0" valignment="CENTER" vgrow="ALWAYS" />
+                    <RowConstraints maxHeight="208.0" minHeight="10.0" percentHeight="25.0" prefHeight="113.0" valignment="CENTER" vgrow="ALWAYS" />
+                    <RowConstraints maxHeight="208.0" minHeight="10.0" percentHeight="25.0" prefHeight="113.0" valignment="CENTER" vgrow="ALWAYS" />
+                </rowConstraints>
+                <children>
+                    <Label alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Time Step:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="1" />
+                    <Label alignment="CENTER_RIGHT" layoutX="22.0" layoutY="36.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Velocity:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="2" />
+                    <Label alignment="CENTER_RIGHT" layoutX="33.0" layoutY="62.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Acceleration:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="3" />
+                    <Label alignment="CENTER_RIGHT" layoutX="43.0" layoutY="143.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Jerk:" textAlignment="RIGHT" wrapText="true" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtJerk" layoutX="111.0" layoutY="138.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="60" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                        <tooltip>
+                            <Tooltip text="The rate of change of acceleration; that is, the derivative of acceleration with respect to time" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </TextField>
+                    <Label alignment="CENTER_RIGHT" layoutX="38.0" layoutY="48.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="39.0" prefWidth="72.0" text="Wheel Base (Width):" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                    <Label fx:id="lblWheelBaseD" alignment="CENTER_RIGHT" disable="true" layoutX="186.0" layoutY="172.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="39.0" prefWidth="72.0" text="Wheel Base (Depth):" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                    <TextField fx:id="txtWheelBaseW" layoutX="104.0" layoutY="43.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="1.464" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                        <tooltip>
+                            <Tooltip text="The distance between your left and right wheels" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </TextField>
+                    <TextField fx:id="txtWheelBaseD" disable="true" layoutX="104.0" layoutY="178.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="0" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                        <tooltip>
+                            <Tooltip text="The distance between your front and back wheels (Swerve modifier only)" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </TextField>
+                    <Label alignment="CENTER_RIGHT" layoutX="186.0" layoutY="172.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="39.0" prefWidth="72.0" text="Drive Base:" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                    <Label alignment="CENTER_RIGHT" layoutX="186.0" layoutY="37.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="39.0" prefWidth="72.0" text="Fit Method:" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="2" />
+                    <ChoiceBox fx:id="choDriveBase" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                        <tooltip>
+                            <Tooltip text="The type of drive base configuration your robot is using" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </ChoiceBox>
+                    <ChoiceBox fx:id="choFitMethod" layoutX="268.0" layoutY="43.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="3">
+                        <tooltip>
+                            <Tooltip text="The hermitic equation to use to interpolate trajectory points from the waypoint list" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </ChoiceBox>
+                    <Label alignment="CENTER_RIGHT" layoutX="46.0" layoutY="142.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" text="Units:" textAlignment="RIGHT" wrapText="true" />
+                    <ChoiceBox fx:id="choUnits" layoutX="251.0" layoutY="30.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefWidth="150.0" GridPane.columnIndex="1">
+                        <tooltip>
+                            <Tooltip text="The unit of measurement used for measuring distance" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </ChoiceBox>
+                    <TextField fx:id="txtTimeStep" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="0.02" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <tooltip>
+                            <Tooltip text="The rate at which the control loop on the roboRIO runs" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </TextField>
+                    <TextField fx:id="txtVelocity" layoutX="101.0" layoutY="24.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="4" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <tooltip>
+                            <Tooltip text="The max velocity rate your robot is capable of achieving" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </TextField>
+                    <TextField fx:id="txtAcceleration" layoutX="111.0" layoutY="83.0" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" onAction="#validateFieldEdit" text="3" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <tooltip>
+                            <Tooltip text="The max acceleration rate your robot is capable of achieving" textAlignment="CENTER" wrapText="true" />
+                        </tooltip>
+                    </TextField>
+                </children>
+            </GridPane>
+        </content>
+    </TitledPane>
+</AnchorPane>

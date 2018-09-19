@@ -141,8 +141,14 @@ public class PosGraphController
             {
                 posGraph.getData().addAll( flSeries, frSeries );
 
-                flSeries.getNode().setStyle("-fx-stroke: magenta");
-                frSeries.getNode().setStyle("-fx-stroke: magenta");
+                //flSeries.getNode().setStyle("-fx-stroke: magenta");
+                flSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
+                                            "-fx-stroke-width: 10px;" +
+                                            "-fx-stroke-line-cap: round");
+                //frSeries.getNode().setStyle("-fx-stroke: magenta");
+                frSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
+                                            "-fx-stroke-width: 10px;" +
+                                            "-fx-stroke-line-cap: round");
             }
 
             for (XYChart.Data<Double, Double> data : flSeries.getData())
