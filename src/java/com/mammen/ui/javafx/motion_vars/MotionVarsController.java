@@ -1,18 +1,22 @@
 package com.mammen.ui.javafx.motion_vars;
 
 import com.mammen.main.ProfileGenerator;
+import com.mammen.ui.javafx.graphs.PosGraphController;
+import com.mammen.ui.javafx.graphs.VelGraphController;
+import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Waypoint;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.util.converter.DoubleStringConverter;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MotionVarsController
 {
@@ -38,16 +42,20 @@ public class MotionVarsController
     @FXML
     private ChoiceBox<ProfileGenerator.Units> choUnits;
 
+    private PosGraphController posGraph;
+    private VelGraphController velGraph;
     private ProfileGenerator backend;
     private ObservableList<Waypoint> waypointsList;
 
     // Prevent unit conversion for next unit change event.
     private boolean disblUnitConv = false;
 
-    public void setup( ProfileGenerator backend, ObservableList<Waypoint> waypointsList )
+    public void setup( ProfileGenerator backend, ObservableList<Waypoint> waypointsList, PosGraphController posGraph, VelGraphController velGraph )
     {
         this.backend = backend;
         this.waypointsList = waypointsList;
+        this.velGraph = velGraph;
+        this.posGraph = posGraph;
     } /* setup() */
 
     @FXML
@@ -221,6 +229,40 @@ public class MotionVarsController
         });
     }
 
+    public void disableUnitConv()
+    {
+        disblUnitConv = false;
+    }
+
+    /**
+     * Updates all fields and views in the UI from data from the backend.
+     */
+    public void updateFrontend()
+    {
+        txtTimeStep.setText("" + backend.getTimeStep());
+        txtVelocity.setText("" + backend.getVelocity());
+        txtAcceleration.setText("" + backend.getAcceleration());
+        txtJerk.setText("" + backend.getJerk());
+        txtWheelBaseW.setText("" + backend.getWheelBaseW());
+        txtWheelBaseD.setText("" + backend.getWheelBaseD());
+
+        choDriveBase.setValue(choDriveBase.getItems().get(backend.getDriveBase().ordinal()));
+        choFitMethod.setValue(choFitMethod.getItems().get(backend.getFitMethod().ordinal()));
+        choUnits.setValue( backend.getUnits() );
+
+        refreshWaypointTable();
+    } /* updateFrontend() */
+
+    public void updateBackend()
+    {
+        backend.setTimeStep( Double.parseDouble( txtTimeStep.getText().trim() ) );
+        backend.setVelocity( Double.parseDouble( txtVelocity.getText().trim() ) );
+        backend.setAcceleration( Double.parseDouble( txtAcceleration.getText().trim() ) );
+        backend.setJerk( Double.parseDouble( txtJerk.getText().trim() ) );
+        backend.setWheelBaseW( Double.parseDouble( txtWheelBaseW.getText().trim() ) );
+        backend.setWheelBaseD( Double.parseDouble( txtWheelBaseD.getText().trim() ) );
+    } /* updateBackend() */
+
     private void updateDriveBase(ObservableValue<? extends ProfileGenerator.DriveBase> observable, ProfileGenerator.DriveBase oldValue, ProfileGenerator.DriveBase newValue )
     {
         backend.setDriveBase( newValue );
@@ -285,5 +327,61 @@ public class MotionVarsController
                 Toolkit.getDefaultToolkit().beep();
         }
     } /* validateFieldEdit() */
+
+
+    /**
+     * Refreshes the waypoints table by clearing the waypoint list and repopulating it.
+     */
+    public void refreshWaypointTable()
+    {
+        // Bad way to update the waypoint list...
+        // However, TableView.refresh() is apparently borked?
+        List<Waypoint> tmp = new ArrayList<>( backend.getWaypointsList() );
+        waypointsList.clear();
+        waypointsList.addAll(tmp);
+    } /* refreshWaypointTable() */
+
+    // TODO: Move this method somewhere else.
+    /**
+     * Generates a path from the current set of waypoints and updates the graph with the new path.
+     * @return True if the path was successfully generated. False otherwise.
+     */
+    private boolean generateTrajectories()
+    {
+        // Need at least two points to generate a path.
+        if( waypointsList.size() > 1 )
+        {
+            try
+            {
+                backend.updateTrajectories();
+            }
+            // The given points cannot form a valid path
+            catch( Pathfinder.GenerationException e )
+            {
+                Toolkit.getDefaultToolkit().beep();
+
+                Alert alert = new Alert( Alert.AlertType.WARNING );
+
+                alert.setTitle( "Invalid Trajectory" );
+                alert.setHeaderText( "Invalid trajectory point!" );
+                alert.setContentText( "The trajectory point is invalid because one of the waypoints is invalid! " +
+                        "Please check the waypoints and try again." );
+                alert.showAndWait();
+
+                return false;
+            }
+
+            // Update the chart with the new path.
+            posGraph.refresh();
+            velGraph.refresh();
+
+            return true;
+        }
+        // Not enough points to generate a path.
+        else
+        {
+            return false;
+        }
+    } /* generateTrajectories() */
 }
 

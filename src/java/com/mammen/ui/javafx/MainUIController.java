@@ -14,6 +14,7 @@ import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.factory.DialogFactory;
 import com.mammen.main.ProfileGenerator;
 
+import com.mammen.ui.javafx.motion_vars.MotionVarsController;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Waypoint;
 
@@ -101,6 +102,10 @@ public class MainUIController
     @FXML
     private VelGraphController velGraphController;
     private VelGraphController velGraph;
+
+    @FXML
+    private MotionVarsController motionVarsController;
+    private MotionVarsController motionVars;
     
     @FXML
     public void initialize() 
@@ -117,6 +122,10 @@ public class MainUIController
         // Setup velocity graph
         velGraph = velGraphController;  // Alias because it looks better.
         velGraph.setup( backend, waypointsList );
+
+        // Setup motion variables
+        motionVars = motionVarsController;
+        motionVars.setup( backend, waypointsList, posGraph, velGraph );
 
         // Load Pathfinder native lib
         try
@@ -224,7 +233,8 @@ public class MainUIController
                 btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1)
         );
 
-        updateFrontend();
+        // Populate motion vars with data from the backend.
+        motionVars.updateFrontend();
         
         Runtime.getRuntime().addShutdownHook( new Thread(() -> {
             properties.setProperty( "file.workingDir", workingDirectory.getAbsolutePath() );
@@ -419,8 +429,8 @@ public class MainUIController
                 backend.loadProject( result );
 
                 // Temporarily disable unit conversion so we can update the units without 'converting' them unnecessarily.
-                disblUnitConv = true;
-                updateFrontend();
+                motionVars.disableUnitConv();
+                motionVars.updateFrontend();
 
                 posGraph.updateAxis( backend.getUnits() );
                 velGraph.updateAxis( backend.getUnits() );
@@ -500,7 +510,7 @@ public class MainUIController
                 try {
                     backend.importBotFile(result, u);
 
-                    updateFrontend();
+                    motionVars.updateFrontend();
                     generateTrajectories();
 
                     mnuFileSave.setDisable(!backend.hasWorkingProject());
@@ -516,7 +526,7 @@ public class MainUIController
     @FXML
     private void save()
     {
-        updateBackend();
+        //updateBackend();
 
         try
         {
@@ -549,15 +559,15 @@ public class MainUIController
         result.ifPresent((ButtonType t) -> {
             if (t == ButtonType.OK) {
                 backend.clearWorkingFiles();
-                backend.resetValues( choUnits.getSelectionModel().getSelectedItem() );
+                backend.resetValues( ProfileGenerator.Units.FEET );
 
-                updateFrontend();
+                motionVars.updateFrontend();
                 waypointsList.clear();
 
                 posGraph.updateAxis( backend.getUnits() );
                 velGraph.updateAxis( backend.getUnits() );
 
-                mnuFileSave.setDisable(true);
+                mnuFileSave.setDisable( true );
             }
         });
     } /* resetData() */
@@ -602,36 +612,6 @@ public class MainUIController
 
         waypointsList.remove(firstIndex, lastIndex + 1);
     } /* deletePoints() */
-    
-    @FXML
-    private void updateBackend()
-    {
-        backend.setTimeStep( Double.parseDouble( txtTimeStep.getText().trim() ) );
-        backend.setVelocity( Double.parseDouble( txtVelocity.getText().trim() ) );
-        backend.setAcceleration( Double.parseDouble( txtAcceleration.getText().trim() ) );
-        backend.setJerk( Double.parseDouble( txtJerk.getText().trim() ) );
-        backend.setWheelBaseW( Double.parseDouble( txtWheelBaseW.getText().trim() ) );
-        backend.setWheelBaseD( Double.parseDouble( txtWheelBaseD.getText().trim() ) );
-    } /* updateBackend() */
-
-    /**
-     * Updates all fields and views in the UI from data from the backend.
-     */
-    private void updateFrontend()
-    {
-        txtTimeStep.setText("" + backend.getTimeStep());
-        txtVelocity.setText("" + backend.getVelocity());
-        txtAcceleration.setText("" + backend.getAcceleration());
-        txtJerk.setText("" + backend.getJerk());
-        txtWheelBaseW.setText("" + backend.getWheelBaseW());
-        txtWheelBaseD.setText("" + backend.getWheelBaseD());
-
-        choDriveBase.setValue(choDriveBase.getItems().get(backend.getDriveBase().ordinal()));
-        choFitMethod.setValue(choFitMethod.getItems().get(backend.getFitMethod().ordinal()));
-        choUnits.setValue( backend.getUnits() );
-
-        refreshWaypointTable();
-    } /* updateFrontend() */
 
     /**
      * Generates a path from the current set of waypoints and updates the graph with the new path.
@@ -642,13 +622,11 @@ public class MainUIController
         // Need at least two points to generate a path.
         if( waypointsList.size() > 1 )
         {
-            updateBackend();
-
             try
             {
                 backend.updateTrajectories();
             }
-            // The given points cannot for a valid path
+            // The given points cannot form a valid path
             catch( Pathfinder.GenerationException e )
             {
                 Toolkit.getDefaultToolkit().beep();
@@ -676,17 +654,4 @@ public class MainUIController
             return false;
         }
     } /* generateTrajectories() */
-
-    /**
-     * Refreshes the waypoints table by clearing the waypoint list and repopulating it.
-     */
-    public void refreshWaypointTable() 
-    {
-        // Bad way to update the waypoint list...
-        // However, TableView.refresh() is apparently borked?
-        List<Waypoint> tmp = new ArrayList<>( backend.getWaypointsList() );
-        waypointsList.clear();
-        waypointsList.addAll(tmp);
-    } /* refreshWaypointTable() */
-    
 }
