@@ -8,6 +8,8 @@ import com.mammen.util.OSValidator;
 import jaci.pathfinder.Trajectory;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -30,7 +32,9 @@ public class PosGraphController
 
     private boolean dsplyCenterPath;
     private boolean dsplyWaypoints;
+    private boolean dsblAddPoints;
 
+    XYChart.Series<Double, Double> waypointSeries;
 
     /**************************************************************************
      *  setup
@@ -72,6 +76,7 @@ public class PosGraphController
     {
         dsplyCenterPath = false;
         dsplyWaypoints = true;
+        dsblAddPoints = false;
     }
 
 
@@ -134,6 +139,7 @@ public class PosGraphController
      */
     public void refresh()
     {
+        int counter = 0;
         XYChart.Series<Double, Double> flSeries, frSeries, blSeries, brSeries;
 
         // Clear data from position graph
@@ -204,7 +210,7 @@ public class PosGraphController
         if( dsplyWaypoints && !backend.isWaypointListEmpty() )
         {
             // Display waypoints
-            XYChart.Series<Double, Double> waypointSeries = buildSeries( backend.getWaypointList().toArray( new WaypointInternal[1] ) );
+            waypointSeries = buildSeries( waypointsList.toArray( new Waypoint[1] ) );
             posGraph.getData().add( waypointSeries );
             waypointSeries.getNode().setStyle("-fx-stroke: transparent");
 
@@ -212,6 +218,14 @@ public class PosGraphController
             {
                 data.getNode().setStyle( "-fx-background-color: orange, white" );
             }
+        }
+
+        for ( XYChart.Data<Double, Double> data : waypointSeries.getData())
+        {
+            Node node = data.getNode();
+            counter += 1;
+            node.setId(String.valueOf(counter));
+            setOnPointEvent(node, data);
         }
     }
 
@@ -266,13 +280,27 @@ public class PosGraphController
         return series;
     }
 
-    @FXML
-    private void addPointOnClick( MouseEvent event )
+    private void setOnPointEvent (Node node, XYChart.Data data)
     {
-        boolean addWaypointOnClick = true;
+        node.setOnMouseEntered(event -> {
+            node.setCursor(Cursor.HAND);
+            System.out.println("Point Entered");
+        });
 
-        if( addWaypointOnClick )
-        {
+        node.setOnMouseExited(event -> {
+            System.out.println("Point Exited");
+        });
+
+        node.setOnMouseClicked(event -> {
+            System.out.println("Point Clicked");
+        });
+
+        node.setOnMousePressed(event -> {
+            System.out.println("Point Pressed");
+        });
+
+        node.setOnMouseDragged(event -> {
+            System.out.println("Point Dragged");
             // get pixel location
             Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
             double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
@@ -303,20 +331,79 @@ public class PosGraphController
                 rnd_y = Mathf.round( raw_y, 6.0 );
             }
 
-            // If rounded x,y coordinate is on the graph
-            if( rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
-                rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound() )
+            data.setXValue( rnd_x );
+            data.setYValue( rnd_y );
+        });
+
+        node.setOnMouseReleased(event -> {
+            System.out.println("Point Released");
+
+            int index = Integer.parseInt(node.getId());
+
+            Waypoint tmp = waypointsList.get( index - 1 );
+            tmp.x = (Double) data.getXValue();
+            tmp.y = (Double) data.getYValue();
+
+            waypointsList.set( index - 1, tmp);
+        });
+    }
+
+    @FXML
+    private void addPointOnClick( MouseEvent event )
+    {
+        boolean addWaypointOnClick = true;
+
+        System.out.println("Graph Clicked");
+
+        if( addWaypointOnClick )
+        {
+            if (dsblAddPoints)
             {
-                // TODO: Clicking to add point not working on Mac???
-                if (OSValidator.isMac())
-                {
-                    Optional<WaypointInternal> result;
-                    result = DialogFactory.createWaypointDialog( String.valueOf(rnd_x), String.valueOf(rnd_y) ).showAndWait();
-                    result.ifPresent( (WaypointInternal w) -> backend.addPoint( w ) );
+                dsblAddPoints = false;
+            }
+            else {
+                System.out.println("Point Added");
+                // get pixel location
+                Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
+                double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
+                double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
+
+                // get location in units (ft, m, in)
+                double raw_x = axisPosX.getValueForDisplay(xLocal).doubleValue();
+                double raw_y = axisPosY.getValueForDisplay(yLocal).doubleValue();
+
+                // round location
+                double rnd_x;
+                double rnd_y;
+
+                if (backend.getUnits() == ProfileGenerator.Units.FEET) {
+                    rnd_x = Mathf.round(raw_x, 0.5);
+                    rnd_y = Mathf.round(raw_y, 0.5);
+                } else if (backend.getUnits() == ProfileGenerator.Units.METERS) {
+                    rnd_x = Mathf.round(raw_x, 0.25);
+                    rnd_y = Mathf.round(raw_y, 0.25);
+                } else if (backend.getUnits() == ProfileGenerator.Units.INCHES) {
+                    rnd_x = Mathf.round(raw_x, 6.0);
+                    rnd_y = Mathf.round(raw_y, 6.0);
+                } else {
+                    rnd_x = Mathf.round(raw_x, 2);
+                    rnd_y = Mathf.round(raw_y, 2);
                 }
-                else
-                {
-                    backend.addPoint( rnd_x, rnd_y, 0.0 );
+
+
+                if (rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
+                        rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound()) {
+                    // Clicking to add point not working on Mac???
+                    if (OSValidator.isMac()) {
+                        Optional<Waypoint> result;
+
+                        result = DialogFactory.createWaypointDialog(String.valueOf(rnd_x), String.valueOf(rnd_y)).showAndWait();
+
+                        result.ifPresent((Waypoint w) -> waypointsList.add(w));
+                    } else {
+                        Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
+                        waypointsList.add(temp);
+                    }
                 }
             }
         }
