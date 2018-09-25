@@ -605,10 +605,10 @@ public class MainUIController
     @FXML
     private void deletePoints() 
     {
-        List<Integer> selectedIndicies = tblWaypoints.getSelectionModel().getSelectedIndices();
+        List<Integer> selectedIndices = tblWaypoints.getSelectionModel().getSelectedIndices();
 
-        int firstIndex = selectedIndicies.get(0);
-        int lastIndex = selectedIndicies.get(selectedIndicies.size() - 1);
+        int firstIndex = selectedIndices.get( 0 );
+        int lastIndex = selectedIndices.get( selectedIndices.size() - 1 );
 
         waypointsList.remove(firstIndex, lastIndex + 1);
     } /* deletePoints() */

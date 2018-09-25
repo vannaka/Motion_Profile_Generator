@@ -10,7 +10,7 @@ import javafx.fxml.FXMLLoader;
 public class Main extends Application 
 {
 	@Override
-	public void start(Stage primaryStage)
+	public void start( Stage primaryStage )
 	{
 		try
 		{
@@ -20,7 +20,7 @@ public class Main extends Application
 	        FXMLLoader loader = new FXMLLoader( getClass().getResource("/com/mammen/ui/javafx/graphs/PosGraphController.fxml") );
 	        loader.getController();
 
-			primaryStage.setScene( new Scene(root) );
+			primaryStage.setScene( new Scene( root ) );
 			primaryStage.sizeToScene();
 			primaryStage.setTitle("Motion Profile Generator");
 			primaryStage.setMinWidth( 1280 ); //1170
