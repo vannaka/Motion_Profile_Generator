@@ -93,7 +93,7 @@ public class MainUIController
     // Last directory saved/exported to.
     private File workingDirectory;
 
-    // Reference to the PosGraphController class that JavaFX creates when it loads the fxml file.
+    // Reference to the PosGraphController object that JavaFX creates when it loads the fxml file.
     // This has to be named exactly like this
     @FXML
     private PosGraphController posGraphController;
@@ -155,7 +155,8 @@ public class MainUIController
 
         // Make sure only doubles are entered for waypoints.
         Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
-            (TableColumn<Waypoint, Double> param) -> {
+            (TableColumn<Waypoint, Double> param) ->
+        {
                 TextFieldTableCell<Waypoint, Double> cell = new TextFieldTableCell<>();
 
                 cell.setConverter( new DoubleStringConverter() );
@@ -164,7 +165,8 @@ public class MainUIController
         };
 
         EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler =
-            (TableColumn.CellEditEvent<Waypoint, Double> t) -> {
+            (TableColumn.CellEditEvent<Waypoint, Double> t) ->
+        {
                 Waypoint curWaypoint = t.getRowValue();
 
                 if (t.getTableColumn() == colWaypointAngle)
@@ -185,7 +187,7 @@ public class MainUIController
         colWaypointY.setOnEditCommit(editHandler);
         colWaypointAngle.setOnEditCommit(editHandler);
 
-        colWaypointX.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointX.setCellValueFactory( (TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
@@ -207,7 +209,7 @@ public class MainUIController
             @Override
             public Double getValue()
             {
-                return round(Pathfinder.r2d(d.getValue().angle), 2);
+                return round( Pathfinder.r2d( d.getValue().angle ), 2 );
             }
         });
 
@@ -228,9 +230,9 @@ public class MainUIController
         });
 
         tblWaypoints.setItems(waypointsList);
-        tblWaypoints.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        tblWaypoints.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) ->
-                btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1)
+        tblWaypoints.getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
+        tblWaypoints.getSelectionModel().selectedIndexProperty().addListener( (observable, oldValue, newValue) ->
+                btnDelete.setDisable( tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1 )
         );
 
         // Populate motion vars with data from the backend.
@@ -559,7 +561,7 @@ public class MainUIController
         result.ifPresent((ButtonType t) -> {
             if (t == ButtonType.OK) {
                 backend.clearWorkingFiles();
-                backend.resetValues( ProfileGenerator.Units.FEET );
+                backend.setDefaultValues( ProfileGenerator.Units.FEET );
 
                 motionVars.updateFrontend();
                 waypointsList.clear();

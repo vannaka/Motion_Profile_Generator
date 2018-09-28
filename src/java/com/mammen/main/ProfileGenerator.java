@@ -2,6 +2,12 @@ package com.mammen.main;
 
 import com.mammen.util.Mathf;
 
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
@@ -156,20 +162,43 @@ public class ProfileGenerator
             return internalLabel;
         }
     }
-    
-    private double timeStep;
-    private double velocity;
-    private double acceleration;
-    private double jerk;
-    private double wheelBaseW;
-    private double wheelBaseD;
-    
-    private DriveBase driveBase;
-    private FitMethod fitMethod;
-    private Units units;
-    
-    private final List<Waypoint> POINTS;
-    
+
+//    // Motion Variables
+//    private double timeStep;
+//    private double velocity;
+//    private double accel;
+//    private double jerk;
+//    private double wheelBaseW;
+//    private double wheelBaseD;
+//    private DriveBase driveBase;
+//    private FitMethod fitMethod;
+//    private Units units;
+
+    // Waypoint list
+//    private final List<Waypoint> POINTS;
+
+    /******************************************************
+    *   Observable variables.
+    *       All data should go through these.
+    ******************************************************/
+    // Observable Motion Variables
+    private DoubleProperty timeStep;
+    private DoubleProperty velocity;
+    private DoubleProperty accel;
+    private DoubleProperty jerk;
+    private DoubleProperty wheelBaseW;
+    private DoubleProperty wheelBaseD;
+    private Property<DriveBase> driveBase;
+    private Property<FitMethod> fitMethod;
+    private Property<Units> units;
+
+    // Observable Waypoints List
+//    private ObservableList<Waypoint> points_Observ;
+    private ListProperty<Waypoint> pointsProperty;
+
+    /******************************************************
+    *   Trajectories
+    ******************************************************/
     // Trajectories for both bases
     // Use front-left and front-right for tank drive L and R
     private Trajectory fl;
@@ -184,18 +213,40 @@ public class ProfileGenerator
     // File stuff
     private DocumentBuilderFactory dbFactory;
     private File workingProject;
-    
+
+    /******************************************************
+    *   Constructor
+    ******************************************************/
     public ProfileGenerator()
     {
-    	POINTS = new ArrayList<>();
+        // Initialize points list.
+//    	POINTS = new ArrayList<>();
+
+    	// Setup waypoints list observer.
+//        points_Observ = FXCollections.observableList( POINTS );
+
+        // Setup properties
+        timeStep = new SimpleDoubleProperty();
+        velocity = new SimpleDoubleProperty();
+        accel = new SimpleDoubleProperty();
+        jerk = new SimpleDoubleProperty();
+        wheelBaseD = new SimpleDoubleProperty();
+        wheelBaseW = new SimpleDoubleProperty();
+        driveBase = new SimpleObjectProperty<>();
+        fitMethod = new SimpleObjectProperty<>();
+        units = new SimpleObjectProperty<>();
+
+        pointsProperty = new SimpleListProperty<Waypoint>( FXCollections.observableArrayList() );
+
     	dbFactory = DocumentBuilderFactory.newInstance();
-    	resetValues( Units.FEET );
+
+    	setDefaultValues( Units.FEET );
     }
     
     public void updateVarUnits( Units old_unit, Units new_unit )
     {
     	// Convert each point in the waypoints list
-        for( Waypoint wp : POINTS )
+        for( Waypoint wp : pointsProperty )
         {
             double tmp_x = 0, tmp_y = 0;
 
@@ -208,13 +259,13 @@ public class ProfileGenerator
                     break;
 
                 case INCHES:
-                    tmp_x = Mathf.inchesToFeet(wp.x);
-                    tmp_y = Mathf.inchesToFeet(wp.y);
+                    tmp_x = Mathf.inchesToFeet( wp.x );
+                    tmp_y = Mathf.inchesToFeet( wp.y );
                     break;
 
                 case METERS:
-                    tmp_x = Mathf.meterToFeet(wp.x);
-                    tmp_y = Mathf.meterToFeet(wp.y);
+                    tmp_x = Mathf.meterToFeet( wp.x );
+                    tmp_y = Mathf.meterToFeet( wp.y );
                     break;
             }
 
@@ -237,8 +288,8 @@ public class ProfileGenerator
                     break;
             }
 
-            wp.x = Mathf.round(wp.x, 4);
-            wp.y = Mathf.round(wp.y, 4);
+            wp.x = Mathf.round( wp.x, 4 );
+            wp.y = Mathf.round( wp.y, 4 );
         }
 
         // Convert each MP variable to the new unit
@@ -248,24 +299,24 @@ public class ProfileGenerator
     	switch( old_unit )
     	{
     	case FEET:
-    		tmp_WBW = wheelBaseW;
-    		tmp_vel = velocity;
-    		tmp_acc = acceleration;
-    		tmp_jer = jerk;
+    		tmp_WBW = wheelBaseW.get();
+    		tmp_vel = velocity.get();
+    		tmp_acc = accel.get();
+    		tmp_jer = jerk.get();
     		break;
     		
     	case INCHES:
-    		tmp_WBW = Mathf.inchesToFeet( wheelBaseW );
-    		tmp_vel = Mathf.inchesToFeet( velocity );
-    		tmp_acc = Mathf.inchesToFeet( acceleration );
-    		tmp_jer = Mathf.inchesToFeet( jerk );
+    		tmp_WBW = Mathf.inchesToFeet( wheelBaseW.get() );
+    		tmp_vel = Mathf.inchesToFeet( velocity.get() );
+    		tmp_acc = Mathf.inchesToFeet( accel.get() );
+    		tmp_jer = Mathf.inchesToFeet( jerk.get() );
     		break;
     		
     	case METERS:
-    		tmp_WBW = Mathf.meterToFeet( wheelBaseW );
-    		tmp_vel = Mathf.meterToFeet( velocity );
-    		tmp_acc = Mathf.meterToFeet( acceleration );
-    		tmp_jer = Mathf.meterToFeet( jerk );
+    		tmp_WBW = Mathf.meterToFeet( wheelBaseW.get() );
+    		tmp_vel = Mathf.meterToFeet( velocity.get() );
+    		tmp_acc = Mathf.meterToFeet( accel.get() );
+    		tmp_jer = Mathf.meterToFeet( jerk.get() );
     		break;
     	}
     	
@@ -273,32 +324,32 @@ public class ProfileGenerator
     	switch( new_unit )
     	{
     	case FEET:
-    		wheelBaseW = tmp_WBW;
-    		velocity = tmp_vel;
-    		acceleration = tmp_acc;
-    		jerk = tmp_jer;
+    		wheelBaseW.set( tmp_WBW );
+    		velocity.set( tmp_vel );
+    		accel.set( tmp_acc );
+    		jerk.set( tmp_jer );
     		break;
     		
     	case INCHES:
-    		wheelBaseW = Mathf.feetToInches( tmp_WBW );
-    		velocity = Mathf.feetToInches( tmp_vel );
-    		acceleration = Mathf.feetToInches( tmp_acc );
-    		jerk = Mathf.feetToInches( tmp_jer );
+    		wheelBaseW.set( Mathf.feetToInches( tmp_WBW ) );
+    		velocity.set( Mathf.feetToInches( tmp_vel ) );
+    		accel.set( Mathf.feetToInches( tmp_acc ) );
+    		jerk.set( Mathf.feetToInches( tmp_jer ) );
     		
     		break;
     		
     	case METERS:
-    		wheelBaseW = Mathf.feetToMeter( tmp_WBW );
-    		velocity = Mathf.feetToMeter( tmp_vel );
-    		acceleration = Mathf.feetToMeter( tmp_acc );
-    		jerk = Mathf.feetToMeter( tmp_jer );
+    		wheelBaseW.set( Mathf.feetToMeter( tmp_WBW ) );
+    		velocity.set( Mathf.feetToMeter( tmp_vel ) );
+    		accel.set( Mathf.feetToMeter( tmp_acc ) );
+    		jerk.set( Mathf.feetToMeter( tmp_jer ) );
     		break;
     	}
     	
-    	wheelBaseW = Mathf.round( wheelBaseW, 4 );
-    	velocity = Mathf.round( velocity, 4 );
-    	acceleration = Mathf.round( acceleration, 4 );
-    	jerk = Mathf.round( jerk, 4 );
+    	wheelBaseW  .set( Mathf.round( wheelBaseW.get(),4 ) );
+    	velocity    .set( Mathf.round( velocity.get(),  4 ) );
+    	accel       .set( Mathf.round( accel.get(),     4 ) );
+    	jerk        .set( Mathf.round( jerk.get(),      4 ) );
     }
     
     /**
@@ -321,7 +372,7 @@ public class ProfileGenerator
             case ".csv":
                 Pathfinder.writeToCSV( new File(parentPath + "_source_Jaci.csv"), source );
 
-                if( driveBase == DriveBase.SWERVE )
+                if( driveBase.getValue() == DriveBase.SWERVE )
                 {
                     Pathfinder.writeToCSV(new File(parentPath + "_fl_Jaci.csv"), fl );
                     Pathfinder.writeToCSV(new File(parentPath + "_fr_Jaci.csv"), fr );
@@ -338,7 +389,7 @@ public class ProfileGenerator
             case ".traj":
                 Pathfinder.writeToFile(new File(parentPath + "_source_Jaci.traj"), source );
 
-                if( driveBase == DriveBase.SWERVE )
+                if( driveBase.getValue() == DriveBase.SWERVE )
                 {
                     Pathfinder.writeToFile(new File(parentPath + "_fl_Jaci.traj"), fl );
                     Pathfinder.writeToFile(new File(parentPath + "_fr_Jaci.traj"), fr );
@@ -370,7 +421,7 @@ public class ProfileGenerator
         }
         switch( ext ) {
             case ".csv":
-                if( driveBase == DriveBase.SWERVE )
+                if( driveBase.getValue() == DriveBase.SWERVE )
                 {
                 	File flFile = new File(parentPath + "_fl_Talon.csv");
 			        File frFile = new File(parentPath + "_fr_Talon.csv");
@@ -447,7 +498,7 @@ public class ProfileGenerator
             case ".traj":
                 Pathfinder.writeToFile( new File(parentPath + "_source_detailed.traj"), source );
 
-                if( driveBase == DriveBase.SWERVE )
+                if( driveBase.getValue() == DriveBase.SWERVE )
                 {
                     Pathfinder.writeToFile( new File(parentPath + "_fl_detailed.traj"), fl );
                     Pathfinder.writeToFile( new File(parentPath + "_fr_detailed.traj"), fr );
@@ -505,17 +556,17 @@ public class ProfileGenerator
 
             trajectoryEle.setAttribute("dt", "" + timeStep );
             trajectoryEle.setAttribute("velocity", "" + velocity );
-            trajectoryEle.setAttribute("acceleration", "" + acceleration );
+            trajectoryEle.setAttribute("acceleration", "" + accel );
             trajectoryEle.setAttribute("jerk", "" + jerk );
             trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW );
             trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD );
-            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getInternalLabel() );
-            trajectoryEle.setAttribute("driveBase", "" + driveBase.getInternalLabel() );
-            trajectoryEle.setAttribute("units", "" + units.getInternalLabel() );
+            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getValue().getInternalLabel() );
+            trajectoryEle.setAttribute("driveBase", "" + driveBase.getValue().getInternalLabel() );
+            trajectoryEle.setAttribute("units", "" + units.getValue().getInternalLabel() );
 
             dom.appendChild( trajectoryEle );
 
-            for( Waypoint w : POINTS )
+            for( Waypoint w : pointsProperty )
             {
                 Element waypointEle = dom.createElement("Waypoint" );
                 Element xEle = dom.createElement("X" );
@@ -574,20 +625,20 @@ public class ProfileGenerator
 
             Element docEle = dom.getDocumentElement();
 
-            timeStep = Double.parseDouble( docEle.getAttribute("dt" ) );
-            velocity = Double.parseDouble( docEle.getAttribute("velocity" ) );
-            acceleration = Double.parseDouble( docEle.getAttribute("acceleration" ) );
-            jerk = Double.parseDouble( docEle.getAttribute("jerk" ) );
-            wheelBaseW = Double.parseDouble( docEle.getAttribute("wheelBaseW" ) );
-            wheelBaseD = Double.parseDouble( docEle.getAttribute("wheelBaseD" ) );
+            timeStep    .set( Double.parseDouble( docEle.getAttribute("dt"              ) ) );
+            velocity    .set( Double.parseDouble( docEle.getAttribute("velocity"        ) ) );
+            accel       .set( Double.parseDouble( docEle.getAttribute("acceleration"    ) ) );
+            jerk        .set( Double.parseDouble( docEle.getAttribute("jerk"            ) ) );
+            wheelBaseW  .set( Double.parseDouble( docEle.getAttribute("wheelBaseW"      ) ) );
+            wheelBaseD  .set( Double.parseDouble( docEle.getAttribute("wheelBaseD"      ) ) );
 
-            driveBase = DriveBase.valueOf( docEle.getAttribute("driveBase" ) );
-            units = Units.valueOf( docEle.getAttribute("units") );
-            fitMethod = FitMethod.valueOf( docEle.getAttribute("fitMethod" ) );
+            driveBase   .setValue( DriveBase.valueOf( docEle.getAttribute("driveBase"   ) ) );
+            units       .setValue( Units    .valueOf( docEle.getAttribute("units"       ) ) );
+            fitMethod   .setValue( FitMethod.valueOf( docEle.getAttribute("fitMethod"   ) ) );
 
             NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
 
-            POINTS.clear();
+            pointsProperty.clear();
             if( waypointEleList != null && waypointEleList.getLength() > 0 )
             {
                 for( int i = 0; i < waypointEleList.getLength(); i++ )
@@ -599,11 +650,11 @@ public class ProfileGenerator
                             yText = waypointEle.getElementsByTagName("Y").item(0).getTextContent(),
                             angleText = waypointEle.getElementsByTagName("Angle").item(0).getTextContent();
 
-                    POINTS.add( new Waypoint(
-                                        Double.parseDouble(xText),
-                                        Double.parseDouble(yText),
-                                        Double.parseDouble(angleText)
-                                        ));
+                    pointsProperty.add( new Waypoint(
+                                            Double.parseDouble( xText ),
+                                            Double.parseDouble( yText ),
+                                            Double.parseDouble( angleText )
+                                        ) );
                 }
             }
 
@@ -623,35 +674,36 @@ public class ProfileGenerator
         {
             BufferedReader botReader = new BufferedReader(new FileReader(path));
             Stream<String> botStream = botReader.lines();
-            List<String> botLines = botStream.collect(Collectors.toList());
+            List<String> botLines = botStream.collect( Collectors.toList() );
 
             // First off we need to set the units of distance being used in the file.
             // Unfortunately it is not explicitly saved to file; we will need some user input on that.
-            units = botUnits;
+            units.setValue( botUnits );
 
             // Now we can read the first 7 lines and assign them accordingly.
-            timeStep = Math.abs(Double.parseDouble(botLines.get(0).trim()));
-            velocity = Math.abs(Double.parseDouble(botLines.get(1).trim()));
-            acceleration = Math.abs(Double.parseDouble(botLines.get(2).trim()));
-            jerk = Math.abs(Double.parseDouble(botLines.get(3).trim()));
-            wheelBaseW = Math.abs(Double.parseDouble(botLines.get(4).trim()));
-            wheelBaseD = Math.abs(Double.parseDouble(botLines.get(5).trim()));
+            timeStep    .set( Math.abs( Double.parseDouble( botLines.get(0).trim() ) ) );
+            velocity    .set( Math.abs( Double.parseDouble( botLines.get(1).trim() ) ) );
+            accel       .set( Math.abs( Double.parseDouble( botLines.get(2).trim() ) ) );
+            jerk        .set( Math.abs( Double.parseDouble( botLines.get(3).trim() ) ) );
+            wheelBaseW  .set( Math.abs( Double.parseDouble( botLines.get(4).trim() ) ) );
+            wheelBaseD  .set( Math.abs( Double.parseDouble( botLines.get(5).trim() ) ) );
 
-            fitMethod = FitMethod.valueOf("HERMITE_" + botLines.get(6).trim().toUpperCase());
+            fitMethod.setValue( FitMethod.valueOf("HERMITE_" + botLines.get(6).trim().toUpperCase()) );
 
-            if (wheelBaseD > 0) // Assume that the wheel base was swerve
-                driveBase = DriveBase.SWERVE;
+            // Assume that the wheel base was swerve
+            if( wheelBaseD.get() > 0 )
+                driveBase.setValue( DriveBase.SWERVE );
 
             // GLHF parse the rest of the file I guess...
             for( int i = 7; i < botLines.size(); i++ )
             {
                 String[] waypointVals = botLines.get(i).split("," );
 
-                POINTS.add(new Waypoint(
-                                    Double.parseDouble(waypointVals[0].trim()),
-                                    Double.parseDouble(waypointVals[1].trim()),
-                                    Math.toRadians(Double.parseDouble(waypointVals[2].trim()))
-                                    ));
+                pointsProperty.add( new Waypoint(
+                                        Double.parseDouble( waypointVals[0].trim() ),
+                                        Double.parseDouble( waypointVals[1].trim() ),
+                                        Math.toRadians( Double.parseDouble( waypointVals[2].trim() ) )
+                                    ) );
             }
 
             // Make sure you aren't trying to save to another project file
@@ -671,47 +723,47 @@ public class ProfileGenerator
     /**
      * Resets configuration to default values for the given unit.
      */
-    public void resetValues( Units unit )
+    public void setDefaultValues( Units newUnits )
     {
-        switch( unit )
+        switch( newUnits )
     	{
         case FEET:
-	        timeStep = 0.05;
-	        velocity = 4;
-	        acceleration = 3;
-	        jerk = 60;
-	        wheelBaseW = 1.464;
-	        wheelBaseD = 1.464;
+	        timeStep.set( 0.05 );
+	        velocity.set( 4 );
+	        accel.set( 3 );
+	        jerk.set( 60 );
+	        wheelBaseW.set( 1.464 );
+	        wheelBaseD.set( 1.464 );
 	
-	        fitMethod = FitMethod.HERMITE_CUBIC;
-	        driveBase = DriveBase.TANK;
-	        units = Units.FEET;
+	        fitMethod.setValue( FitMethod.HERMITE_CUBIC );
+	        driveBase.setValue( DriveBase.TANK );
+	        units.setValue( Units.FEET );
 	        break;
 
         case METERS:
-    		timeStep = 0.05;
-	        velocity = 1.2192;
-	        acceleration = 0.9144;
-	        jerk = 18.288;
-	        wheelBaseW = 0.4462272;
-	        wheelBaseD = 0.4462272;
-	
-	        fitMethod = FitMethod.HERMITE_CUBIC;
-	        driveBase = DriveBase.TANK;
-	        units = Units.METERS;
+    		timeStep.set( 0.05 );
+	        velocity.set( 1.2192 );
+	        accel.set( 0.9144 );
+	        jerk.set( 18.288 );
+	        wheelBaseW.set( 0.4462272 );
+	        wheelBaseD.set( 0.4462272 );
+
+            fitMethod.setValue( FitMethod.HERMITE_CUBIC );
+            driveBase.setValue( DriveBase.TANK );
+            units.setValue( Units.METERS );
 	        break;
 
         case INCHES:
-    		timeStep = 0.05;
-	        velocity = 48;
-	        acceleration = 36;
-	        jerk = 720;
-	        wheelBaseW = 17.568;
-	        wheelBaseD = 17.568;
-	
-	        fitMethod = FitMethod.HERMITE_CUBIC;
-	        driveBase = DriveBase.TANK;
-	        units = Units.INCHES;
+    		timeStep.set( 0.05 );
+	        velocity.set( 48 );
+	        accel.set( 36 );
+	        jerk .set( 720 );
+	        wheelBaseW.set( 17.568 );
+	        wheelBaseD.set( 17.568 );
+
+            fitMethod.setValue( FitMethod.HERMITE_CUBIC );
+            driveBase.setValue( DriveBase.TANK );
+            units.setValue( Units.INCHES );
 	        break;
     	}
     }
@@ -721,27 +773,27 @@ public class ProfileGenerator
      */
     public void addPoint( double x, double y, double angle ) 
     {
-        POINTS.add( new Waypoint( x, y, angle ) );
+        pointsProperty.add( new Waypoint( x, y, angle ) );
     }
     
     /**
-     * Adds a waypoint to the list of waypoints
+     * Edit a waypoint already in the list
      */
     public void editWaypoint( int index, double x, double y, double angle )
     {
-        POINTS.get(index).x = x;
-        POINTS.get(index).y = y;
-        POINTS.get(index).angle = angle;
+        pointsProperty.get( index ).x = x;
+        pointsProperty.get( index ).y = y;
+        pointsProperty.get( index ).angle = angle;
     }
     
     public void removePoint(int index)
     {
-        POINTS.remove(index);
+        pointsProperty.remove( index );
     }
 
     public int getNumWaypoints()
     {
-        return POINTS.size();
+        return pointsProperty.size();
     }
 
     /**
@@ -750,7 +802,7 @@ public class ProfileGenerator
      */
     public void clearPoints() 
     {
-        POINTS.clear();
+        pointsProperty.clear();
 
         fl = null;
         fr = null;
@@ -763,15 +815,15 @@ public class ProfileGenerator
      */
     public void updateTrajectories() throws Pathfinder.GenerationException 
     {
-        Config config = new Config( fitMethod.getPfFitMethod(), Config.SAMPLES_HIGH, timeStep, velocity, acceleration, jerk );
-        source = Pathfinder.generate( POINTS.toArray( new Waypoint[1] ), config );
+        Config config = new Config( fitMethod.getValue().getPfFitMethod(), Config.SAMPLES_HIGH, timeStep.get(), velocity.get(), accel.get(), jerk.get() );
+        source = Pathfinder.generate( pointsProperty.toArray( new Waypoint[1] ), config );
 
-        if (driveBase == DriveBase.SWERVE) 
+        if (driveBase.getValue() == DriveBase.SWERVE)
         {
             SwerveModifier swerve = new SwerveModifier(source);
 
             // There is literally no other swerve mode other than the default can someone please explain this to me
-            swerve.modify( wheelBaseW, wheelBaseD, SwerveModifier.Mode.SWERVE_DEFAULT );
+            swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
 
             fl = swerve.getFrontLeftTrajectory();
             fr = swerve.getFrontRightTrajectory();
@@ -781,7 +833,7 @@ public class ProfileGenerator
         else  // By default, treat everything as tank drive.
         {
             TankModifier tank = new TankModifier(source);
-            tank.modify(wheelBaseW);
+            tank.modify( wheelBaseW.get() );
 
             fl = tank.getLeftTrajectory();
             fr = tank.getRightTrajectory();
@@ -793,91 +845,91 @@ public class ProfileGenerator
     
     public double getTimeStep()
     {
-        return timeStep;
+        return timeStep.get();
     }
 
     public void setTimeStep(double timeStep)
     {
-        this.timeStep = timeStep;
+        this.timeStep.set( timeStep );
     }
 
     public double getVelocity() 
     {
-        return velocity;
+        return velocity.get();
     }
 
     public void setVelocity(double velocity)
     {
-        this.velocity = velocity;
+        this.velocity.set( velocity );
     }
 
     public double getAcceleration() 
     {
-        return acceleration;
+        return accel.get();
     }
 
     public void setAcceleration(double acceleration) 
     {
-        this.acceleration = acceleration;
+        this.accel.set( acceleration );
     }
 
     public DriveBase getDriveBase()
     {
-        return driveBase;
+        return driveBase.getValue();
     }
 
     public void setDriveBase(DriveBase driveBase)
     {
-        this.driveBase = driveBase;
+        this.driveBase.setValue( driveBase );
     }
 
     public FitMethod getFitMethod()
     {
-        return fitMethod;
+        return fitMethod.getValue();
     }
 
     public void setFitMethod(FitMethod fitMethod)
     {
-        this.fitMethod = fitMethod;
+        this.fitMethod.setValue( fitMethod );
     }
 
     public Units getUnits()
     {
-        return units;
+        return units.getValue();
     }
 
     public void setUnits(Units units)
     {
-        this.units = units;
+        this.units.setValue( units );
     }
 
     public double getJerk()
     {
-        return jerk;
+        return jerk.get();
     }
 
     public void setJerk(double jerk) 
     {
-        this.jerk = jerk;
+        this.jerk.set( jerk );
     }
 
     public double getWheelBaseW() 
     {
-        return wheelBaseW;
+        return wheelBaseW.get();
     }
 
     public void setWheelBaseW(double wheelBaseW)
     {
-        this.wheelBaseW = wheelBaseW;
+        this.wheelBaseW.set( wheelBaseW );
     }
 
     public double getWheelBaseD() {
-        return wheelBaseD;
+        return wheelBaseD.get();
     }
 
     public void setWheelBaseD(double wheelBaseD)
     {
-        this.wheelBaseD = wheelBaseD;
+        this.wheelBaseD.set( wheelBaseD );
     }
     
     public boolean hasWorkingProject() {
@@ -886,7 +938,8 @@ public class ProfileGenerator
 
     public List<Waypoint> getWaypointsList()
     {
-        return POINTS;
+        // TODO: What is happening when a ListProperty is converted to a List?
+        return pointsProperty;
     }
 
     public Trajectory getSourceTrajectory()
