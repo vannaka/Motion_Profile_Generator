@@ -18,17 +18,21 @@ public class VelGraphController
     private NumberAxis axisTime, axisVel;
 
     private ProfileGenerator backend;
-    private ObservableList<Waypoint> waypointsList;
 
     @FXML
     public void initialize()
     {
     }
 
-    public void setup( ProfileGenerator backend, ObservableList<Waypoint> waypointsList )
+    public void setup( ProfileGenerator backend )
     {
         this.backend = backend;
-        this.waypointsList = waypointsList;
+
+        backend.getFronLeftTrajProperty().addListener( ( o, oldValue, newValue ) ->
+        {
+            if( newValue != null )
+                refresh();
+        });
     } /* setup() */
 
     public void updateAxis( ProfileGenerator.Units units )
@@ -60,7 +64,7 @@ public class VelGraphController
         // Clear data from velocity graph
         velGraph.getData().clear();
 
-        if( waypointsList.size() > 1 )
+        if( backend.getNumWaywaypoints() > 1 )
         {
             flSeries = buildSeries( backend.getFrontLeftTrajectory() );
             frSeries = buildSeries( backend.getFrontRightTrajectory() );

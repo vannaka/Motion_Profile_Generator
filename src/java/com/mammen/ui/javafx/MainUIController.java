@@ -82,11 +82,6 @@ public class MainUIController
         btnClearPoints,
         btnDelete;
 
-    // Linked to backend waypoints list.
-    // Changes to this are mirrored by backend list.
-    // Fires events on any change.
-    private ObservableList<Waypoint> waypointsList;
-
     // Interface for property manipulation.
     private Properties properties;
 
@@ -112,33 +107,20 @@ public class MainUIController
     {
         backend = new ProfileGenerator();
         properties = PropWrapper.getProperties();
-        waypointsList = FXCollections.observableList( backend.getWaypointsList() );
 
         // Setup position graph
         posGraph = posGraphController;  // Alias because it looks better.
-        posGraph.setup( backend, waypointsList );
+        posGraph.setup( backend );
         posGraph.setBGImg( properties.getProperty("ui.overlayImg", "") );
 
         // Setup velocity graph
         velGraph = velGraphController;  // Alias because it looks better.
-        velGraph.setup( backend, waypointsList );
+        velGraph.setup( backend );
 
         // Setup motion variables
         motionVars = motionVarsController;
-        motionVars.setup( backend, waypointsList, posGraph, velGraph );
+        motionVars.setup( backend );
 
-        // Load Pathfinder native lib
-        try
-        {
-            NativeLoader.loadLibrary("pathfinderjava" );
-		}
-		catch( IOException e )
-        {
-			e.printStackTrace();
-			Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder lib!" );
-
-            alert.showAndWait();
-		}
 
         // Retrieve the working dir from our properties file.
         // If the path isn't a dir for some reason, default to the user directory
@@ -176,7 +158,6 @@ public class MainUIController
                 else
                     curWaypoint.x = t.getNewValue();
 
-                generateTrajectories();
         };
         
         colWaypointX.setCellFactory(doubleCallback);
@@ -213,30 +194,31 @@ public class MainUIController
             }
         });
 
-        waypointsList.addListener( (ListChangeListener<Waypoint>) c ->
+        backend.waypointListProperty().addListener( (ListChangeListener<Waypoint>) c ->
         {
             // Disable btn if no points exist
-            btnClearPoints.setDisable( waypointsList.size() == 0 );
+            btnClearPoints.setDisable( backend.getNumWaywaypoints() == 0 );
 
             // If the traj failed to generate then remove the problematic point.
-            if( waypointsList.size() > 1 && !generateTrajectories() )
-            {
-                waypointsList.remove(waypointsList.size() - 1 );
-            }
+            // TODO: fix this
+//            if( backend.getNumWaywaypoints() > 1 && !generateTrajectories() )
+//            {
+//                backend.removeLastPoint();
+//            }
 
             // Redraw new chart to show new changes
             posGraph.refresh();
             velGraph.refresh();
         });
 
-        tblWaypoints.setItems(waypointsList);
+        tblWaypoints.setItems( backend.waypointListProperty() );
         tblWaypoints.getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
         tblWaypoints.getSelectionModel().selectedIndexProperty().addListener( (observable, oldValue, newValue) ->
                 btnDelete.setDisable( tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1 )
         );
 
         // Populate motion vars with data from the backend.
-        motionVars.updateFrontend();
+        //motionVars.updateFrontend();
         
         Runtime.getRuntime().addShutdownHook( new Thread(() -> {
             properties.setProperty( "file.workingDir", workingDirectory.getAbsolutePath() );
@@ -327,7 +309,7 @@ public class MainUIController
     @FXML
     private void showExportDialog()
     {
-        if( waypointsList.size() < 2 )
+        if( backend.getNumWaywaypoints() < 2 )
         {
             Alert alert = new Alert(Alert.AlertType.WARNING);
 
@@ -432,12 +414,12 @@ public class MainUIController
 
                 // Temporarily disable unit conversion so we can update the units without 'converting' them unnecessarily.
                 motionVars.disableUnitConv();
-                motionVars.updateFrontend();
+                //motionVars.updateFrontend();
 
                 posGraph.updateAxis( backend.getUnits() );
                 velGraph.updateAxis( backend.getUnits() );
 
-                generateTrajectories();
+//                generateTrajectories();
 
                 mnuFileSave.setDisable( false );
             }
@@ -512,8 +494,8 @@ public class MainUIController
                 try {
                     backend.importBotFile(result, u);
 
-                    motionVars.updateFrontend();
-                    generateTrajectories();
+                    //motionVars.updateFrontend();
+                    //generateTrajectories();
 
                     mnuFileSave.setDisable(!backend.hasWorkingProject());
                 } catch (Exception e) {
@@ -563,8 +545,8 @@ public class MainUIController
                 backend.clearWorkingFiles();
                 backend.setDefaultValues( ProfileGenerator.Units.FEET );
 
-                motionVars.updateFrontend();
-                waypointsList.clear();
+                //motionVars.updateFrontend();
+                backend.clearPoints();
 
                 posGraph.updateAxis( backend.getUnits() );
                 velGraph.updateAxis( backend.getUnits() );
@@ -583,7 +565,7 @@ public class MainUIController
         // Wait for the result
         result = waypointDialog.showAndWait();
 
-        result.ifPresent((Waypoint w) -> waypointsList.add(w));
+        result.ifPresent((Waypoint w) -> backend.addPoint( w ) );
     } /* showAddPointDialog() */
     
     @FXML
@@ -600,7 +582,7 @@ public class MainUIController
         result.ifPresent( (ButtonType t) ->
         {
             if( t.getButtonData() == ButtonBar.ButtonData.OK_DONE )
-                waypointsList.clear();
+                backend.clearPoints();
         });
     } /* showClearPointsDialog() */
     
@@ -612,48 +594,6 @@ public class MainUIController
         int firstIndex = selectedIndices.get( 0 );
         int lastIndex = selectedIndices.get( selectedIndices.size() - 1 );
 
-        waypointsList.remove(firstIndex, lastIndex + 1);
+        backend.removePoints( firstIndex, lastIndex );
     } /* deletePoints() */
-
-    /**
-     * Generates a path from the current set of waypoints and updates the graph with the new path.
-     * @return True if the path was successfully generated. False otherwise.
-     */
-    private boolean generateTrajectories()
-    {
-        // Need at least two points to generate a path.
-        if( waypointsList.size() > 1 )
-        {
-            try
-            {
-                backend.updateTrajectories();
-            }
-            // The given points cannot form a valid path
-            catch( Pathfinder.GenerationException e )
-            {
-                Toolkit.getDefaultToolkit().beep();
-
-                Alert alert = new Alert( Alert.AlertType.WARNING );
-
-                alert.setTitle( "Invalid Trajectory" );
-                alert.setHeaderText( "Invalid trajectory point!" );
-                alert.setContentText( "The trajectory point is invalid because one of the waypoints is invalid! " +
-                        "Please check the waypoints and try again." );
-                alert.showAndWait();
-
-                return false;
-            }
-
-            // Update the chart with the new path.
-            posGraph.refresh();
-            velGraph.refresh();
-
-            return true;
-        }
-        // Not enough points to generate a path.
-        else
-        {
-            return false;
-        }
-    } /* generateTrajectories() */
 }
