@@ -19,21 +19,32 @@ public class VelGraphController
 
     private ProfileGenerator backend;
 
-    @FXML
-    public void initialize()
-    {
-    }
 
+    /**************************************************************************
+     *  setup
+     *      Setup backend linkages stuff here.
+     *
+     * @param backend Reference to the backend of the program.
+     *************************************************************************/
     public void setup( ProfileGenerator backend )
     {
         this.backend = backend;
 
+        // Watch Front Left because it exists for both Tank and Swerve
         backend.getFronLeftTrajProperty().addListener( ( o, oldValue, newValue ) ->
         {
-            if( newValue != null )
-                refresh();
+            refresh();
         });
     } /* setup() */
+
+
+    /**************************************************************************
+     *  initialize
+     *      Setup gui stuff here.
+     *************************************************************************/
+    @FXML public void initialize()
+    {
+    }
 
     public void updateAxis( ProfileGenerator.Units units )
     {
@@ -64,7 +75,7 @@ public class VelGraphController
         // Clear data from velocity graph
         velGraph.getData().clear();
 
-        if( backend.getNumWaywaypoints() > 1 )
+        if( backend.getNumWaypoints() > 1 )
         {
             flSeries = buildSeries( backend.getFrontLeftTrajectory() );
             frSeries = buildSeries( backend.getFrontRightTrajectory() );

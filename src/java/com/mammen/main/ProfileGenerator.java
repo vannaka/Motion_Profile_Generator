@@ -4,14 +4,7 @@ import com.mammen.util.Mathf;
 
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
-import javafx.collections.ObservableList;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.ls.LSSerializer;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
@@ -25,18 +18,32 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+/******************************************************************************
+*   ProfileGenerator
+*       This is the model for the program. It contains all the data needed to
+*       generate a trajectory as well as the trajectories themselves. We use
+*       the JavaBeans model of properties. The trajectories are setup so that
+*       they are recalculated whenever any of their dependencies changes value.
+*       These dependencies (velocity, accel, jerk, ect. ) are bound to gui
+*       elements in their respective fxml controllers.
+******************************************************************************/
 public class ProfileGenerator 
 {
 	public static final String PROJECT_EXTENSION = "xml";
@@ -167,7 +174,6 @@ public class ProfileGenerator
     /******************************************************
     *   Property variables
     ******************************************************/
-    // Observable Motion Variables
     private DoubleProperty timeStep;
     private DoubleProperty velocity;
     private DoubleProperty accel;
@@ -200,15 +206,15 @@ public class ProfileGenerator
     public ProfileGenerator()
     {
         // Setup properties
-        timeStep = new SimpleDoubleProperty();
-        velocity = new SimpleDoubleProperty();
-        accel = new SimpleDoubleProperty();
-        jerk = new SimpleDoubleProperty();
-        wheelBaseD = new SimpleDoubleProperty();
-        wheelBaseW = new SimpleDoubleProperty();
-        driveBase = new SimpleObjectProperty<>();
-        fitMethod = new SimpleObjectProperty<>();
-        units = new SimpleObjectProperty<>();
+        timeStep    = new SimpleDoubleProperty();
+        velocity    = new SimpleDoubleProperty();
+        accel       = new SimpleDoubleProperty();
+        jerk        = new SimpleDoubleProperty();
+        wheelBaseD  = new SimpleDoubleProperty();
+        wheelBaseW  = new SimpleDoubleProperty();
+        driveBase   = new SimpleObjectProperty<>();
+        fitMethod   = new SimpleObjectProperty<>();
+        units       = new SimpleObjectProperty<>();
 
         waypointList = new SimpleListProperty<>( FXCollections.observableArrayList() );
 
@@ -217,15 +223,8 @@ public class ProfileGenerator
     	// Initialize to default values.
     	setDefaultValues( Units.FEET );
 
-    	units.addListener( ( o, oldValue, newValue ) ->
-        {
-            updateVarUnits( oldValue, newValue );
-        });
-
-    	wheelBaseW.addListener( ( obj, oldValue, newValue ) ->
-        {
-            System.out.println( "Wheel Base Width: " + newValue );
-        });
+    	// Convert variables on units change
+    	units.addListener( ( o, oldValue, newValue ) -> updateVarUnits( oldValue, newValue ) );
 
     	// Bind to motion vars and waypoints
         source = new ObjectBinding<Trajectory>()
@@ -242,7 +241,7 @@ public class ProfileGenerator
                 Config config = new Config( fitMethod.getValue().getPfFitMethod(), Config.SAMPLES_HIGH, timeStep.get(), velocity.get(), accel.get(), jerk.get() );
 
                 // We need at least 2 points to generate a trajectory.
-                if( getNumWaywaypoints() > 1 )
+                if( getNumWaypoints() > 1 )
                 {
                     try
                     {
@@ -372,11 +371,22 @@ public class ProfileGenerator
                 }
             }
         };
+    }   /* ProfileGenerator() */
 
-    }
-    
-    public void updateVarUnits( Units old_unit, Units new_unit )
+
+    /**************************************************************************
+    *  updateVarUnits
+    *      Converts the variables from one Unit to another.
+    *
+    * @param old_unit The current Unit.
+    * @param new_unit The Unit to convert to.
+    **************************************************************************/
+    private void updateVarUnits( Units old_unit, Units new_unit )
     {
+        // TODO: Find a better way of doing this!!!
+        //          Maybe storing the values in the backend in feet
+        //          and only convert it for display.
+
     	// Convert each point in the waypoints list
         for( Waypoint wp : waypointList )
         {
@@ -426,7 +436,7 @@ public class ProfileGenerator
 
         // Convert each MP variable to the new unit
     	double tmp_WBW = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
-    	
+
     	// convert to intermediate unit of feet
     	switch( old_unit )
     	{
@@ -482,15 +492,19 @@ public class ProfileGenerator
     	velocity    .set( Mathf.round( velocity.get(),  4 ) );
     	accel       .set( Mathf.round( accel.get(),     4 ) );
     	jerk        .set( Mathf.round( jerk.get(),      4 ) );
-    }
-    
-    /**
-     * Exports all trajectories to the parent folder, with the given root name and file extension.
-     */
-    public void exportTrajectoriesJaci( File parentPath, String ext ) throws Pathfinder.GenerationException
-    {
-//        updateTrajectories();
+    }   /* updateVarUnits() */
 
+
+    /**************************************************************************
+     *  exportTrajectoriesJaci
+     *      Exports all trajectories to the parent folder, with the given root
+     *      name and file extension.
+     *
+     * @param parentPath Path to the directory to export to.
+     * @param ext The file type to export to.
+     *************************************************************************/
+    public void exportTrajectoriesJaci( File parentPath, String ext ) throws IllegalArgumentException
+    {
         File dir = parentPath.getParentFile();
 
         if( dir != null && !dir.exists() && dir.isDirectory() )
@@ -538,12 +552,21 @@ public class ProfileGenerator
             default:
                 throw new IllegalArgumentException( "Invalid file extension" );
         }
-    }
-    
-    public void exportTrajectoriesTalon( File parentPath, String ext ) throws Pathfinder.GenerationException, IOException
-    {
-//        updateTrajectories();
+    }   /* exportTrajectoriesJaci() */
 
+
+    /**************************************************************************
+    *  exportTrajectoriesTalon
+    *       Exports all trajectories to the parent folder, with the given root
+    *       name and file extension.
+    *
+    * @param parentPath Path to the directory to export to.
+    * @param ext The file type to export to.
+    * @throws IOException
+    * @throws IllegalArgumentException
+    **************************************************************************/
+    public void exportTrajectoriesTalon( File parentPath, String ext ) throws IOException, IllegalArgumentException
+    {
         File dir = parentPath.getParentFile();
 
         if( dir != null && !dir.exists() && dir.isDirectory() )
@@ -648,8 +671,9 @@ public class ProfileGenerator
             default:
                 throw new IllegalArgumentException("Invalid file extension");
         }
-    }
-    
+    }   /* exportTrajectoriesTalon() */
+
+
     /**
      * Saves the project in XML format.
      */
@@ -924,7 +948,7 @@ public class ProfileGenerator
 
     public void removeLastPoint()
     {
-        waypointList.remove( waypointList.get().size() - 1 );
+        removePoint( waypointList.get().size() - 1 );
     }
 
     public void removePoints( int first, int last )
@@ -932,7 +956,7 @@ public class ProfileGenerator
         waypointList.remove( first, last + 1 );
     }
 
-    public int getNumWaywaypoints()
+    public int getNumWaypoints()
     {
         return waypointList.size();
     }
@@ -945,38 +969,6 @@ public class ProfileGenerator
     {
         waypointList.clear();
     }
-    
-//    /**
-//     * Generates a trajectory from the given waypoints
-//     */
-//    public void updateTrajectories() throws Pathfinder.GenerationException
-//    {
-//        Config config = new Config( fitMethod.getValue().getPfFitMethod(), Config.SAMPLES_HIGH, timeStep.get(), velocity.get(), accel.get(), jerk.get() );
-//        source = Pathfinder.generate( waypointList.toArray( new Waypoint[1] ), config );
-//
-//        if (driveBase.getValue() == DriveBase.SWERVE)
-//        {
-//            SwerveModifier swerve = new SwerveModifier(source);
-//
-//            swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
-//
-//            fl = swerve.getFrontLeftTrajectory();
-//            fr = swerve.getFrontRightTrajectory();
-//            bl = swerve.getBackLeftTrajectory();
-//            br = swerve.getBackRightTrajectory();
-//        }
-//        else  // By default, treat everything as tank drive.
-//        {
-//            TankModifier tank = new TankModifier(source);
-//            tank.modify( wheelBaseW.get() );
-//
-//            fl = tank.getLeftTrajectory();
-//            fr = tank.getRightTrajectory();
-//            bl = null;
-//            br = null;
-//        }
-//    }
-    
     
     public double getTimeStep()
     {

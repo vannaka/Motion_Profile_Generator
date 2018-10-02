@@ -49,7 +49,7 @@ public class DialogFactory
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                    ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/SettingsDialog.fxml")
+                    ResourceLoader.getResource("/com/mammen/ui/javafx/settings/SettingsDialog.fxml")
             );
 
             dialog.setDialogPane(loader.load());

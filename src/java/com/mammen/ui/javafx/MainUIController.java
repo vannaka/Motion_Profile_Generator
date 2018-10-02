@@ -101,9 +101,13 @@ public class MainUIController
     @FXML
     private MotionVarsController motionVarsController;
     private MotionVarsController motionVars;
-    
-    @FXML
-    public void initialize() 
+
+
+    /**************************************************************************
+     *  initialize
+     *      Setup gui stuff here.
+     *************************************************************************/
+    @FXML public void initialize()
     {
         backend = new ProfileGenerator();
         properties = PropWrapper.getProperties();
@@ -194,21 +198,10 @@ public class MainUIController
             }
         });
 
-        backend.waypointListProperty().addListener( (ListChangeListener<Waypoint>) c ->
+        backend.waypointListProperty().addListener( ( ListChangeListener<Waypoint> ) c ->
         {
             // Disable btn if no points exist
-            btnClearPoints.setDisable( backend.getNumWaywaypoints() == 0 );
-
-            // If the traj failed to generate then remove the problematic point.
-            // TODO: fix this
-//            if( backend.getNumWaywaypoints() > 1 && !generateTrajectories() )
-//            {
-//                backend.removeLastPoint();
-//            }
-
-            // Redraw new chart to show new changes
-            posGraph.refresh();
-            velGraph.refresh();
+            btnClearPoints.setDisable( backend.getNumWaypoints() == 0 );
         });
 
         tblWaypoints.setItems( backend.waypointListProperty() );
@@ -216,9 +209,6 @@ public class MainUIController
         tblWaypoints.getSelectionModel().selectedIndexProperty().addListener( (observable, oldValue, newValue) ->
                 btnDelete.setDisable( tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1 )
         );
-
-        // Populate motion vars with data from the backend.
-        //motionVars.updateFrontend();
         
         Runtime.getRuntime().addShutdownHook( new Thread(() -> {
             properties.setProperty( "file.workingDir", workingDirectory.getAbsolutePath() );
@@ -309,7 +299,7 @@ public class MainUIController
     @FXML
     private void showExportDialog()
     {
-        if( backend.getNumWaywaypoints() < 2 )
+        if( backend.getNumWaypoints() < 2 )
         {
             Alert alert = new Alert(Alert.AlertType.WARNING);
 
@@ -322,39 +312,33 @@ public class MainUIController
 
         FileChooser fileChooser = new FileChooser();
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+        fileChooser.setInitialDirectory( new File( System.getProperty("user.dir") ) );
         fileChooser.setTitle("Export");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Comma Separated Values", "*.csv"),
-                new FileChooser.ExtensionFilter("Binary Trajectory File", "*.traj")
+                new FileChooser.ExtensionFilter("Comma Separated Values", "*.csv" ),
+                new FileChooser.ExtensionFilter("Binary Trajectory File", "*.traj" )
         );
 
         File result = fileChooser.showSaveDialog(root.getScene().getWindow());
 
         if( result != null )
         {
-            String parentPath = result.getAbsolutePath(), ext = parentPath.substring(parentPath.lastIndexOf("."));
+            String parentPath = result.getAbsolutePath(), ext = parentPath.substring( parentPath.lastIndexOf(".") );
             parentPath = parentPath.substring(0, parentPath.lastIndexOf(ext));
 
             String csvTypeStr = properties.getProperty("ui.csvType", "0");
-            int csvType = Integer.parseInt(csvTypeStr);
+            int csvType = Integer.parseInt( csvTypeStr );
             
             try
             {
             	if( csvType == 0 )
             	{
-            		backend.exportTrajectoriesJaci(new File(parentPath), ext);
+            		backend.exportTrajectoriesJaci( new File( parentPath ), ext );
             	}
             	else
                 {
-            		backend.exportTrajectoriesTalon(new File(parentPath), ext);
+            		backend.exportTrajectoriesTalon( new File( parentPath ), ext );
             	}
-            }
-            catch( Pathfinder.GenerationException e )
-            {
-                Alert alert = AlertFactory.createExceptionAlert(e, "Invalid Trajectory!");
-
-                alert.showAndWait();
             }
             catch( IOException e )
             {
@@ -411,15 +395,6 @@ public class MainUIController
             {
                 workingDirectory = result.getParentFile();
                 backend.loadProject( result );
-
-                // Temporarily disable unit conversion so we can update the units without 'converting' them unnecessarily.
-                motionVars.disableUnitConv();
-                //motionVars.updateFrontend();
-
-                posGraph.updateAxis( backend.getUnits() );
-                velGraph.updateAxis( backend.getUnits() );
-
-//                generateTrajectories();
 
                 mnuFileSave.setDisable( false );
             }

@@ -33,28 +33,47 @@ public class PosGraphController
     private boolean dsplyCenterPath;
     private boolean dsplyWaypoints;
 
-    @FXML
-    public void initialize()
+
+    /**************************************************************************
+     *  setup
+     *      Setup backend linkages stuff here.
+     *
+     * @param backend Reference to the backend of the program.
+     *************************************************************************/
+    public void setup( ProfileGenerator backend )
+    {
+        this.backend = backend;
+
+        // Watch Front Left because it exists for both Tank and Swerve
+        backend.getFronLeftTrajProperty().addListener( ( o, oldValue, newValue ) ->
+        {
+            // Update graph when the trajectory changes
+            refresh();
+        });
+
+        backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->
+        {
+            // Updata axis to reflect the new unit
+            updateAxis( newValue );
+        });
+
+        backend.waypointListProperty().addListener( ( o, oldValue, newValue ) ->
+        {
+            refreshPoints();
+        });
+    } /* setup() */
+
+
+    /**************************************************************************
+     *  initialize
+     *      Setup gui stuff here.
+     *************************************************************************/
+    @FXML public void initialize()
     {
         dsplyCenterPath = false;
         dsplyWaypoints = true;
     }
 
-    public void setup( ProfileGenerator backend )
-    {
-        this.backend = backend;
-
-        backend.getFronLeftTrajProperty().addListener( ( o, oldValue, newValue ) ->
-        {
-            if( newValue != null )
-                refresh();
-        });
-
-        backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->
-        {
-            updateAxis( newValue );
-        });
-    } /* setup() */
 
     /**
      * Displays the given image behind the graph.
@@ -107,9 +126,6 @@ public class PosGraphController
                 axisPosY.setTickUnit(12);
                 axisPosY.setLabel("Y-Position (in)");
                 break;
-
-            default:
-                // Unsupported unit
         }
     }
 
@@ -124,7 +140,7 @@ public class PosGraphController
         posGraph.getData().clear();
 
         // Start by drawing drive train trajectories
-        if( backend.getNumWaywaypoints() > 1 )
+        if( backend.getNumWaypoints() > 1 )
         {
             flSeries = buildSeries( backend.getFrontLeftTrajectory() );
             frSeries = buildSeries( backend.getFrontRightTrajectory() );
@@ -168,7 +184,7 @@ public class PosGraphController
         }
 
         // Display center path
-        if( dsplyCenterPath && backend.getNumWaywaypoints() > 1 )
+        if( dsplyCenterPath && backend.getNumWaypoints() > 1 )
         {
             XYChart.Series<Double, Double> sourceSeries = buildSeries( backend.getSourceTrajectory() );
             posGraph.getData().add( sourceSeries );
@@ -179,7 +195,10 @@ public class PosGraphController
                 data.getNode().setVisible( false );
             }
         }
+    }
 
+    private void refreshPoints()
+    {
         // Display waypoints
         if( dsplyWaypoints && !backend.getWaypointList().isEmpty() )
         {
@@ -194,6 +213,7 @@ public class PosGraphController
             }
         }
     }
+
 
     /**
      * Builds a series from the given trajectory that is ready to display on a LineChart.
@@ -256,51 +276,46 @@ public class PosGraphController
             double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
 
             // get location in units (ft, m, in)
-            double raw_x = axisPosX.getValueForDisplay(xLocal).doubleValue();
-            double raw_y = axisPosY.getValueForDisplay(yLocal).doubleValue();
+            double raw_x = axisPosX.getValueForDisplay( xLocal ).doubleValue();
+            double raw_y = axisPosY.getValueForDisplay( yLocal ).doubleValue();
 
             // round location
             double rnd_x;
             double rnd_y;
 
+            // Snap to grid
             if( backend.getUnits() == ProfileGenerator.Units.FEET )
             {
-                rnd_x = Mathf.round(raw_x, 0.5);
-                rnd_y = Mathf.round(raw_y, 0.5);
+                rnd_x = Mathf.round( raw_x, 0.5 );
+                rnd_y = Mathf.round( raw_y, 0.5 );
             }
             else if( backend.getUnits() == ProfileGenerator.Units.METERS )
             {
-                rnd_x = Mathf.round(raw_x, 0.25);
-                rnd_y = Mathf.round(raw_y, 0.25);
+                rnd_x = Mathf.round( raw_x, 0.25 );
+                rnd_y = Mathf.round( raw_y, 0.25 );
             }
-            else if( backend.getUnits() == ProfileGenerator.Units.INCHES)
+            else // Inches
             {
-                rnd_x = Mathf.round(raw_x, 6.0);
-                rnd_y = Mathf.round(raw_y, 6.0);
-            }
-            else
-            {
-                rnd_x = Mathf.round(raw_x, 2);
-                rnd_y = Mathf.round(raw_y, 2);
+                rnd_x = Mathf.round( raw_x, 6.0 );
+                rnd_y = Mathf.round( raw_y, 6.0 );
             }
 
-            // If x,y coordinate is on the graph
+            // If rounded x,y coordinate is on the graph
             if( rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
                 rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound() )
             {
-                // Clicking to add point not working on Mac???
-                if (OSValidator.isMac()) {
+                // TODO: Clicking to add point not working on Mac???
+                if (OSValidator.isMac())
+                {
                     Optional<Waypoint> result;
-
-                    result = DialogFactory.createWaypointDialog(String.valueOf(rnd_x), String.valueOf(rnd_y)).showAndWait();
-
+                    result = DialogFactory.createWaypointDialog( String.valueOf(rnd_x), String.valueOf(rnd_y) ).showAndWait();
                     result.ifPresent( (Waypoint w) -> backend.addPoint( w ) );
                 }
-                else {
+                else
+                {
                     backend.addPoint( rnd_x, rnd_y, 0.0 );
                 }
             }
-
         }
         else
         {
