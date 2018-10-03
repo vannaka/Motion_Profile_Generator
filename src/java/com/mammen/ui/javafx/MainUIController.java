@@ -1,9 +1,7 @@
 package com.mammen.ui.javafx;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -18,23 +16,15 @@ import com.mammen.ui.javafx.motion_vars.MotionVarsController;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Waypoint;
 
-import org.scijava.nativelib.NativeLoader;
-
-import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -55,10 +45,6 @@ public class MainUIController
 
     @FXML
     private TableView<Waypoint> tblWaypoints;
-
-    @FXML
-    private LineChart<Double, Double>
-        chtVelocity;
 
     @FXML
     private TableColumn<Waypoint, Double>
@@ -92,15 +78,12 @@ public class MainUIController
     // This has to be named exactly like this
     @FXML
     private PosGraphController posGraphController;
-    private PosGraphController posGraph;
 
     @FXML
     private VelGraphController velGraphController;
-    private VelGraphController velGraph;
 
     @FXML
     private MotionVarsController motionVarsController;
-    private MotionVarsController motionVars;
 
 
     /**************************************************************************
@@ -113,17 +96,14 @@ public class MainUIController
         properties = PropWrapper.getProperties();
 
         // Setup position graph
-        posGraph = posGraphController;  // Alias because it looks better.
-        posGraph.setup( backend );
-        posGraph.setBGImg( properties.getProperty("ui.overlayImg", "") );
+        posGraphController.setup( backend );
+        posGraphController.setBGImg( properties.getProperty("ui.overlayImg", "") );
 
         // Setup velocity graph
-        velGraph = velGraphController;  // Alias because it looks better.
-        velGraph.setup( backend );
+        velGraphController.setup( backend );
 
         // Setup motion variables
-        motionVars = motionVarsController;
-        motionVars.setup( backend );
+        motionVarsController.setup( backend );
 
 
         // Retrieve the working dir from our properties file.
@@ -137,8 +117,6 @@ public class MainUIController
         // Disable delete btn until we have points to delete.
         btnDelete.setDisable( true );
 
-
-
         // Make sure only doubles are entered for waypoints.
         Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
             (TableColumn<Waypoint, Double> param) ->
@@ -150,13 +128,12 @@ public class MainUIController
                 return cell;
         };
 
-        EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler =
-            (TableColumn.CellEditEvent<Waypoint, Double> t) ->
+        EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler = ( TableColumn.CellEditEvent<Waypoint, Double> t ) ->
         {
                 Waypoint curWaypoint = t.getRowValue();
 
-                if (t.getTableColumn() == colWaypointAngle)
-                    curWaypoint.angle = Pathfinder.d2r(t.getNewValue());
+                if( t.getTableColumn() == colWaypointAngle )
+                    curWaypoint.angle = Pathfinder.d2r( t.getNewValue() );
                 else if (t.getTableColumn() == colWaypointY)
                     curWaypoint.y = t.getNewValue();
                 else
@@ -164,15 +141,15 @@ public class MainUIController
 
         };
         
-        colWaypointX.setCellFactory(doubleCallback);
-        colWaypointY.setCellFactory(doubleCallback);
-        colWaypointAngle.setCellFactory(doubleCallback);
+        colWaypointX.setCellFactory( doubleCallback );
+        colWaypointY.setCellFactory( doubleCallback );
+        colWaypointAngle.setCellFactory( doubleCallback );
 
-        colWaypointX.setOnEditCommit(editHandler);
-        colWaypointY.setOnEditCommit(editHandler);
-        colWaypointAngle.setOnEditCommit(editHandler);
+        colWaypointX.setOnEditCommit( editHandler );
+        colWaypointY.setOnEditCommit( editHandler );
+        colWaypointAngle.setOnEditCommit( editHandler );
 
-        colWaypointX.setCellValueFactory( (TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointX.setCellValueFactory( ( TableColumn.CellDataFeatures<Waypoint, Double> d ) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
@@ -198,17 +175,23 @@ public class MainUIController
             }
         });
 
+
+        /* ************************************************
+         *  Waypoints Table Stuff
+         *************************************************/
         backend.waypointListProperty().addListener( ( ListChangeListener<Waypoint> ) c ->
         {
             // Disable btn if no points exist
             btnClearPoints.setDisable( backend.getNumWaypoints() == 0 );
         });
 
-        tblWaypoints.setItems( backend.waypointListProperty() );
+        tblWaypoints.itemsProperty().bindBidirectional( backend.waypointListProperty() );
+
         tblWaypoints.getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
         tblWaypoints.getSelectionModel().selectedIndexProperty().addListener( (observable, oldValue, newValue) ->
-                btnDelete.setDisable( tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1 )
-        );
+        {
+            btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1);
+        });
         
         Runtime.getRuntime().addShutdownHook( new Thread(() -> {
             properties.setProperty( "file.workingDir", workingDirectory.getAbsolutePath() );
@@ -232,7 +215,8 @@ public class MainUIController
         // Wait for the result
         result = settingsDialog.showAndWait();
 
-        result.ifPresent( (Boolean b) -> {
+        result.ifPresent( (Boolean b) ->
+        {
             if( b )
             {
                 try
@@ -274,8 +258,9 @@ public class MainUIController
                     properties.setProperty("csv.avail", "" + availList);
                     properties.setProperty("csv.chos", "" + chosList);
 
-                    posGraph.setBGImg( overlayDir );
-                    posGraph.refresh();
+                    // TODO: bind position graph bg image to the bg setting.
+                    posGraphController.setBGImg( overlayDir );
+                    posGraphController.refresh();
 
                     PropWrapper.storeProperties();
                 }
@@ -464,17 +449,18 @@ public class MainUIController
 
             unitsResult = unitsSelector.showAndWait();
 
-            unitsResult.ifPresent(u -> {
+            unitsResult.ifPresent( u ->
+            {
                 backend.clearPoints();
-                try {
-                    backend.importBotFile(result, u);
+                try
+                {
+                    backend.importBotFile( result, u );
 
-                    //motionVars.updateFrontend();
-                    //generateTrajectories();
-
-                    mnuFileSave.setDisable(!backend.hasWorkingProject());
-                } catch (Exception e) {
-                    Alert alert = AlertFactory.createExceptionAlert(e);
+                    mnuFileSave.setDisable( !backend.hasWorkingProject() );
+                }
+                catch( Exception e )
+                {
+                    Alert alert = AlertFactory.createExceptionAlert( e );
 
                     alert.showAndWait();
                 }
@@ -515,16 +501,13 @@ public class MainUIController
 
         Optional<ButtonType> result = alert.showAndWait();
 
-        result.ifPresent((ButtonType t) -> {
-            if (t == ButtonType.OK) {
+        result.ifPresent((ButtonType t) ->
+        {
+            if( t == ButtonType.OK )
+            {
                 backend.clearWorkingFiles();
                 backend.setDefaultValues( ProfileGenerator.Units.FEET );
-
-                //motionVars.updateFrontend();
                 backend.clearPoints();
-
-                posGraph.updateAxis( backend.getUnits() );
-                velGraph.updateAxis( backend.getUnits() );
 
                 mnuFileSave.setDisable( true );
             }

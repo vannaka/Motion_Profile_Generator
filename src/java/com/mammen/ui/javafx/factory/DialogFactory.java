@@ -21,38 +21,38 @@ public class DialogFactory
 {
 	private DialogFactory() { }
 
-    public static Dialog<Boolean> createAboutDialog() {
+    public static Dialog<Boolean> createAboutDialog()
+    {
         Dialog<Boolean> dialog = new Dialog<>();
 
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/AboutDialog.fxml")
-            );
+        try
+        {
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/AboutDialog.fxml" ) );
 
-            dialog.setDialogPane(loader.load());
+            dialog.setDialogPane( loader.load() );
 
-            dialog.setResultConverter((ButtonType buttonType) ->
-                    buttonType.getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE
-            );
-        } catch (Exception e) {
+            dialog.setResultConverter( (ButtonType buttonType) -> buttonType.getButtonData() == ButtonBar.ButtonData.CANCEL_CLOSE );
+        }
+        catch( Exception e )
+        {
             e.printStackTrace();
-            dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+            dialog.getDialogPane().getButtonTypes().add( ButtonType.CLOSE );
         }
 
-        dialog.setTitle("About");
+        dialog.setTitle( "About" );
 
         return dialog;
     }
 
-    public static Dialog<Boolean> createSettingsDialog() {
+    public static Dialog<Boolean> createSettingsDialog()
+    {
         Dialog<Boolean> dialog = new Dialog<>();
 
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    ResourceLoader.getResource("/com/mammen/ui/javafx/settings/SettingsDialog.fxml")
-            );
+        try
+        {
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/settings/SettingsDialog.fxml" ) );
 
-            dialog.setDialogPane(loader.load());
+            dialog.setDialogPane( loader.load() );
 
             ((Button) dialog.getDialogPane().lookupButton(ButtonType.APPLY)).setDefaultButton(true);
             ((Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL)).setDefaultButton(false);
@@ -61,24 +61,24 @@ public class DialogFactory
             dialog.setTitle("Settings");
             dialog.setHeaderText("Manage settings");
 
-            dialog.setResultConverter((ButtonType buttonType) ->
-                    buttonType.getButtonData() == ButtonBar.ButtonData.APPLY
-            );
-        } catch (Exception e) {
+            dialog.setResultConverter((ButtonType buttonType) -> buttonType.getButtonData() == ButtonBar.ButtonData.APPLY );
+        }
+        catch( Exception e )
+        {
             e.printStackTrace();
         }
 
         return dialog;
     }
 
-    public static Dialog<Waypoint> createWaypointDialog(String xPos, String yPos) {
+    public static Dialog<Waypoint> createWaypointDialog( String xPos, String yPos )
+    {
         Dialog<Waypoint> dialog = new Dialog<>();
 
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/AddWaypointDialog.fxml")
-            );
-            ButtonType add = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        try
+        {
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/AddWaypointDialog.fxml" ) );
+            ButtonType add = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE );
             DialogPane root = loader.load();
 
             AddWaypointDialogController controller = null;
@@ -101,25 +101,30 @@ public class DialogFactory
 
             dialog.getDialogPane().getButtonTypes().add(add);
 
-            dialog.setResultConverter((ButtonType buttonType) -> {
-                if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-                    double
-                        x = Double.parseDouble(txtWX.getText().trim()),
-                        y = Double.parseDouble(txtWY.getText().trim()),
-                        angle = Double.parseDouble(txtWA.getText().trim());
+            dialog.setResultConverter( (ButtonType buttonType) ->
+            {
+                if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE)
+                {
+                    double x     = Double.parseDouble(txtWX.getText().trim()),
+                           y     = Double.parseDouble(txtWY.getText().trim()),
+                           angle = Double.parseDouble(txtWA.getText().trim());
 
-                    return new Waypoint(x, y, Pathfinder.d2r(angle));
+                    return new Waypoint( x, y, Pathfinder.d2r( angle ) );
                 }
 
                 return null;
             });
 
-            root.lookupButton(add).addEventFilter(ActionEvent.ACTION, ae -> {
-                try {
-                    Double.parseDouble(txtWX.getText().trim());
-                    Double.parseDouble(txtWY.getText().trim());
-                    Double.parseDouble(txtWA.getText().trim());
-                } catch (Exception e) {
+            root.lookupButton( add ).addEventFilter( ActionEvent.ACTION, ae ->
+            {
+                try
+                {
+                    Double.parseDouble( txtWX.getText().trim() );
+                    Double.parseDouble( txtWY.getText().trim() );
+                    Double.parseDouble( txtWA.getText().trim() );
+                }
+                catch( Exception e )
+                {
                     Alert alert = new Alert(Alert.AlertType.WARNING);
 
                     alert.setTitle("Invalid Point!");
@@ -131,14 +136,21 @@ public class DialogFactory
                     ae.consume();
                 }
             });
-        } catch (Exception e) {
+        }
+        catch( Exception e )
+        {
             e.printStackTrace();
-        } finally {
+        }
+        finally
+        {
             dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         }
 
         return dialog;
     }
 
-    public static Dialog<Waypoint> createWaypointDialog() { return createWaypointDialog("", ""); }
+    public static Dialog<Waypoint> createWaypointDialog()
+    {
+        return createWaypointDialog("", "");
+    }
 }

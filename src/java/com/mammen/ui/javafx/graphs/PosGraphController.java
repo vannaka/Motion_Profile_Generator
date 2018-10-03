@@ -199,6 +199,7 @@ public class PosGraphController
 
     private void refreshPoints()
     {
+        // TODO: This only adds new points to the graph; It will not remove points that do not exist anymore in the waypoints list.
         // Display waypoints
         if( dsplyWaypoints && !backend.getWaypointList().isEmpty() )
         {

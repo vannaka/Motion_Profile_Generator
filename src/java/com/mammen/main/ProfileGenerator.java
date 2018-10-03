@@ -2,6 +2,8 @@ package com.mammen.main;
 
 import com.mammen.util.Mathf;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -172,8 +174,8 @@ public class ProfileGenerator
     }
 
     /******************************************************
-    *   Property variables
-    ******************************************************/
+     *   Property variables
+     ******************************************************/
     private DoubleProperty timeStep;
     private DoubleProperty velocity;
     private DoubleProperty accel;
@@ -187,22 +189,27 @@ public class ProfileGenerator
     private ListProperty<Waypoint> waypointList;
 
     /******************************************************
-    *   Trajectories
-    ******************************************************/
-    private ObjectBinding<Trajectory> source;
-    private ObjectBinding<Trajectory> fl;
-    private ObjectBinding<Trajectory> fr;
-    private ObjectBinding<Trajectory> bl;
-    private ObjectBinding<Trajectory> br;
+     *   Trajectories
+     ******************************************************/
+//    private ObjectBinding<Trajectory> source;
+//    private ObjectBinding<Trajectory> fl;
+//    private ObjectBinding<Trajectory> fr;
+//    private ObjectBinding<Trajectory> bl;
+//    private ObjectBinding<Trajectory> br;
 
+    private Property<Trajectory> source;
+    private Property<Trajectory> fl;
+    private Property<Trajectory> fr;
+    private Property<Trajectory> bl;
+    private Property<Trajectory> br;
     
     // File stuff
     private DocumentBuilderFactory dbFactory;
     private File workingProject;
 
     /******************************************************
-    *   Constructor
-    ******************************************************/
+     *   Constructor
+     ******************************************************/
     public ProfileGenerator()
     {
         // Setup properties
@@ -216,6 +223,12 @@ public class ProfileGenerator
         fitMethod   = new SimpleObjectProperty<>();
         units       = new SimpleObjectProperty<>();
 
+        source      = new SimpleObjectProperty<>();
+        fl          = new SimpleObjectProperty<>();
+        fr          = new SimpleObjectProperty<>();
+        bl          = new SimpleObjectProperty<>();
+        br          = new SimpleObjectProperty<>();
+
         waypointList = new SimpleListProperty<>( FXCollections.observableArrayList() );
 
     	dbFactory = DocumentBuilderFactory.newInstance();
@@ -226,161 +239,80 @@ public class ProfileGenerator
     	// Convert variables on units change
     	units.addListener( ( o, oldValue, newValue ) -> updateVarUnits( oldValue, newValue ) );
 
-    	// Bind to motion vars and waypoints
-        source = new ObjectBinding<Trajectory>()
+    	// Generate new trajectory when these change
+    	waypointList.addListener( (observable, oldValue, newValue) ->
         {
+            // Remove problematic point if we cannot generate a trajectory.
+            if( getNumWaypoints() > 1 && !generateTraj() )
             {
-                // sourceBind depends on these properties;
-                // When any of them change, sourceBind's value is recomputed using computeValue() auto-magically;
-                super.bind( waypointList, fitMethod, timeStep, velocity, accel, jerk );
+                removeLastPoint();
+                generateTraj();
             }
+        });
 
-            @Override
-            protected Trajectory computeValue()
-            {
-                Config config = new Config( fitMethod.getValue().getPfFitMethod(), Config.SAMPLES_HIGH, timeStep.get(), velocity.get(), accel.get(), jerk.get() );
+    	fitMethod   .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	timeStep    .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	velocity    .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	accel       .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	jerk        .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	driveBase   .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	wheelBaseW  .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	wheelBaseD  .addListener( (observable, oldValue, newValue) -> generateTraj() );
 
-                // We need at least 2 points to generate a trajectory.
-                if( getNumWaypoints() > 1 )
-                {
-                    try
-                    {
-                        return Pathfinder.generate( waypointList.toArray( new Waypoint[1] ), config );
-                    }
-                    catch(Exception e )
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        };
-
-        fl = new ObjectBinding<Trajectory>()
-        {
-            {
-                super.bind( source, driveBase, wheelBaseW, wheelBaseD );
-            }
-
-            @Override
-            protected Trajectory computeValue()
-            {
-                if( source.get() == null )
-                    return null;
-
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                    SwerveModifier swerve = new SwerveModifier( source.get() );
-                    swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
-
-                    return swerve.getFrontLeftTrajectory();
-                }
-                else  // By default, treat everything as tank drive.
-                {
-                    TankModifier tank = new TankModifier( source.get() );
-                    tank.modify( wheelBaseW.get() );
-
-                    return tank.getLeftTrajectory();
-                }
-            }
-        };
-
-        fr = new ObjectBinding<Trajectory>()
-        {
-            {
-                super.bind( source, driveBase, wheelBaseW, wheelBaseD );
-            }
-
-            @Override
-            protected Trajectory computeValue()
-            {
-                if( source.get() == null )
-                    return null;
-
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                    SwerveModifier swerve = new SwerveModifier( source.get() );
-
-                    swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
-
-                    return swerve.getFrontRightTrajectory();
-                }
-                else  // By default, treat everything as tank drive.
-                {
-                    TankModifier tank = new TankModifier( source.get() );
-                    tank.modify( wheelBaseW.get() );
-
-                    return tank.getRightTrajectory();
-                }
-            }
-        };
-
-        bl = new ObjectBinding<Trajectory>()
-        {
-            {
-                super.bind( source, driveBase, wheelBaseW, wheelBaseD );
-            }
-
-            @Override
-            protected Trajectory computeValue()
-            {
-                if( source.get() == null )
-                    return null;
-
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                    SwerveModifier swerve = new SwerveModifier( source.get() );
-
-                    swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
-
-                    return swerve.getBackLeftTrajectory();
-                }
-                else  // By default, treat everything as tank drive.
-                {
-                    return null;
-                }
-            }
-        };
-
-        br = new ObjectBinding<Trajectory>()
-        {
-            {
-                super.bind( source, driveBase, wheelBaseW, wheelBaseD );
-            }
-
-            @Override
-            protected Trajectory computeValue()
-            {
-                if( source.get() == null )
-                    return null;
-
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                    SwerveModifier swerve = new SwerveModifier( source.get() );
-
-                    swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
-
-                    return swerve.getBackRightTrajectory();
-                }
-                else  // By default, treat everything as tank drive.
-                {
-                    return null;
-                }
-            }
-        };
     }   /* ProfileGenerator() */
 
 
+    private boolean generateTraj()
+    {
+        // We need at least 2 points to generate a trajectory.
+        if( getNumWaypoints() > 1 )
+        {
+            Config config = new Config( fitMethod.getValue().getPfFitMethod(), Config.SAMPLES_HIGH, timeStep.get(), velocity.get(), accel.get(), jerk.get() );
+
+            try
+            {
+                source.setValue( Pathfinder.generate(waypointList.toArray( new Waypoint[1] ), config) );
+            }
+            catch( Exception e )
+            {
+                return false;
+            }
+
+            if( driveBase.getValue() == DriveBase.SWERVE )
+            {
+                SwerveModifier swerve = new SwerveModifier( source.getValue() );
+
+                swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
+
+                fr.setValue( swerve.getFrontRightTrajectory() );
+                fl.setValue( swerve.getFrontLeftTrajectory() );
+                br.setValue( swerve.getBackRightTrajectory() );
+                bl.setValue( swerve.getBackLeftTrajectory() );
+            }
+            else  // DriveBase.Tank
+            {
+                TankModifier tank = new TankModifier( source.getValue() );
+                tank.modify( wheelBaseW.get() );
+
+                fr.setValue( tank.getRightTrajectory() );
+                fl.setValue( tank.getLeftTrajectory() );
+                br.setValue( null );
+                bl.setValue( null );
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     /**************************************************************************
-    *  updateVarUnits
-    *      Converts the variables from one Unit to another.
-    *
-    * @param old_unit The current Unit.
-    * @param new_unit The Unit to convert to.
-    **************************************************************************/
+     *  updateVarUnits
+     *      Converts the variables from one Unit to another.
+     *
+     * @param old_unit The current Unit.
+     * @param new_unit The Unit to convert to.
+     **************************************************************************/
     private void updateVarUnits( Units old_unit, Units new_unit )
     {
         // TODO: Find a better way of doing this!!!
@@ -516,36 +448,36 @@ public class ProfileGenerator
         switch( ext )
         {
             case ".csv":
-                Pathfinder.writeToCSV( new File(parentPath + "_source_Jaci.csv"), source.get() );
+                Pathfinder.writeToCSV( new File(parentPath + "_source_Jaci.csv"), source.getValue() );
 
                 if( driveBase.getValue() == DriveBase.SWERVE )
                 {
-                    Pathfinder.writeToCSV(new File(parentPath + "_fl_Jaci.csv"), fl.get() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_fr_Jaci.csv"), fr.get() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_bl_Jaci.csv"), bl.get() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_br_Jaci.csv"), br.get() );
+                    Pathfinder.writeToCSV(new File(parentPath + "_fl_Jaci.csv"), fl.getValue() );
+                    Pathfinder.writeToCSV(new File(parentPath + "_fr_Jaci.csv"), fr.getValue() );
+                    Pathfinder.writeToCSV(new File(parentPath + "_bl_Jaci.csv"), bl.getValue() );
+                    Pathfinder.writeToCSV(new File(parentPath + "_br_Jaci.csv"), br.getValue() );
                 }
                 else
                 {
-                    Pathfinder.writeToCSV(new File(parentPath + "_left_Jaci.csv"), fl.get() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_right_Jaci.csv"), fr.get() );
+                    Pathfinder.writeToCSV(new File(parentPath + "_left_Jaci.csv"), fl.getValue() );
+                    Pathfinder.writeToCSV(new File(parentPath + "_right_Jaci.csv"), fr.getValue() );
                 }
                 break;
 
             case ".traj":
-                Pathfinder.writeToFile(new File(parentPath + "_source_Jaci.traj"), source.get() );
+                Pathfinder.writeToFile(new File(parentPath + "_source_Jaci.traj"), source.getValue() );
 
                 if( driveBase.getValue() == DriveBase.SWERVE )
                 {
-                    Pathfinder.writeToFile(new File(parentPath + "_fl_Jaci.traj"), fl.get() );
-                    Pathfinder.writeToFile(new File(parentPath + "_fr_Jaci.traj"), fr.get() );
-                    Pathfinder.writeToFile(new File(parentPath + "_bl_Jaci.traj"), bl.get() );
-                    Pathfinder.writeToFile(new File(parentPath + "_br_Jaci.traj"), br.get() );
+                    Pathfinder.writeToFile(new File(parentPath + "_fl_Jaci.traj"), fl.getValue() );
+                    Pathfinder.writeToFile(new File(parentPath + "_fr_Jaci.traj"), fr.getValue() );
+                    Pathfinder.writeToFile(new File(parentPath + "_bl_Jaci.traj"), bl.getValue() );
+                    Pathfinder.writeToFile(new File(parentPath + "_br_Jaci.traj"), br.getValue() );
                 }
                 else
                 {
-                    Pathfinder.writeToFile(new File(parentPath + "_left_Jaci.traj"), fl.get() );
-                    Pathfinder.writeToFile(new File(parentPath + "_right_Jaci.traj"), fr.get() );
+                    Pathfinder.writeToFile(new File(parentPath + "_left_Jaci.traj"), fl.getValue() );
+                    Pathfinder.writeToFile(new File(parentPath + "_right_Jaci.traj"), fr.getValue() );
                 }
                 break;
 
@@ -556,15 +488,15 @@ public class ProfileGenerator
 
 
     /**************************************************************************
-    *  exportTrajectoriesTalon
-    *       Exports all trajectories to the parent folder, with the given root
-    *       name and file extension.
-    *
-    * @param parentPath Path to the directory to export to.
-    * @param ext The file type to export to.
-    * @throws IOException
-    * @throws IllegalArgumentException
-    **************************************************************************/
+     *  exportTrajectoriesTalon
+     *       Exports all trajectories to the parent folder, with the given root
+     *       name and file extension.
+     *
+     * @param parentPath Path to the directory to export to.
+     * @param ext The file type to export to.
+     * @throws IOException
+     * @throws IllegalArgumentException
+     **************************************************************************/
     public void exportTrajectoriesTalon( File parentPath, String ext ) throws IOException, IllegalArgumentException
     {
         File dir = parentPath.getParentFile();
@@ -592,30 +524,30 @@ public class ProfileGenerator
 					PrintWriter brpw = new PrintWriter( brfw );
                 	// CSV with position and velocity. To be used with Talon SRX Motion
 		    		// save front left path to CSV
-			    	for( int i = 0; i < fl.get().length(); i++ )
+			    	for( int i = 0; i < fl.getValue().length(); i++ )
 			    	{			
-			    		Segment seg = fl.get().get( i );
+			    		Segment seg = fl.getValue().get( i );
 			    		flpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    			
 			    	// save front right path to CSV
-			    	for( int i = 0; i < fr.get().length(); i++ )
+			    	for( int i = 0; i < fr.getValue().length(); i++ )
 			    	{			
-			    		Segment seg = fr.get().get( i );
+			    		Segment seg = fr.getValue().get( i );
 			    		frpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    	
 			    	// save back left path to CSV
-			    	for( int i = 0; i < bl.get().length(); i++ )
+			    	for( int i = 0; i < bl.getValue().length(); i++ )
 			    	{			
-			    		Segment seg = bl.get().get( i );
+			    		Segment seg = bl.getValue().get( i );
 			    		blpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    			
 			    	// save back right path to CSV
-			    	for( int i = 0; i < br.get().length(); i++ )
+			    	for( int i = 0; i < br.getValue().length(); i++ )
 			    	{			
-			    		Segment seg = br.get().get( i );
+			    		Segment seg = br.getValue().get( i );
 			    		brpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
 			    	}
 			    	flpw.close();
@@ -633,16 +565,16 @@ public class ProfileGenerator
 					PrintWriter rpw = new PrintWriter( rfw );
                 	// CSV with position and velocity. To be used with Talon SRX Motion
 			    	// save left path to CSV
-			    	for( int i = 0; i < fl.get().length(); i++ )
+			    	for( int i = 0; i < fl.getValue().length(); i++ )
 			    	{			
-			    		Segment seg = fl.get().get( i );
+			    		Segment seg = fl.getValue().get( i );
 			    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
 			    	}
 			    			
 			    	// save right path to CSV
-			    	for( int i = 0; i < fr.get().length(); i++ )
+			    	for( int i = 0; i < fr.getValue().length(); i++ )
 			    	{			
-			    		Segment seg = fr.get().get( i );
+			    		Segment seg = fr.getValue().get( i );
 			    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
 			    	}
 
@@ -652,19 +584,19 @@ public class ProfileGenerator
                 break;
 
             case ".traj":
-                Pathfinder.writeToFile( new File(parentPath + "_source_detailed.traj"), source.get() );
+                Pathfinder.writeToFile( new File(parentPath + "_source_detailed.traj"), source.getValue() );
 
                 if( driveBase.getValue() == DriveBase.SWERVE )
                 {
-                    Pathfinder.writeToFile( new File(parentPath + "_fl_detailed.traj"), fl.get() );
-                    Pathfinder.writeToFile( new File(parentPath + "_fr_detailed.traj"), fr.get() );
-                    Pathfinder.writeToFile( new File(parentPath + "_bl_detailed.traj"), bl.get() );
-                    Pathfinder.writeToFile( new File(parentPath + "_br_detailed.traj"), br.get() );
+                    Pathfinder.writeToFile( new File(parentPath + "_fl_detailed.traj"), fl.getValue() );
+                    Pathfinder.writeToFile( new File(parentPath + "_fr_detailed.traj"), fr.getValue() );
+                    Pathfinder.writeToFile( new File(parentPath + "_bl_detailed.traj"), bl.getValue() );
+                    Pathfinder.writeToFile( new File(parentPath + "_br_detailed.traj"), br.getValue() );
                 }
                 else
                 {
-                    Pathfinder.writeToFile( new File(parentPath + "_left_detailed.traj"), fl.get() );
-                    Pathfinder.writeToFile( new File(parentPath + "_right_detailed.traj"), fr.get() );
+                    Pathfinder.writeToFile( new File(parentPath + "_left_detailed.traj"), fl.getValue() );
+                    Pathfinder.writeToFile( new File(parentPath + "_right_detailed.traj"), fr.getValue() );
                 }
                 break;
 
@@ -963,11 +895,17 @@ public class ProfileGenerator
 
     /**
      * Clears all the existing waypoints in the list.
-     * This also clears all trajectories generated by the waywaypoints.
+     * This also clears all trajectories generated by the waypoints.
      */
     public void clearPoints() 
     {
         waypointList.clear();
+
+        source.setValue( null );
+        fr.setValue( null );
+        fl.setValue( null );
+        br.setValue( null );
+        bl.setValue( null );
     }
     
     public double getTimeStep()
@@ -1123,30 +1061,30 @@ public class ProfileGenerator
 
     public Trajectory getSourceTrajectory()
     {
-        return source.get();
+        return source.getValue();
     }
 
     public Trajectory getFrontLeftTrajectory() 
     {
-        return fl.get();
+        return fl.getValue();
     }
 
     public Trajectory getFrontRightTrajectory() 
     {
-        return fr.get();
+        return fr.getValue();
     }
 
     public Trajectory getBackLeftTrajectory() 
     {
-        return bl.get();
+        return bl.getValue();
     }
 
     public Trajectory getBackRightTrajectory() 
     {
-        return br.get();
+        return br.getValue();
     }
 
-    public ObjectBinding<Trajectory> getFronLeftTrajProperty()
+    public Property<Trajectory> getFronLeftTrajProperty()
     {
         return fl;
     }

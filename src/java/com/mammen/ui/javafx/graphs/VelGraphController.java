@@ -33,7 +33,15 @@ public class VelGraphController
         // Watch Front Left because it exists for both Tank and Swerve
         backend.getFronLeftTrajProperty().addListener( ( o, oldValue, newValue ) ->
         {
+            // Update graph when the trajectory changes
             refresh();
+        });
+
+
+        // Update axis to reflect the new unit
+        backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->
+        {
+            updateAxis( newValue );
         });
     } /* setup() */
 
@@ -45,6 +53,7 @@ public class VelGraphController
     @FXML public void initialize()
     {
     }
+
 
     public void updateAxis( ProfileGenerator.Units units )
     {
@@ -63,6 +72,7 @@ public class VelGraphController
                 break;
         }
     }
+
 
     /**
      * Populates the graph with the newest path data.
