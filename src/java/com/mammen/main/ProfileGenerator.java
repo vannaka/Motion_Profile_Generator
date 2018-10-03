@@ -711,12 +711,12 @@ public class ProfileGenerator
 
             Element trajectoryEle = dom.createElement("Trajectory" );
 
-            trajectoryEle.setAttribute("dt", "" + timeStep );
-            trajectoryEle.setAttribute("velocity", "" + velocity );
-            trajectoryEle.setAttribute("acceleration", "" + accel );
-            trajectoryEle.setAttribute("jerk", "" + jerk );
-            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW );
-            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD );
+            trajectoryEle.setAttribute("dt", "" + timeStep.getValue() );
+            trajectoryEle.setAttribute("velocity", "" + velocity.getValue() );
+            trajectoryEle.setAttribute("acceleration", "" + accel.getValue() );
+            trajectoryEle.setAttribute("jerk", "" + jerk.getValue() );
+            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW.getValue() );
+            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD.getValue() );
             trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getValue().getInternalLabel() );
             trajectoryEle.setAttribute("driveBase", "" + driveBase.getValue().getInternalLabel() );
             trajectoryEle.setAttribute("units", "" + units.getValue().getInternalLabel() );
