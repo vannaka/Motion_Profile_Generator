@@ -44,11 +44,12 @@ public class PosGraphController
     {
         this.backend = backend;
 
-        // Watch Front Left because it exists for both Tank and Swerve
-        backend.getFronLeftTrajProperty().addListener( ( o, oldValue, newValue ) ->
+        // Watch this to know when a new path has been generated
+        backend.numberOfGenerations().addListener( ( o, oldValue, newValue ) ->
         {
             // Update graph when the trajectory changes
             refresh();
+            refreshPoints();
         });
 
         backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->

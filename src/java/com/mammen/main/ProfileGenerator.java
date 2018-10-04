@@ -6,6 +6,8 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 
 import jaci.pathfinder.Pathfinder;
@@ -188,28 +190,34 @@ public class ProfileGenerator
     
     private ListProperty<Waypoint> waypointList;
 
+    private ChangeListener<Number> timeStepChangeListener = this::timeStepListener;
+    private ChangeListener<Number> velocityChangeListener = this::velocityListener;
+    private ChangeListener<Number> accelChangeListener = this::accelListener;
+    private ChangeListener<Number> jerkChangeListener = this::jerkListener;
+    private ChangeListener<Number> wheelBaseWChangeListener = this::wheelBaseWListener;
+    private ChangeListener<Number> wheelBaseDChangeListener = this::wheelBaseDListener;
+    private ChangeListener<DriveBase> driveBaseChangeListener = this::driveBaseListener;
+    private ChangeListener<FitMethod> fitMethodChangeListener = this::fitMethodListener;
+    //private ChangeListener<Units> unitsChangeListener = ;
+
     /******************************************************
      *   Trajectories
      ******************************************************/
-//    private ObjectBinding<Trajectory> source;
-//    private ObjectBinding<Trajectory> fl;
-//    private ObjectBinding<Trajectory> fr;
-//    private ObjectBinding<Trajectory> bl;
-//    private ObjectBinding<Trajectory> br;
-
     private Property<Trajectory> source;
     private Property<Trajectory> fl;
     private Property<Trajectory> fr;
     private Property<Trajectory> bl;
     private Property<Trajectory> br;
+
+    private IntegerProperty numberOfGenerations;
     
     // File stuff
     private DocumentBuilderFactory dbFactory;
     private File workingProject;
 
-    /******************************************************
+    /**************************************************************************
      *   Constructor
-     ******************************************************/
+     *************************************************************************/
     public ProfileGenerator()
     {
         // Setup properties
@@ -229,6 +237,8 @@ public class ProfileGenerator
         bl          = new SimpleObjectProperty<>();
         br          = new SimpleObjectProperty<>();
 
+        numberOfGenerations = new SimpleIntegerProperty( 0 );
+
         waypointList = new SimpleListProperty<>( FXCollections.observableArrayList() );
 
     	dbFactory = DocumentBuilderFactory.newInstance();
@@ -237,7 +247,13 @@ public class ProfileGenerator
     	setDefaultValues( Units.FEET );
 
     	// Convert variables on units change
-    	units.addListener( ( o, oldValue, newValue ) -> updateVarUnits( oldValue, newValue ) );
+    	units.addListener( ( o, oldValue, newValue ) ->
+        {
+            removeListeners();
+            updateVarUnits( oldValue, newValue );
+            generateTraj();
+            addListeners();
+        });
 
     	// Generate new trajectory when these change
     	waypointList.addListener( (observable, oldValue, newValue) ->
@@ -250,16 +266,74 @@ public class ProfileGenerator
             }
         });
 
-    	fitMethod   .addListener( (observable, oldValue, newValue) -> generateTraj() );
-    	timeStep    .addListener( (observable, oldValue, newValue) -> generateTraj() );
-    	velocity    .addListener( (observable, oldValue, newValue) -> generateTraj() );
-    	accel       .addListener( (observable, oldValue, newValue) -> generateTraj() );
-    	jerk        .addListener( (observable, oldValue, newValue) -> generateTraj() );
-    	driveBase   .addListener( (observable, oldValue, newValue) -> generateTraj() );
-    	wheelBaseW  .addListener( (observable, oldValue, newValue) -> generateTraj() );
-    	wheelBaseD  .addListener( (observable, oldValue, newValue) -> generateTraj() );
+    	// Setup our Motion Var listeners (Minus units var)
+        addListeners();
 
     }   /* ProfileGenerator() */
+
+    private void addListeners()
+    {
+        fitMethod   .addListener( fitMethodChangeListener );
+        timeStep    .addListener( timeStepChangeListener );
+        velocity    .addListener( velocityChangeListener );
+        accel       .addListener( accelChangeListener );
+        jerk        .addListener( jerkChangeListener );
+        driveBase   .addListener( driveBaseChangeListener );
+        wheelBaseW  .addListener( wheelBaseWChangeListener );
+        wheelBaseD  .addListener( wheelBaseDChangeListener );
+    }
+
+    private void removeListeners()
+    {
+        fitMethod   .removeListener( fitMethodChangeListener );
+        timeStep    .removeListener( timeStepChangeListener );
+        velocity    .removeListener( velocityChangeListener );
+        accel       .removeListener( accelChangeListener );
+        jerk        .removeListener( jerkChangeListener );
+        driveBase   .removeListener( driveBaseChangeListener );
+        wheelBaseW  .removeListener( wheelBaseWChangeListener );
+        wheelBaseD  .removeListener( wheelBaseDChangeListener );
+    }
+
+    private void fitMethodListener( ObservableValue o, FitMethod oldValue, FitMethod newValue )
+    {
+        generateTraj();
+    }
+
+    private void timeStepListener( ObservableValue o, Number oldValue, Number newValue )
+    {
+        generateTraj();
+    }
+
+    private void velocityListener( ObservableValue o, Number oldValue, Number newValue )
+    {
+        generateTraj();
+    }
+
+    private void accelListener( ObservableValue o, Number oldValue, Number newValue )
+    {
+        generateTraj();
+    }
+
+    private void jerkListener( ObservableValue o, Number oldValue, Number newValue )
+    {
+        generateTraj();
+    }
+
+    private void driveBaseListener( ObservableValue o, DriveBase oldValue, DriveBase newValue )
+    {
+        generateTraj();
+    }
+
+    private void wheelBaseWListener( ObservableValue o, Number oldValue, Number newValue )
+    {
+        generateTraj();
+    }
+
+    private void wheelBaseDListener( ObservableValue o, Number oldValue, Number newValue )
+    {
+        generateTraj();
+    }
 
 
     private boolean generateTraj()
@@ -281,7 +355,6 @@ public class ProfileGenerator
             if( driveBase.getValue() == DriveBase.SWERVE )
             {
                 SwerveModifier swerve = new SwerveModifier( source.getValue() );
-
                 swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
 
                 fr.setValue( swerve.getFrontRightTrajectory() );
@@ -299,6 +372,10 @@ public class ProfileGenerator
                 br.setValue( null );
                 bl.setValue( null );
             }
+
+            // Signal that a new trajectory has been generated.
+            int tmp = numberOfGenerations.get();
+            numberOfGenerations.set( tmp + 1 );
 
             return true;
         }
@@ -367,13 +444,14 @@ public class ProfileGenerator
         }
 
         // Convert each MP variable to the new unit
-    	double tmp_WBW = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
+    	double tmp_WBW = 0, tmp_WBD = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
 
     	// convert to intermediate unit of feet
     	switch( old_unit )
     	{
     	case FEET:
     		tmp_WBW = wheelBaseW.get();
+            tmp_WBD = wheelBaseD.get();
     		tmp_vel = velocity.get();
     		tmp_acc = accel.get();
     		tmp_jer = jerk.get();
@@ -381,6 +459,7 @@ public class ProfileGenerator
     		
     	case INCHES:
     		tmp_WBW = Mathf.inchesToFeet( wheelBaseW.get() );
+    		tmp_WBD = Mathf.inchesToFeet( wheelBaseD.get() );
     		tmp_vel = Mathf.inchesToFeet( velocity.get() );
     		tmp_acc = Mathf.inchesToFeet( accel.get() );
     		tmp_jer = Mathf.inchesToFeet( jerk.get() );
@@ -388,6 +467,7 @@ public class ProfileGenerator
     		
     	case METERS:
     		tmp_WBW = Mathf.meterToFeet( wheelBaseW.get() );
+            tmp_WBD = Mathf.meterToFeet( wheelBaseD.get() );
     		tmp_vel = Mathf.meterToFeet( velocity.get() );
     		tmp_acc = Mathf.meterToFeet( accel.get() );
     		tmp_jer = Mathf.meterToFeet( jerk.get() );
@@ -399,6 +479,7 @@ public class ProfileGenerator
     	{
     	case FEET:
     		wheelBaseW.set( tmp_WBW );
+    		wheelBaseD.set( tmp_WBD );
     		velocity.set( tmp_vel );
     		accel.set( tmp_acc );
     		jerk.set( tmp_jer );
@@ -406,6 +487,7 @@ public class ProfileGenerator
     		
     	case INCHES:
     		wheelBaseW.set( Mathf.feetToInches( tmp_WBW ) );
+    		wheelBaseD.set( Mathf.feetToInches( tmp_WBD ) );
     		velocity.set( Mathf.feetToInches( tmp_vel ) );
     		accel.set( Mathf.feetToInches( tmp_acc ) );
     		jerk.set( Mathf.feetToInches( tmp_jer ) );
@@ -414,6 +496,7 @@ public class ProfileGenerator
     		
     	case METERS:
     		wheelBaseW.set( Mathf.feetToMeter( tmp_WBW ) );
+    		wheelBaseD.set( Mathf.feetToMeter( tmp_WBD ) );
     		velocity.set( Mathf.feetToMeter( tmp_vel ) );
     		accel.set( Mathf.feetToMeter( tmp_acc ) );
     		jerk.set( Mathf.feetToMeter( tmp_jer ) );
@@ -421,6 +504,7 @@ public class ProfileGenerator
     	}
     	
     	wheelBaseW  .set( Mathf.round( wheelBaseW.get(),4 ) );
+    	wheelBaseD  .set( Mathf.round( wheelBaseD.get(),4 ) );
     	velocity    .set( Mathf.round( velocity.get(),  4 ) );
     	accel       .set( Mathf.round( accel.get(),     4 ) );
     	jerk        .set( Mathf.round( jerk.get(),      4 ) );
@@ -1084,10 +1168,28 @@ public class ProfileGenerator
         return br.getValue();
     }
 
-    public Property<Trajectory> getFronLeftTrajProperty()
+    public Property<Trajectory> fronLeftTrajProperty()
     {
         return fl;
     }
+    public Property<Trajectory> fronRightTrajProperty()
+    {
+        return fr;
+    }
+    public Property<Trajectory> backLeftTrajProperty()
+    {
+        return bl;
+    }
+    public Property<Trajectory> backRightTrajProperty()
+    {
+        return br;
+    }
+
+    public IntegerProperty numberOfGenerations()
+    {
+        return numberOfGenerations;
+    }
+
 }
 
 
