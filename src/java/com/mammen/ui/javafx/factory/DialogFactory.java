@@ -50,7 +50,7 @@ public class DialogFactory
 
         try
         {
-            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/settings/SettingsDialog.fxml" ) );
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/SettingsDialog.fxml" ) );
 
             dialog.setDialogPane( loader.load() );
 

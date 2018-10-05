@@ -115,6 +115,13 @@ public class MotionVarsController
                         t.setText("");
                     }
                 }
+                // If we are adding a period to an empty field, prepend it with a zero.
+                else if( ( t.getControlNewText().length() == 1         )
+                      && ( t.getControlNewText().matches( "\\.") ) )
+                {
+                    t.setText("0.");
+                    //t.setCaretPosition( 2 );
+                }
                 // If new text isn't a digit or a period
                 else if ( t.getText().matches("[^0-9\\.]") )
                 {

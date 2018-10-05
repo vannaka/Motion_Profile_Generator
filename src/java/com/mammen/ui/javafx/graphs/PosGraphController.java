@@ -47,8 +47,8 @@ public class PosGraphController
         backend.numberOfGenerations().addListener( ( o, oldValue, newValue ) ->
         {
             // Update graph when the trajectory changes
-            //refresh();
-            //refreshPoints();
+            refresh();
+            refreshPoints();
         });
 
         backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->
@@ -157,10 +157,10 @@ public class PosGraphController
                 blSeries.getNode().setStyle("-fx-stroke: blue");
                 brSeries.getNode().setStyle("-fx-stroke: blue");
 
-                for (XYChart.Data<Double, Double> data : blSeries.getData())
+                for( XYChart.Data<Double, Double> data : blSeries.getData() )
                     data.getNode().setVisible(false);
 
-                for (XYChart.Data<Double, Double> data : brSeries.getData())
+                for( XYChart.Data<Double, Double> data : brSeries.getData() )
                     data.getNode().setVisible(false);
             }
             else

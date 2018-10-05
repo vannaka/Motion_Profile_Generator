@@ -11,13 +11,17 @@ public class PropWrapper {
     private static final String DIR_NAME = "motion-profile-generator";
     private static final File APPDATA_DIR = new File(System.getProperty("user.home") + File.separator + "." + DIR_NAME);
 
-    public static Properties getProperties() {
-        if (propInstance == null) {
-            try {
+    public static Properties getProperties()
+    {
+        if( propInstance == null )
+        {
+            try
+            {
                 propInstance = new Properties();
-                propFile = new File(APPDATA_DIR, PROP_NAME + ".properties");
+                propFile = new File( APPDATA_DIR, PROP_NAME + ".properties" );
 
-                if (!propFile.exists()) {
+                if( !propFile.exists() )
+                {
                     APPDATA_DIR.mkdirs();
 
                     propFile.createNewFile();
@@ -30,8 +34,10 @@ public class PropWrapper {
                     propInstance.put("csv.chos", "null");
                 }
 
-                propInstance.load(new FileInputStream(propFile));
-            } catch (Exception e) {
+                propInstance.load( new FileInputStream( propFile ) );
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }
@@ -39,7 +45,8 @@ public class PropWrapper {
         return propInstance;
     }
 
-    public static void storeProperties() throws IOException {
-        propInstance.store(new FileOutputStream(propFile), "Properties");
+    public static void storeProperties() throws IOException
+    {
+        propInstance.store( new FileOutputStream( propFile ), "Properties" );
     }
 }

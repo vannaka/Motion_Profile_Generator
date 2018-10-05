@@ -194,7 +194,8 @@ public class MainUIController
             btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1);
         });
         
-        Runtime.getRuntime().addShutdownHook( new Thread(() -> {
+        Runtime.getRuntime().addShutdownHook( new Thread( () ->
+        {
             properties.setProperty( "file.workingDir", workingDirectory.getAbsolutePath() );
             try
             {

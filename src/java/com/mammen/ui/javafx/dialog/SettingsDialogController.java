@@ -57,7 +57,7 @@ public class SettingsDialogController
 
         chkAddWaypointOnClick.setSelected( Boolean.parseBoolean( properties.getProperty("ui.addWaypointOnClick", "false") ) );
 
-        List<String> s_ListAvail = new LinkedList<String>(Arrays.asList(properties.getProperty("csv.avail").split(",")));
+        List<String> s_ListAvail = new LinkedList<String>( Arrays.asList( properties.getProperty("csv.avail").split(",") ) );
 
         List<ProfileGenerator.ProfileElements> p_ListAvail = new ArrayList<>();
 
