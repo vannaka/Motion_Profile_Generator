@@ -16,6 +16,7 @@ import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.modifiers.SwerveModifier;
 import jaci.pathfinder.modifiers.TankModifier;
 
+import javafx.collections.ObservableList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -186,21 +187,20 @@ public class ProfileGenerator
     private Property<DriveBase> driveBase;
     private Property<FitMethod> fitMethod;
     private Property<Units> units;
-    
-    //private ListProperty<Waypoint> waypointList;
-
     private ListProperty<WaypointInternal> waypointList;
 
     // Property Variables change listeners
-    private ChangeListener<Number> timeStepChangeListener = this::timeStepListener;
-    private ChangeListener<Number> velocityChangeListener = this::velocityListener;
-    private ChangeListener<Number> accelChangeListener = this::accelListener;
-    private ChangeListener<Number> jerkChangeListener = this::jerkListener;
-    private ChangeListener<Number> wheelBaseWChangeListener = this::wheelBaseWListener;
-    private ChangeListener<Number> wheelBaseDChangeListener = this::wheelBaseDListener;
-    private ChangeListener<DriveBase> driveBaseChangeListener = this::driveBaseListener;
-    private ChangeListener<FitMethod> fitMethodChangeListener = this::fitMethodListener;
+    // We're not using lambda's so that we can remove them to prevent change events from being handled.
+    private ChangeListener<Number> timeStepChangeListener       = this::timeStepListener;
+    private ChangeListener<Number> velocityChangeListener       = this::velocityListener;
+    private ChangeListener<Number> accelChangeListener          = this::accelListener;
+    private ChangeListener<Number> jerkChangeListener           = this::jerkListener;
+    private ChangeListener<Number> wheelBaseWChangeListener     = this::wheelBaseWListener;
+    private ChangeListener<Number> wheelBaseDChangeListener     = this::wheelBaseDListener;
+    private ChangeListener<DriveBase> driveBaseChangeListener   = this::driveBaseListener;
+    private ChangeListener<FitMethod> fitMethodChangeListener   = this::fitMethodListener;
     //private ChangeListener<Units> unitsChangeListener = ;
+    private ChangeListener<ObservableList<WaypointInternal>> waypointListChangeListener = this::waypointListListener;
 
     /******************************************************
      *   Trajectories
@@ -211,6 +211,7 @@ public class ProfileGenerator
     private Property<Trajectory> bl;
     private Property<Trajectory> br;
 
+    // This is so we can send out a single notification when all 5 trajectories are done updating.
     private IntegerProperty numberOfGenerations;
     
     // File stuff
@@ -241,8 +242,6 @@ public class ProfileGenerator
 
         numberOfGenerations = new SimpleIntegerProperty( 0 );
 
-        //waypointList = new SimpleListProperty<>( FXCollections.observableArrayList() );
-
         waypointList = new SimpleListProperty<>( FXCollections.observableArrayList( p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
 
     	dbFactory = DocumentBuilderFactory.newInstance();
@@ -259,18 +258,7 @@ public class ProfileGenerator
             addListeners();
         });
 
-    	// Generate new trajectory when these change
-    	waypointList.addListener( (observable, oldValue, newValue) ->
-        {
-            // Remove problematic point if we cannot generate a trajectory.
-            if( getNumWaypoints() > 1 && !generateTraj() )
-            {
-                removeLastPoint();
-                generateTraj();
-            }
-        });
-
-    	// Setup our Motion Var listeners (Minus units var)
+    	// Setup our PropertyChangeListener's
         addListeners();
 
     }   /* ProfileGenerator() */
@@ -285,6 +273,7 @@ public class ProfileGenerator
         driveBase   .addListener( driveBaseChangeListener );
         wheelBaseW  .addListener( wheelBaseWChangeListener );
         wheelBaseD  .addListener( wheelBaseDChangeListener );
+        waypointList.addListener( waypointListChangeListener );
     }
 
     private void removeListeners()
@@ -297,6 +286,7 @@ public class ProfileGenerator
         driveBase   .removeListener( driveBaseChangeListener );
         wheelBaseW  .removeListener( wheelBaseWChangeListener );
         wheelBaseD  .removeListener( wheelBaseDChangeListener );
+        waypointList.removeListener( waypointListChangeListener );
     }
 
     private void fitMethodListener( ObservableValue o, FitMethod oldValue, FitMethod newValue )
@@ -339,6 +329,15 @@ public class ProfileGenerator
         generateTraj();
     }
 
+    private void waypointListListener( ObservableValue<? extends ObservableList<WaypointInternal>> o, ObservableList<WaypointInternal> oldValue, ObservableList<WaypointInternal> newValue )
+    {
+        // Remove problematic point if we cannot generate a trajectory.
+        if( getNumWaypoints() > 1 && !generateTraj() )
+        {
+            removeLastPoint();
+            generateTraj();
+        }
+    }
 
     private boolean generateTraj()
     {
@@ -349,7 +348,7 @@ public class ProfileGenerator
 
             try
             {
-                source.setValue( Pathfinder.generate( waypointsPathfinderArray() , config) );
+                source.setValue( Pathfinder.generate( WaypointInternal.toPathfinderArray( waypointList ) , config ) );
             }
             catch( Exception e )
             {
@@ -385,23 +384,6 @@ public class ProfileGenerator
         }
 
         return false;
-    }
-
-    private List<Waypoint> waypointsPathfinder()
-    {
-        List<Waypoint> wpPathfinder = new LinkedList<>();
-
-        for( WaypointInternal wp : waypointList )
-        {
-            wpPathfinder.add( new Waypoint( wp.getX(), wp.getY(), wp.getAngle() ) );
-        }
-
-        return wpPathfinder;
-    }
-
-    private Waypoint[] waypointsPathfinderArray()
-    {
-        return waypointsPathfinder().toArray( new Waypoint[1] );
     }
 
     /**************************************************************************
@@ -446,7 +428,7 @@ public class ProfileGenerator
             {
                 case FEET:
                     wp.setX( tmp_x );
-                    wp.setX( tmp_y );
+                    wp.setY( tmp_y );
                     break;
 
                 case INCHES:
@@ -504,28 +486,22 @@ public class ProfileGenerator
     		break;
     		
     	case INCHES:
-    		wheelBaseW.set( Mathf.feetToInches( tmp_WBW ) );
-    		wheelBaseD.set( Mathf.feetToInches( tmp_WBD ) );
-    		velocity.set( Mathf.feetToInches( tmp_vel ) );
-    		accel.set( Mathf.feetToInches( tmp_acc ) );
-    		jerk.set( Mathf.feetToInches( tmp_jer ) );
+    		wheelBaseW.set( Mathf.round( Mathf.feetToInches( tmp_WBW ),4 ) );
+    		wheelBaseD.set( Mathf.round( Mathf.feetToInches( tmp_WBD ),4 ) );
+    		velocity.set( Mathf.round( Mathf.feetToInches( tmp_vel ),4 ) );
+    		accel.set( Mathf.round( Mathf.feetToInches( tmp_acc ),4 ) );
+    		jerk.set( Mathf.round( Mathf.feetToInches( tmp_jer ),4 ) );
     		
     		break;
     		
     	case METERS:
-    		wheelBaseW.set( Mathf.feetToMeter( tmp_WBW ) );
-    		wheelBaseD.set( Mathf.feetToMeter( tmp_WBD ) );
-    		velocity.set( Mathf.feetToMeter( tmp_vel ) );
-    		accel.set( Mathf.feetToMeter( tmp_acc ) );
-    		jerk.set( Mathf.feetToMeter( tmp_jer ) );
+    		wheelBaseW.set( Mathf.round( Mathf.feetToMeter( tmp_WBW ),4 ) );
+    		wheelBaseD.set( Mathf.round( Mathf.feetToMeter( tmp_WBD ),4 ) );
+    		velocity.set( Mathf.round( Mathf.feetToMeter( tmp_vel ),4 ) );
+    		accel.set( Mathf.round( Mathf.feetToMeter( tmp_acc ),4 ) );
+    		jerk.set( Mathf.round( Mathf.feetToMeter( tmp_jer ),4 ) );
     		break;
     	}
-    	
-    	wheelBaseW  .set( Mathf.round( wheelBaseW.get(),4 ) );
-    	wheelBaseD  .set( Mathf.round( wheelBaseD.get(),4 ) );
-    	velocity    .set( Mathf.round( velocity.get(),  4 ) );
-    	accel       .set( Mathf.round( accel.get(),     4 ) );
-    	jerk        .set( Mathf.round( jerk.get(),      4 ) );
     }   /* updateVarUnits() */
 
 

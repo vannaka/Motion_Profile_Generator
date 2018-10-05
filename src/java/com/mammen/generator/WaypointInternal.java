@@ -2,7 +2,11 @@ package com.mammen.generator;
 
 import jaci.pathfinder.Waypoint;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class WaypointInternal
 {
@@ -65,5 +69,22 @@ public class WaypointInternal
     public DoubleProperty angleProperty()
     {
         return angle;
+    }
+
+    private static List<Waypoint> waypointsPathfinder( ListProperty<WaypointInternal> waypointList )
+    {
+        List<Waypoint> wpPathfinder = new LinkedList<>();
+
+        for( WaypointInternal wp : waypointList )
+        {
+            wpPathfinder.add( new Waypoint( wp.getX(), wp.getY(), wp.getAngle() ) );
+        }
+
+        return wpPathfinder;
+    }
+
+    public static Waypoint[] toPathfinderArray( ListProperty<WaypointInternal> waypointList )
+    {
+        return waypointsPathfinder( waypointList ).toArray( new Waypoint[1] );
     }
 }
