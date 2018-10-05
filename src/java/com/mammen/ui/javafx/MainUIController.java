@@ -6,22 +6,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import com.mammen.generator.WaypointInternal;
 import com.mammen.ui.javafx.factory.AlertFactory;
 import com.mammen.ui.javafx.graphs.PosGraphController;
 import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.factory.DialogFactory;
-import com.mammen.main.ProfileGenerator;
+import com.mammen.generator.ProfileGenerator;
 
 import com.mammen.ui.javafx.motion_vars.MotionVarsController;
+import com.mammen.util.Mathf;
 import jaci.pathfinder.Pathfinder;
-import jaci.pathfinder.Waypoint;
 
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
@@ -44,10 +44,10 @@ public class MainUIController
     private Pane root;
 
     @FXML
-    private TableView<Waypoint> tblWaypoints;
+    private TableView<WaypointInternal> tblWaypoints;
 
     @FXML
-    private TableColumn<Waypoint, Double>
+    private TableColumn<WaypointInternal, Double>
         colWaypointX,
         colWaypointY,
         colWaypointAngle;
@@ -118,26 +118,27 @@ public class MainUIController
         btnDelete.setDisable( true );
 
         // Make sure only doubles are entered for waypoints.
-        Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
-            (TableColumn<Waypoint, Double> param) ->
+        Callback<TableColumn<WaypointInternal, Double>, TableCell<WaypointInternal, Double>> doubleCallback =
+            (TableColumn<WaypointInternal, Double> param) ->
         {
-                TextFieldTableCell<Waypoint, Double> cell = new TextFieldTableCell<>();
+                TextFieldTableCell<WaypointInternal, Double> cell = new TextFieldTableCell<>();
 
                 cell.setConverter( new DoubleStringConverter() );
 
                 return cell;
         };
 
-        EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler = ( TableColumn.CellEditEvent<Waypoint, Double> t ) ->
+        // Handle editing waypoints table elements
+        EventHandler<TableColumn.CellEditEvent<WaypointInternal, Double>> editHandler = ( TableColumn.CellEditEvent<WaypointInternal, Double> t ) ->
         {
-                Waypoint curWaypoint = t.getRowValue();
+                WaypointInternal curWaypoint = t.getRowValue();
 
                 if( t.getTableColumn() == colWaypointAngle )
-                    curWaypoint.angle = Pathfinder.d2r( t.getNewValue() );
+                    curWaypoint.setAngle( Pathfinder.d2r( t.getNewValue() ) );
                 else if (t.getTableColumn() == colWaypointY)
-                    curWaypoint.y = t.getNewValue();
+                    curWaypoint.setY( t.getNewValue() );
                 else
-                    curWaypoint.x = t.getNewValue();
+                    curWaypoint.setX( t.getNewValue() );
 
         };
         
@@ -149,29 +150,29 @@ public class MainUIController
         colWaypointY.setOnEditCommit( editHandler );
         colWaypointAngle.setOnEditCommit( editHandler );
 
-        colWaypointX.setCellValueFactory( ( TableColumn.CellDataFeatures<Waypoint, Double> d ) -> new ObservableValueBase<Double>()
+        colWaypointX.setCellValueFactory( ( TableColumn.CellDataFeatures<WaypointInternal, Double> d ) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
             {
-                return d.getValue().x;
+                return d.getValue().getX();
             }
         });
 
-        colWaypointY.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointY.setCellValueFactory((TableColumn.CellDataFeatures<WaypointInternal, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue() {
-                return d.getValue().y;
+                return d.getValue().getY();
             }
         });
 
-        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<WaypointInternal, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
             {
-                return round( Pathfinder.r2d( d.getValue().angle ), 2 );
+                return Mathf.round( Pathfinder.r2d( d.getValue().getAngle() ), 2 );
             }
         });
 
@@ -179,10 +180,10 @@ public class MainUIController
         /* ************************************************
          *  Waypoints Table Stuff
          *************************************************/
-        backend.waypointListProperty().addListener( ( ListChangeListener<Waypoint> ) c ->
+        backend.waypointListProperty().addListener( ( ListChangeListener<WaypointInternal> ) c ->
         {
             // Disable btn if no points exist
-            btnClearPoints.setDisable( backend.getNumWaypoints() == 0 );
+            btnClearPoints.setDisable( backend.isWaypointListEmpty() );
         });
 
         tblWaypoints.itemsProperty().bindBidirectional( backend.waypointListProperty() );
@@ -517,13 +518,13 @@ public class MainUIController
     @FXML
     private void showAddPointDialog() 
     {
-        Dialog<Waypoint> waypointDialog = DialogFactory.createWaypointDialog();
-        Optional<Waypoint> result = null;
+        Dialog<WaypointInternal> waypointDialog = DialogFactory.createWaypointDialog();
+        Optional<WaypointInternal> result = null;
 
         // Wait for the result
         result = waypointDialog.showAndWait();
 
-        result.ifPresent((Waypoint w) -> backend.addPoint( w ) );
+        result.ifPresent((WaypointInternal w) -> backend.addPoint( w ) );
     } /* showAddPointDialog() */
     
     @FXML

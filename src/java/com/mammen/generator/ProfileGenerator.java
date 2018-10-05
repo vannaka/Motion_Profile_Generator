@@ -1,10 +1,8 @@
-package com.mammen.main;
+package com.mammen.generator;
 
 import com.mammen.util.Mathf;
 
-import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -34,6 +32,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.*;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -188,8 +187,11 @@ public class ProfileGenerator
     private Property<FitMethod> fitMethod;
     private Property<Units> units;
     
-    private ListProperty<Waypoint> waypointList;
+    //private ListProperty<Waypoint> waypointList;
 
+    private ListProperty<WaypointInternal> waypointList;
+
+    // Property Variables change listeners
     private ChangeListener<Number> timeStepChangeListener = this::timeStepListener;
     private ChangeListener<Number> velocityChangeListener = this::velocityListener;
     private ChangeListener<Number> accelChangeListener = this::accelListener;
@@ -239,7 +241,9 @@ public class ProfileGenerator
 
         numberOfGenerations = new SimpleIntegerProperty( 0 );
 
-        waypointList = new SimpleListProperty<>( FXCollections.observableArrayList() );
+        //waypointList = new SimpleListProperty<>( FXCollections.observableArrayList() );
+
+        waypointList = new SimpleListProperty<>( FXCollections.observableArrayList( p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
 
     	dbFactory = DocumentBuilderFactory.newInstance();
 
@@ -345,7 +349,7 @@ public class ProfileGenerator
 
             try
             {
-                source.setValue( Pathfinder.generate(waypointList.toArray( new Waypoint[1] ), config) );
+                source.setValue( Pathfinder.generate( waypointsPathfinderArray() , config) );
             }
             catch( Exception e )
             {
@@ -383,6 +387,23 @@ public class ProfileGenerator
         return false;
     }
 
+    private List<Waypoint> waypointsPathfinder()
+    {
+        List<Waypoint> wpPathfinder = new LinkedList<>();
+
+        for( WaypointInternal wp : waypointList )
+        {
+            wpPathfinder.add( new Waypoint( wp.getX(), wp.getY(), wp.getAngle() ) );
+        }
+
+        return wpPathfinder;
+    }
+
+    private Waypoint[] waypointsPathfinderArray()
+    {
+        return waypointsPathfinder().toArray( new Waypoint[1] );
+    }
+
     /**************************************************************************
      *  updateVarUnits
      *      Converts the variables from one Unit to another.
@@ -397,7 +418,7 @@ public class ProfileGenerator
         //          and only convert it for display.
 
     	// Convert each point in the waypoints list
-        for( Waypoint wp : waypointList )
+        for( WaypointInternal wp : waypointList )
         {
             double tmp_x = 0, tmp_y = 0;
 
@@ -405,18 +426,18 @@ public class ProfileGenerator
             switch( old_unit )
             {
                 case FEET:
-                    tmp_x = wp.x;
-                    tmp_y = wp.y;
+                    tmp_x = wp.getX();
+                    tmp_y = wp.getY();
                     break;
 
                 case INCHES:
-                    tmp_x = Mathf.inchesToFeet( wp.x );
-                    tmp_y = Mathf.inchesToFeet( wp.y );
+                    tmp_x = Mathf.inchesToFeet( wp.getX() );
+                    tmp_y = Mathf.inchesToFeet( wp.getY() );
                     break;
 
                 case METERS:
-                    tmp_x = Mathf.meterToFeet( wp.x );
-                    tmp_y = Mathf.meterToFeet( wp.y );
+                    tmp_x = Mathf.meterToFeet( wp.getX() );
+                    tmp_y = Mathf.meterToFeet( wp.getY() );
                     break;
             }
 
@@ -424,23 +445,20 @@ public class ProfileGenerator
             switch( new_unit )
             {
                 case FEET:
-                    wp.x = tmp_x;
-                    wp.y = tmp_y;
+                    wp.setX( tmp_x );
+                    wp.setX( tmp_y );
                     break;
 
                 case INCHES:
-                    wp.x = Mathf.feetToInches(tmp_x);
-                    wp.y = Mathf.feetToInches(tmp_y);
+                    wp.setX( Mathf.feetToInches( tmp_x ) );
+                    wp.setY( Mathf.feetToInches( tmp_y ) );
                     break;
 
                 case METERS:
-                    wp.x = Mathf.feetToMeter(tmp_x);
-                    wp.y = Mathf.feetToMeter(tmp_y);
+                    wp.setX( Mathf.feetToMeter( tmp_x ) );
+                    wp.setY( Mathf.feetToMeter( tmp_y ) );
                     break;
             }
-
-            wp.x = Mathf.round( wp.x, 4 );
-            wp.y = Mathf.round( wp.y, 4 );
         }
 
         // Convert each MP variable to the new unit
@@ -739,15 +757,15 @@ public class ProfileGenerator
 
             dom.appendChild( trajectoryEle );
 
-            for( Waypoint w : waypointList )
+            for( WaypointInternal wp : waypointList )
             {
                 Element waypointEle = dom.createElement("Waypoint" );
                 Element xEle = dom.createElement("X" );
                 Element yEle = dom.createElement("Y" );
                 Element angleEle = dom.createElement("Angle" );
-                Text xText = dom.createTextNode("" + w.x );
-                Text yText = dom.createTextNode("" + w.y );
-                Text angleText = dom.createTextNode("" + w.angle );
+                Text xText = dom.createTextNode("" + wp.getX() );
+                Text yText = dom.createTextNode("" + wp.getY() );
+                Text angleText = dom.createTextNode("" + wp.getAngle() );
 
                 xEle.appendChild( xText );
                 yEle.appendChild( yText );
@@ -823,7 +841,7 @@ public class ProfileGenerator
                             yText = waypointEle.getElementsByTagName("Y").item(0).getTextContent(),
                             angleText = waypointEle.getElementsByTagName("Angle").item(0).getTextContent();
 
-                    waypointList.add( new Waypoint(
+                    waypointList.add( new WaypointInternal(
                                             Double.parseDouble( xText ),
                                             Double.parseDouble( yText ),
                                             Double.parseDouble( angleText )
@@ -936,13 +954,13 @@ public class ProfileGenerator
      */
     public void addPoint( double x, double y, double angle ) 
     {
-        waypointList.add( new Waypoint( x, y, angle ) );
+        waypointList.add( new WaypointInternal( x, y, angle ) );
     }
 
     /**
      * Adds a waypoint to the list of waypoints
      */
-    public void addPoint( Waypoint wp )
+    public void addPoint( WaypointInternal wp )
     {
         waypointList.add( wp );
     }
@@ -952,9 +970,9 @@ public class ProfileGenerator
      */
     public void editWaypoint( int index, double x, double y, double angle )
     {
-        waypointList.get( index ).x = x;
-        waypointList.get( index ).y = y;
-        waypointList.get( index ).angle = angle;
+        waypointList.get( index ).setX( x );
+        waypointList.get( index ).setY( y );
+        waypointList.get( index ).setAngle( angle );
     }
     
     public void removePoint( int index )
@@ -1132,16 +1150,22 @@ public class ProfileGenerator
         return workingProject != null;
     }
 
-    public ListProperty<Waypoint> waypointListProperty()
+    public ListProperty<WaypointInternal> waypointListProperty()
     {
         return waypointList;
     }
 
-    public List<Waypoint> getWaypointList()
+    public List<WaypointInternal> getWaypointList()
     {
         // TODO: What is happening when a ListProperty is converted to a List?
         return waypointList;
     }
+
+    public boolean isWaypointListEmpty()
+    {
+        return waypointList.isEmpty();
+    }
+
 
     public Trajectory getSourceTrajectory()
     {

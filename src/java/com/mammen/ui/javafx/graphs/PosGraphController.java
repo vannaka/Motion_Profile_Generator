@@ -1,15 +1,14 @@
 package com.mammen.ui.javafx.graphs;
 
-import com.mammen.main.ProfileGenerator;
+import com.mammen.generator.ProfileGenerator;
+import com.mammen.generator.WaypointInternal;
 import com.mammen.ui.javafx.factory.DialogFactory;
 import com.mammen.util.Mathf;
 import com.mammen.util.OSValidator;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -48,8 +47,8 @@ public class PosGraphController
         backend.numberOfGenerations().addListener( ( o, oldValue, newValue ) ->
         {
             // Update graph when the trajectory changes
-            refresh();
-            refreshPoints();
+            //refresh();
+            //refreshPoints();
         });
 
         backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->
@@ -60,6 +59,7 @@ public class PosGraphController
 
         backend.waypointListProperty().addListener( ( o, oldValue, newValue ) ->
         {
+            refresh();
             refreshPoints();
         });
     } /* setup() */
@@ -202,10 +202,10 @@ public class PosGraphController
     {
         // TODO: This only adds new points to the graph; It will not remove points that do not exist anymore in the waypoints list.
         // Display waypoints
-        if( dsplyWaypoints && !backend.getWaypointList().isEmpty() )
+        if( dsplyWaypoints && !backend.isWaypointListEmpty() )
         {
             // Display waypoints
-            XYChart.Series<Double, Double> waypointSeries = buildSeries( backend.getWaypointList().toArray( new Waypoint[1] ) );
+            XYChart.Series<Double, Double> waypointSeries = buildSeries( backend.getWaypointList().toArray( new WaypointInternal[1] ) );
             posGraph.getData().add( waypointSeries );
             waypointSeries.getNode().setStyle("-fx-stroke: transparent");
 
@@ -246,18 +246,18 @@ public class PosGraphController
      * @param waypoints Array of waypoints to build a series for.
      * @return The created series to display.
      */
-    private static XYChart.Series<Double, Double> buildSeries( Waypoint[] waypoints )
+    private static XYChart.Series<Double, Double> buildSeries( WaypointInternal[] waypoints )
     {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
 
-        for( Waypoint w : waypoints )
+        for( WaypointInternal w : waypoints )
         {
             // Holds x, y data for a single entry in the series.
             XYChart.Data<Double, Double> data = new XYChart.Data<>();
 
             // Set the x, y data.
-            data.setXValue( w.x );
-            data.setYValue( w.y );
+            data.setXValue( w.getX() );
+            data.setYValue( w.getY() );
 
             // Add the data to the series.
             series.getData().add( data );
@@ -309,9 +309,9 @@ public class PosGraphController
                 // TODO: Clicking to add point not working on Mac???
                 if (OSValidator.isMac())
                 {
-                    Optional<Waypoint> result;
+                    Optional<WaypointInternal> result;
                     result = DialogFactory.createWaypointDialog( String.valueOf(rnd_x), String.valueOf(rnd_y) ).showAndWait();
-                    result.ifPresent( (Waypoint w) -> backend.addPoint( w ) );
+                    result.ifPresent( (WaypointInternal w) -> backend.addPoint( w ) );
                 }
                 else
                 {

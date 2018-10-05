@@ -2,11 +2,11 @@ package com.mammen.ui.javafx.factory;
 
 import java.awt.Toolkit;
 
+import com.mammen.generator.WaypointInternal;
 import com.mammen.ui.javafx.ResourceLoader;
 import com.mammen.ui.javafx.dialog.AddWaypointDialogController;
 
 import jaci.pathfinder.Pathfinder;
-import jaci.pathfinder.Waypoint;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
@@ -71,9 +71,9 @@ public class DialogFactory
         return dialog;
     }
 
-    public static Dialog<Waypoint> createWaypointDialog( String xPos, String yPos )
+    public static Dialog<WaypointInternal> createWaypointDialog(String xPos, String yPos )
     {
-        Dialog<Waypoint> dialog = new Dialog<>();
+        Dialog<WaypointInternal> dialog = new Dialog<>();
 
         try
         {
@@ -109,7 +109,7 @@ public class DialogFactory
                            y     = Double.parseDouble(txtWY.getText().trim()),
                            angle = Double.parseDouble(txtWA.getText().trim());
 
-                    return new Waypoint( x, y, Pathfinder.d2r( angle ) );
+                    return new WaypointInternal( x, y, Pathfinder.d2r( angle ) );
                 }
 
                 return null;
@@ -149,7 +149,7 @@ public class DialogFactory
         return dialog;
     }
 
-    public static Dialog<Waypoint> createWaypointDialog()
+    public static Dialog<WaypointInternal> createWaypointDialog()
     {
         return createWaypointDialog("", "");
     }

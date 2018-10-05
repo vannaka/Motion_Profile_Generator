@@ -1,9 +1,7 @@
 package com.mammen.ui.javafx.graphs;
 
-import com.mammen.main.ProfileGenerator;
+import com.mammen.generator.ProfileGenerator;
 import jaci.pathfinder.Trajectory;
-import jaci.pathfinder.Waypoint;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;

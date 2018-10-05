@@ -1,6 +1,6 @@
 package com.mammen.ui.javafx.motion_vars;
 
-import com.mammen.main.ProfileGenerator;
+import com.mammen.generator.ProfileGenerator;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
