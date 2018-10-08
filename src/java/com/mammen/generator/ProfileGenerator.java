@@ -178,16 +178,19 @@ public class ProfileGenerator
     /******************************************************
      *   Property variables
      ******************************************************/
-    private DoubleProperty timeStep;
-    private DoubleProperty velocity;
-    private DoubleProperty accel;
-    private DoubleProperty jerk;
-    private DoubleProperty wheelBaseW;
-    private DoubleProperty wheelBaseD;
-    private Property<DriveBase> driveBase;
-    private Property<FitMethod> fitMethod;
-    private Property<Units> units;
-    private ListProperty<WaypointInternal> waypointList;
+    private DoubleProperty timeStep         = new SimpleDoubleProperty();
+    private DoubleProperty velocity         = new SimpleDoubleProperty();
+    private DoubleProperty accel            = new SimpleDoubleProperty();
+    private DoubleProperty jerk             = new SimpleDoubleProperty();
+    private DoubleProperty wheelBaseW       = new SimpleDoubleProperty();
+    private DoubleProperty wheelBaseD       = new SimpleDoubleProperty();
+    private Property<DriveBase> driveBase   = new SimpleObjectProperty<>();
+    private Property<FitMethod> fitMethod   = new SimpleObjectProperty<>();
+    private Property<Units> units           = new SimpleObjectProperty<>();
+
+    private ListProperty<WaypointInternal> waypointList = new SimpleListProperty<>(
+                                                                FXCollections.observableArrayList(
+                                                                        p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
 
     // Property Variables change listeners
     // We're not using lambda's so that we can remove them to prevent change events from being handled.
@@ -205,14 +208,14 @@ public class ProfileGenerator
     /******************************************************
      *   Trajectories
      ******************************************************/
-    private Property<Trajectory> source;
-    private Property<Trajectory> fl;
-    private Property<Trajectory> fr;
-    private Property<Trajectory> bl;
-    private Property<Trajectory> br;
+    private Property<Trajectory> source = new SimpleObjectProperty<>();
+    private Property<Trajectory> fl     = new SimpleObjectProperty<>();
+    private Property<Trajectory> fr     = new SimpleObjectProperty<>();
+    private Property<Trajectory> bl     = new SimpleObjectProperty<>();
+    private Property<Trajectory> br     = new SimpleObjectProperty<>();
 
     // This is so we can send out a single notification when all 5 trajectories are done updating.
-    private IntegerProperty numberOfGenerations;
+    private IntegerProperty numberOfGenerations = new SimpleIntegerProperty( 0 );
     
     // File stuff
     private DocumentBuilderFactory dbFactory;
@@ -223,38 +226,24 @@ public class ProfileGenerator
      *************************************************************************/
     public ProfileGenerator()
     {
-        // Setup properties
-        timeStep    = new SimpleDoubleProperty();
-        velocity    = new SimpleDoubleProperty();
-        accel       = new SimpleDoubleProperty();
-        jerk        = new SimpleDoubleProperty();
-        wheelBaseD  = new SimpleDoubleProperty();
-        wheelBaseW  = new SimpleDoubleProperty();
-        driveBase   = new SimpleObjectProperty<>();
-        fitMethod   = new SimpleObjectProperty<>();
-        units       = new SimpleObjectProperty<>();
-
-        source      = new SimpleObjectProperty<>();
-        fl          = new SimpleObjectProperty<>();
-        fr          = new SimpleObjectProperty<>();
-        bl          = new SimpleObjectProperty<>();
-        br          = new SimpleObjectProperty<>();
-
-        numberOfGenerations = new SimpleIntegerProperty( 0 );
-
-        waypointList = new SimpleListProperty<>( FXCollections.observableArrayList( p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
-
     	dbFactory = DocumentBuilderFactory.newInstance();
 
     	// Initialize to default values.
     	setDefaultValues( Units.FEET );
 
-    	// Convert variables on units change
+
+    	/**************************************************
+         *  Property Listeners
+    	 *************************************************/
     	units.addListener( ( o, oldValue, newValue ) ->
         {
+            // Remove to prevent each change from trigering a regeneration of the trajectories.
             removeListeners();
+
             updateVarUnits( oldValue, newValue );
             generateTraj();
+
+            // Add listeners back.
             addListeners();
         });
 
@@ -339,6 +328,11 @@ public class ProfileGenerator
         }
     }
 
+    /**************************************************************************
+     *  generateTraj
+     *     Generates the trajectories for the waypoints in waypointList.
+     * @return False if the generation failed, true otherwise.
+     *************************************************************************/
     private boolean generateTraj()
     {
         // We need at least 2 points to generate a trajectory.
@@ -384,7 +378,7 @@ public class ProfileGenerator
         }
 
         return false;
-    }
+    }   /* generateTraj() */
 
     /**************************************************************************
      *  updateVarUnits
@@ -449,58 +443,58 @@ public class ProfileGenerator
     	// convert to intermediate unit of feet
     	switch( old_unit )
     	{
-    	case FEET:
-    		tmp_WBW = wheelBaseW.get();
-            tmp_WBD = wheelBaseD.get();
-    		tmp_vel = velocity.get();
-    		tmp_acc = accel.get();
-    		tmp_jer = jerk.get();
-    		break;
-    		
-    	case INCHES:
-    		tmp_WBW = Mathf.inchesToFeet( wheelBaseW.get() );
-    		tmp_WBD = Mathf.inchesToFeet( wheelBaseD.get() );
-    		tmp_vel = Mathf.inchesToFeet( velocity.get() );
-    		tmp_acc = Mathf.inchesToFeet( accel.get() );
-    		tmp_jer = Mathf.inchesToFeet( jerk.get() );
-    		break;
-    		
-    	case METERS:
-    		tmp_WBW = Mathf.meterToFeet( wheelBaseW.get() );
-            tmp_WBD = Mathf.meterToFeet( wheelBaseD.get() );
-    		tmp_vel = Mathf.meterToFeet( velocity.get() );
-    		tmp_acc = Mathf.meterToFeet( accel.get() );
-    		tmp_jer = Mathf.meterToFeet( jerk.get() );
-    		break;
+            case FEET:
+                tmp_WBW = wheelBaseW.get();
+                tmp_WBD = wheelBaseD.get();
+                tmp_vel = velocity.get();
+                tmp_acc = accel.get();
+                tmp_jer = jerk.get();
+                break;
+
+            case INCHES:
+                tmp_WBW = Mathf.inchesToFeet( wheelBaseW.get() );
+                tmp_WBD = Mathf.inchesToFeet( wheelBaseD.get() );
+                tmp_vel = Mathf.inchesToFeet( velocity.get() );
+                tmp_acc = Mathf.inchesToFeet( accel.get() );
+                tmp_jer = Mathf.inchesToFeet( jerk.get() );
+                break;
+
+            case METERS:
+                tmp_WBW = Mathf.meterToFeet( wheelBaseW.get() );
+                tmp_WBD = Mathf.meterToFeet( wheelBaseD.get() );
+                tmp_vel = Mathf.meterToFeet( velocity.get() );
+                tmp_acc = Mathf.meterToFeet( accel.get() );
+                tmp_jer = Mathf.meterToFeet( jerk.get() );
+                break;
     	}
     	
     	// convert from intermediate unit of feet
     	switch( new_unit )
     	{
-    	case FEET:
-    		wheelBaseW.set( tmp_WBW );
-    		wheelBaseD.set( tmp_WBD );
-    		velocity.set( tmp_vel );
-    		accel.set( tmp_acc );
-    		jerk.set( tmp_jer );
-    		break;
-    		
-    	case INCHES:
-    		wheelBaseW.set( Mathf.round( Mathf.feetToInches( tmp_WBW ),4 ) );
-    		wheelBaseD.set( Mathf.round( Mathf.feetToInches( tmp_WBD ),4 ) );
-    		velocity.set( Mathf.round( Mathf.feetToInches( tmp_vel ),4 ) );
-    		accel.set( Mathf.round( Mathf.feetToInches( tmp_acc ),4 ) );
-    		jerk.set( Mathf.round( Mathf.feetToInches( tmp_jer ),4 ) );
-    		
-    		break;
-    		
-    	case METERS:
-    		wheelBaseW.set( Mathf.round( Mathf.feetToMeter( tmp_WBW ),4 ) );
-    		wheelBaseD.set( Mathf.round( Mathf.feetToMeter( tmp_WBD ),4 ) );
-    		velocity.set( Mathf.round( Mathf.feetToMeter( tmp_vel ),4 ) );
-    		accel.set( Mathf.round( Mathf.feetToMeter( tmp_acc ),4 ) );
-    		jerk.set( Mathf.round( Mathf.feetToMeter( tmp_jer ),4 ) );
-    		break;
+            case FEET:
+                wheelBaseW  .set( tmp_WBW );
+                wheelBaseD  .set( tmp_WBD );
+                velocity    .set( tmp_vel );
+                accel       .set( tmp_acc );
+                jerk        .set( tmp_jer );
+                break;
+
+            case INCHES:
+                wheelBaseW  .set( Mathf.round( Mathf.feetToInches( tmp_WBW ),4 ) );
+                wheelBaseD  .set( Mathf.round( Mathf.feetToInches( tmp_WBD ),4 ) );
+                velocity    .set( Mathf.round( Mathf.feetToInches( tmp_vel ),4 ) );
+                accel       .set( Mathf.round( Mathf.feetToInches( tmp_acc ),4 ) );
+                jerk        .set( Mathf.round( Mathf.feetToInches( tmp_jer ),4 ) );
+
+                break;
+
+            case METERS:
+                wheelBaseW  .set( Mathf.round( Mathf.feetToMeter( tmp_WBW ),4 ) );
+                wheelBaseD  .set( Mathf.round( Mathf.feetToMeter( tmp_WBD ),4 ) );
+                velocity    .set( Mathf.round( Mathf.feetToMeter( tmp_vel ),4 ) );
+                accel       .set( Mathf.round( Mathf.feetToMeter( tmp_acc ),4 ) );
+                jerk        .set( Mathf.round( Mathf.feetToMeter( tmp_jer ),4 ) );
+                break;
     	}
     }   /* updateVarUnits() */
 

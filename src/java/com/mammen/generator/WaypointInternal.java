@@ -21,7 +21,7 @@ public class WaypointInternal
         this.angle = new SimpleDoubleProperty( angle );
     }
 
-    public Waypoint getWaypoint()
+    public Waypoint getPathfinderWaypoint()
     {
         return new Waypoint( x.get(), y.get(), angle.get() );
     }
