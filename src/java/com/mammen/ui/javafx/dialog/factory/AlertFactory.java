@@ -1,4 +1,4 @@
-package com.mammen.ui.javafx.factory;
+package com.mammen.ui.javafx.dialog.factory;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

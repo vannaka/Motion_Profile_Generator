@@ -2,11 +2,10 @@ package com.mammen.ui.javafx.graphs;
 
 import com.mammen.generator.ProfileGenerator;
 import com.mammen.generator.WaypointInternal;
-import com.mammen.ui.javafx.factory.DialogFactory;
+import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.util.Mathf;
 import com.mammen.util.OSValidator;
 import jaci.pathfinder.Trajectory;
-import jaci.pathfinder.Waypoint;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.LineChart;
@@ -167,14 +166,14 @@ public class PosGraphController
             {
                 posGraph.getData().addAll( flSeries, frSeries );
 
-                //flSeries.getNode().setStyle("-fx-stroke: magenta");
-                flSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
-                                            "-fx-stroke-width: 10px;" +
-                                            "-fx-stroke-line-cap: round");
-                //frSeries.getNode().setStyle("-fx-stroke: magenta");
-                frSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
-                                            "-fx-stroke-width: 10px;" +
-                                            "-fx-stroke-line-cap: round");
+                flSeries.getNode().setStyle("-fx-stroke: magenta");
+//                flSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
+//                                            "-fx-stroke-width: 10px;" +
+//                                            "-fx-stroke-line-cap: round");
+                frSeries.getNode().setStyle("-fx-stroke: magenta");
+//                frSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
+//                                            "-fx-stroke-width: 10px;" +
+//                                            "-fx-stroke-line-cap: round");
             }
 
             for (XYChart.Data<Double, Double> data : flSeries.getData())

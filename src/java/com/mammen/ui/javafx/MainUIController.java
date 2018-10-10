@@ -7,10 +7,10 @@ import java.util.Optional;
 import java.util.Properties;
 
 import com.mammen.generator.WaypointInternal;
-import com.mammen.ui.javafx.factory.AlertFactory;
+import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import com.mammen.ui.javafx.graphs.PosGraphController;
 import com.mammen.ui.javafx.graphs.VelGraphController;
-import com.mammen.ui.javafx.factory.DialogFactory;
+import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.generator.ProfileGenerator;
 
 import com.mammen.ui.javafx.motion_vars.MotionVarsController;
@@ -302,15 +302,16 @@ public class MainUIController
         fileChooser.setInitialDirectory( new File( System.getProperty("user.dir") ) );
         fileChooser.setTitle("Export");
         fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Comma Separated Values", "*.csv" ),
-                new FileChooser.ExtensionFilter("Binary Trajectory File", "*.traj" )
+                new FileChooser.ExtensionFilter("Comma Separated Values", "*.csv" )
         );
 
-        File result = fileChooser.showSaveDialog(root.getScene().getWindow());
+        File result = fileChooser.showSaveDialog( root.getScene().getWindow() );
 
         if( result != null )
         {
-            String parentPath = result.getAbsolutePath(), ext = parentPath.substring( parentPath.lastIndexOf(".") );
+            String parentPath = result.getAbsolutePath();
+            String ext = parentPath.substring( parentPath.lastIndexOf(".") );
+
             parentPath = parentPath.substring(0, parentPath.lastIndexOf(ext));
 
             String csvTypeStr = properties.getProperty("ui.csvType", "0");
@@ -320,11 +321,11 @@ public class MainUIController
             {
             	if( csvType == 0 )
             	{
-            		backend.exportTrajectoriesJaci( new File( parentPath ), ext );
+            		backend.exportTrajectoriesJaci( new File( parentPath ) );
             	}
             	else
                 {
-            		backend.exportTrajectoriesTalon( new File( parentPath ), ext );
+            		backend.exportTrajectoriesTalon( new File( parentPath ) );
             	}
             }
             catch( IOException e )
@@ -392,83 +393,6 @@ public class MainUIController
             }
         }
     } /* showOpenDialog() */
-    
-    @FXML
-    private void showImportDialog()
-    {
-        FileChooser fileChooser = new FileChooser();
-
-        fileChooser.setInitialDirectory(workingDirectory);
-        fileChooser.setTitle("Import");
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Vannaka Properties File", "*.bot")
-        );
-
-        File result = fileChooser.showOpenDialog(root.getScene().getWindow());
-
-        if (result != null)
-        {
-            Dialog<ProfileGenerator.Units> unitsSelector = new Dialog<>();
-            Optional<ProfileGenerator.Units> unitsResult = null;
-            GridPane grid = new GridPane();
-            ToggleGroup radGroup = new ToggleGroup();
-            RadioButton
-                radImperial = new RadioButton("Imperial (ft)"),
-                radMetric = new RadioButton("Metric (m)");
-
-            // Reset working directory
-            workingDirectory = result.getParentFile();
-
-            // Some header stuff
-            unitsSelector.setTitle("Select Units");
-            unitsSelector.setHeaderText("Select the distance units being used");
-
-            // Some other UI stuff
-            grid.setVgap(10);
-            grid.setPadding(new Insets(20, 150, 10, 10));
-
-            grid.add(radImperial, 0, 0);
-            grid.add(radMetric, 0, 1);
-
-            radImperial.setToggleGroup(radGroup);
-            radImperial.selectedProperty().set(true);
-            radMetric.setToggleGroup(radGroup);
-
-            unitsSelector.getDialogPane().setContent(grid);
-
-            // Add all buttons
-            unitsSelector.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-            unitsSelector.setResultConverter(buttonType -> {
-                if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
-                    if (radMetric.selectedProperty().getValue())
-                        return ProfileGenerator.Units.METERS;
-                    else
-                        return ProfileGenerator.Units.FEET;
-                }
-
-                return null;
-            });
-
-            unitsResult = unitsSelector.showAndWait();
-
-            unitsResult.ifPresent( u ->
-            {
-                backend.clearPoints();
-                try
-                {
-                    backend.importBotFile( result, u );
-
-                    mnuFileSave.setDisable( !backend.hasWorkingProject() );
-                }
-                catch( Exception e )
-                {
-                    Alert alert = AlertFactory.createExceptionAlert( e );
-
-                    alert.showAndWait();
-                }
-            });
-        }
-    } /* showImportDialog() */
     
     @FXML
     private void save()

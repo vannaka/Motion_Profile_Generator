@@ -1,6 +1,6 @@
 package com.mammen.main;
 
-import com.mammen.ui.javafx.factory.AlertFactory;
+import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import javafx.application.Application;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;

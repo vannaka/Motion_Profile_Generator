@@ -202,7 +202,7 @@ public class ProfileGenerator
     private ChangeListener<Number> wheelBaseDChangeListener     = this::wheelBaseDListener;
     private ChangeListener<DriveBase> driveBaseChangeListener   = this::driveBaseListener;
     private ChangeListener<FitMethod> fitMethodChangeListener   = this::fitMethodListener;
-    //private ChangeListener<Units> unitsChangeListener = ;
+    private ChangeListener<Units> unitsChangeListener           = this::unitsListener;
     private ChangeListener<ObservableList<WaypointInternal>> waypointListChangeListener = this::waypointListListener;
 
     /******************************************************
@@ -235,19 +235,6 @@ public class ProfileGenerator
     	/**************************************************
          *  Property Listeners
     	 *************************************************/
-    	units.addListener( ( o, oldValue, newValue ) ->
-        {
-            // Remove to prevent each change from trigering a regeneration of the trajectories.
-            removeListeners();
-
-            updateVarUnits( oldValue, newValue );
-            generateTraj();
-
-            // Add listeners back.
-            addListeners();
-        });
-
-    	// Setup our PropertyChangeListener's
         addListeners();
 
     }   /* ProfileGenerator() */
@@ -263,6 +250,7 @@ public class ProfileGenerator
         wheelBaseW  .addListener( wheelBaseWChangeListener );
         wheelBaseD  .addListener( wheelBaseDChangeListener );
         waypointList.addListener( waypointListChangeListener );
+        units       .addListener( unitsChangeListener );
     }
 
     private void removeListeners()
@@ -276,6 +264,7 @@ public class ProfileGenerator
         wheelBaseW  .removeListener( wheelBaseWChangeListener );
         wheelBaseD  .removeListener( wheelBaseDChangeListener );
         waypointList.removeListener( waypointListChangeListener );
+        units       .removeListener( unitsChangeListener );
     }
 
     private void fitMethodListener( ObservableValue o, FitMethod oldValue, FitMethod newValue )
@@ -326,6 +315,19 @@ public class ProfileGenerator
             removeLastPoint();
             generateTraj();
         }
+    }
+
+    private void unitsListener( ObservableValue o, Units oldValue, Units newValue )
+    {
+        // Remove to prevent each change from triggering a regeneration of the trajectories.
+        removeListeners();
+
+        // Update values and regenerate trajectories
+        updateVarUnits( oldValue, newValue );
+        generateTraj();
+
+        // Add listeners back.
+        addListeners();
     }
 
     /**************************************************************************
@@ -505,9 +507,8 @@ public class ProfileGenerator
      *      name and file extension.
      *
      * @param parentPath Path to the directory to export to.
-     * @param ext The file type to export to.
      *************************************************************************/
-    public void exportTrajectoriesJaci( File parentPath, String ext ) throws IllegalArgumentException
+    public void exportTrajectoriesJaci( File parentPath )
     {
         File dir = parentPath.getParentFile();
 
@@ -517,45 +518,21 @@ public class ProfileGenerator
                 return;
         }
 
-        switch( ext )
+        Pathfinder.writeToCSV( new File(parentPath + "_source_Jaci.csv"), source.getValue() );
+
+        if( driveBase.getValue() == DriveBase.SWERVE )
         {
-            case ".csv":
-                Pathfinder.writeToCSV( new File(parentPath + "_source_Jaci.csv"), source.getValue() );
-
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                    Pathfinder.writeToCSV(new File(parentPath + "_fl_Jaci.csv"), fl.getValue() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_fr_Jaci.csv"), fr.getValue() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_bl_Jaci.csv"), bl.getValue() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_br_Jaci.csv"), br.getValue() );
-                }
-                else
-                {
-                    Pathfinder.writeToCSV(new File(parentPath + "_left_Jaci.csv"), fl.getValue() );
-                    Pathfinder.writeToCSV(new File(parentPath + "_right_Jaci.csv"), fr.getValue() );
-                }
-                break;
-
-            case ".traj":
-                Pathfinder.writeToFile(new File(parentPath + "_source_Jaci.traj"), source.getValue() );
-
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                    Pathfinder.writeToFile(new File(parentPath + "_fl_Jaci.traj"), fl.getValue() );
-                    Pathfinder.writeToFile(new File(parentPath + "_fr_Jaci.traj"), fr.getValue() );
-                    Pathfinder.writeToFile(new File(parentPath + "_bl_Jaci.traj"), bl.getValue() );
-                    Pathfinder.writeToFile(new File(parentPath + "_br_Jaci.traj"), br.getValue() );
-                }
-                else
-                {
-                    Pathfinder.writeToFile(new File(parentPath + "_left_Jaci.traj"), fl.getValue() );
-                    Pathfinder.writeToFile(new File(parentPath + "_right_Jaci.traj"), fr.getValue() );
-                }
-                break;
-
-            default:
-                throw new IllegalArgumentException( "Invalid file extension" );
+            Pathfinder.writeToCSV( new File(parentPath + "_fl_Jaci.csv"), fl.getValue() );
+            Pathfinder.writeToCSV( new File(parentPath + "_fr_Jaci.csv"), fr.getValue() );
+            Pathfinder.writeToCSV( new File(parentPath + "_bl_Jaci.csv"), bl.getValue() );
+            Pathfinder.writeToCSV( new File(parentPath + "_br_Jaci.csv"), br.getValue() );
         }
+        else
+        {
+            Pathfinder.writeToCSV( new File(parentPath + "_left_Jaci.csv"), fl.getValue() );
+            Pathfinder.writeToCSV( new File(parentPath + "_right_Jaci.csv"), fr.getValue() );
+        }
+
     }   /* exportTrajectoriesJaci() */
 
 
@@ -565,11 +542,10 @@ public class ProfileGenerator
      *       name and file extension.
      *
      * @param parentPath Path to the directory to export to.
-     * @param ext The file type to export to.
      * @throws IOException
      * @throws IllegalArgumentException
      **************************************************************************/
-    public void exportTrajectoriesTalon( File parentPath, String ext ) throws IOException, IllegalArgumentException
+    public void exportTrajectoriesTalon( File parentPath ) throws IOException
     {
         File dir = parentPath.getParentFile();
 
@@ -578,102 +554,79 @@ public class ProfileGenerator
             if( !dir.mkdirs() )
                 return;
         }
-        switch( ext ) {
-            case ".csv":
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                	File flFile = new File(parentPath + "_fl_Talon.csv");
-			        File frFile = new File(parentPath + "_fr_Talon.csv");
-			        File blFile = new File(parentPath + "_bl_Talon.csv");
-			        File brFile = new File(parentPath + "_br_Talon.csv");
-			        FileWriter flfw = new FileWriter( flFile );
-					FileWriter frfw = new FileWriter( frFile );
-					FileWriter blfw = new FileWriter( blFile );
-					FileWriter brfw = new FileWriter( brFile );
-					PrintWriter flpw = new PrintWriter( flfw );
-					PrintWriter frpw = new PrintWriter( frfw );
-					PrintWriter blpw = new PrintWriter( blfw );
-					PrintWriter brpw = new PrintWriter( brfw );
-                	// CSV with position and velocity. To be used with Talon SRX Motion
-		    		// save front left path to CSV
-			    	for( int i = 0; i < fl.getValue().length(); i++ )
-			    	{			
-			    		Segment seg = fl.getValue().get( i );
-			    		flpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
-			    	}
-			    			
-			    	// save front right path to CSV
-			    	for( int i = 0; i < fr.getValue().length(); i++ )
-			    	{			
-			    		Segment seg = fr.getValue().get( i );
-			    		frpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
-			    	}
-			    	
-			    	// save back left path to CSV
-			    	for( int i = 0; i < bl.getValue().length(); i++ )
-			    	{			
-			    		Segment seg = bl.getValue().get( i );
-			    		blpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
-			    	}
-			    			
-			    	// save back right path to CSV
-			    	for( int i = 0; i < br.getValue().length(); i++ )
-			    	{			
-			    		Segment seg = br.getValue().get( i );
-			    		brpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
-			    	}
-			    	flpw.close();
-			    	frpw.close();
-			    	blpw.close();
-			    	brpw.close();
-                }
-                else
-                    {
-                	File lFile = new File(parentPath + "_left_Talon.csv");
-			        File rFile = new File(parentPath + "_right_Talon.csv");
-			        FileWriter lfw = new FileWriter( lFile );
-					FileWriter rfw = new FileWriter( rFile );
-					PrintWriter lpw = new PrintWriter( lfw );
-					PrintWriter rpw = new PrintWriter( rfw );
-                	// CSV with position and velocity. To be used with Talon SRX Motion
-			    	// save left path to CSV
-			    	for( int i = 0; i < fl.getValue().length(); i++ )
-			    	{			
-			    		Segment seg = fl.getValue().get( i );
-			    		lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
-			    	}
-			    			
-			    	// save right path to CSV
-			    	for( int i = 0; i < fr.getValue().length(); i++ )
-			    	{			
-			    		Segment seg = fr.getValue().get( i );
-			    		rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
-			    	}
 
-			    	lpw.close();
-			    	rpw.close();
-                }
-                break;
+        if( driveBase.getValue() == DriveBase.SWERVE )
+        {
+            File flFile = new File(parentPath + "_fl_Talon.csv");
+            File frFile = new File(parentPath + "_fr_Talon.csv");
+            File blFile = new File(parentPath + "_bl_Talon.csv");
+            File brFile = new File(parentPath + "_br_Talon.csv");
+            FileWriter flfw = new FileWriter( flFile );
+            FileWriter frfw = new FileWriter( frFile );
+            FileWriter blfw = new FileWriter( blFile );
+            FileWriter brfw = new FileWriter( brFile );
+            PrintWriter flpw = new PrintWriter( flfw );
+            PrintWriter frpw = new PrintWriter( frfw );
+            PrintWriter blpw = new PrintWriter( blfw );
+            PrintWriter brpw = new PrintWriter( brfw );
+            // CSV with position and velocity. To be used with Talon SRX Motion
+            // save front left path to CSV
+            for( int i = 0; i < fl.getValue().length(); i++ )
+            {
+                Segment seg = fl.getValue().get( i );
+                flpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+            }
 
-            case ".traj":
-                Pathfinder.writeToFile( new File(parentPath + "_source_detailed.traj"), source.getValue() );
+            // save front right path to CSV
+            for( int i = 0; i < fr.getValue().length(); i++ )
+            {
+                Segment seg = fr.getValue().get( i );
+                frpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+            }
 
-                if( driveBase.getValue() == DriveBase.SWERVE )
-                {
-                    Pathfinder.writeToFile( new File(parentPath + "_fl_detailed.traj"), fl.getValue() );
-                    Pathfinder.writeToFile( new File(parentPath + "_fr_detailed.traj"), fr.getValue() );
-                    Pathfinder.writeToFile( new File(parentPath + "_bl_detailed.traj"), bl.getValue() );
-                    Pathfinder.writeToFile( new File(parentPath + "_br_detailed.traj"), br.getValue() );
-                }
-                else
-                {
-                    Pathfinder.writeToFile( new File(parentPath + "_left_detailed.traj"), fl.getValue() );
-                    Pathfinder.writeToFile( new File(parentPath + "_right_detailed.traj"), fr.getValue() );
-                }
-                break;
+            // save back left path to CSV
+            for( int i = 0; i < bl.getValue().length(); i++ )
+            {
+                Segment seg = bl.getValue().get( i );
+                blpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+            }
 
-            default:
-                throw new IllegalArgumentException("Invalid file extension");
+            // save back right path to CSV
+            for( int i = 0; i < br.getValue().length(); i++ )
+            {
+                Segment seg = br.getValue().get( i );
+                brpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+            }
+            flpw.close();
+            frpw.close();
+            blpw.close();
+            brpw.close();
+        }
+        else
+        {
+            File lFile = new File(parentPath + "_left_Talon.csv");
+            File rFile = new File(parentPath + "_right_Talon.csv");
+            FileWriter lfw = new FileWriter( lFile );
+            FileWriter rfw = new FileWriter( rFile );
+            PrintWriter lpw = new PrintWriter( lfw );
+            PrintWriter rpw = new PrintWriter( rfw );
+            // CSV with position and velocity. To be used with Talon SRX Motion
+            // save left path to CSV
+            for( int i = 0; i < fl.getValue().length(); i++ )
+            {
+                Segment seg = fl.getValue().get( i );
+                lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
+            }
+
+            // save right path to CSV
+            for( int i = 0; i < fr.getValue().length(); i++ )
+            {
+                Segment seg = fr.getValue().get( i );
+                rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
+            }
+
+            lpw.close();
+            rpw.close();
         }
     }   /* exportTrajectoriesTalon() */
 
@@ -820,54 +773,6 @@ public class ProfileGenerator
             }
 
             workingProject = path;
-        }
-    }
-    
-    /**
-     * Imports a properties (*.bot) file into the generator.
-     * This import method should work with properties files generated from version 2.3.0.
-     */
-    public void importBotFile( File path, Units botUnits ) throws IOException, NumberFormatException {
-        if( !path.exists() || path.isDirectory() )
-            return;
-
-        if( path.getAbsolutePath().toLowerCase().endsWith(".bot") )
-        {
-            BufferedReader botReader = new BufferedReader(new FileReader(path));
-            Stream<String> botStream = botReader.lines();
-            List<String> botLines = botStream.collect( Collectors.toList() );
-
-            // First off we need to set the units of distance being used in the file.
-            // Unfortunately it is not explicitly saved to file; we will need some user input on that.
-            units.setValue( botUnits );
-
-            // Now we can read the first 7 lines and assign them accordingly.
-            timeStep    .set( Math.abs( Double.parseDouble( botLines.get(0).trim() ) ) );
-            velocity    .set( Math.abs( Double.parseDouble( botLines.get(1).trim() ) ) );
-            accel       .set( Math.abs( Double.parseDouble( botLines.get(2).trim() ) ) );
-            jerk        .set( Math.abs( Double.parseDouble( botLines.get(3).trim() ) ) );
-            wheelBaseW  .set( Math.abs( Double.parseDouble( botLines.get(4).trim() ) ) );
-            wheelBaseD  .set( Math.abs( Double.parseDouble( botLines.get(5).trim() ) ) );
-
-            fitMethod.setValue( FitMethod.valueOf("HERMITE_" + botLines.get(6).trim().toUpperCase()) );
-
-            // Assume that the wheel base was swerve
-            if( wheelBaseD.get() > 0 )
-                driveBase.setValue( DriveBase.SWERVE );
-
-            // GLHF parse the rest of the file I guess...
-            for( int i = 7; i < botLines.size(); i++ )
-            {
-                String[] waypointVals = botLines.get(i).split("," );
-
-                addPoint(   Double.parseDouble( waypointVals[0].trim() ),
-                            Double.parseDouble( waypointVals[1].trim() ),
-                            Math.toRadians( Double.parseDouble( waypointVals[2].trim() ) ) );
-            }
-
-            // Make sure you aren't trying to save to another project file
-            clearWorkingFiles();
-            botReader.close();
         }
     }
     
