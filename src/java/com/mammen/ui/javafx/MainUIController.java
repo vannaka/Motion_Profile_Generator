@@ -184,6 +184,7 @@ public class MainUIController
         {
             // Disable btn if no points exist
             btnClearPoints.setDisable( backend.isWaypointListEmpty() );
+            tblWaypoints.refresh();
         });
 
         tblWaypoints.itemsProperty().bindBidirectional( backend.waypointListProperty() );
