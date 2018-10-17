@@ -139,7 +139,6 @@ public class PosGraphController
      */
     public void refresh()
     {
-        int counter = 0;
         XYChart.Series<Double, Double> flSeries, frSeries, blSeries, brSeries;
 
         // Clear data from position graph
@@ -205,12 +204,14 @@ public class PosGraphController
 
     public void refreshPoints()
     {
+        int counter = 0;
+
         // TODO: This only adds new points to the graph; It will not remove points from the graph that do not exist anymore in the waypoints list.
         // Display waypoints
         if( dsplyWaypoints && !backend.isWaypointListEmpty() )
         {
             // Display waypoints
-            waypointSeries = buildSeries( waypointsList.toArray( new Waypoint[1] ) );
+            waypointSeries = buildSeries( backend.getWaypointList().toArray( new WaypointInternal[1] ) );
             posGraph.getData().add( waypointSeries );
             waypointSeries.getNode().setStyle("-fx-stroke: transparent");
 
@@ -220,11 +221,11 @@ public class PosGraphController
             }
         }
 
-        for ( XYChart.Data<Double, Double> data : waypointSeries.getData())
+        for( XYChart.Data<Double, Double> data : waypointSeries.getData() )
         {
             Node node = data.getNode();
             counter += 1;
-            node.setId(String.valueOf(counter));
+            node.setId( String.valueOf( counter ) );
             setOnPointEvent(node, data);
         }
     }
@@ -338,13 +339,13 @@ public class PosGraphController
         node.setOnMouseReleased(event -> {
             System.out.println("Point Released");
 
-            int index = Integer.parseInt(node.getId());
+            int index = Integer.parseInt( node.getId() );
 
-            Waypoint tmp = waypointsList.get( index - 1 );
-            tmp.x = (Double) data.getXValue();
-            tmp.y = (Double) data.getYValue();
+            WaypointInternal tmp = backend.getWaypoint( index - 1 );
+            tmp.setX( (Double) data.getXValue() );
+            tmp.setY( (Double) data.getYValue() );
 
-            waypointsList.set( index - 1, tmp);
+            //waypointsList.set( index - 1, tmp);
         });
     }
 
@@ -376,33 +377,43 @@ public class PosGraphController
                 double rnd_x;
                 double rnd_y;
 
-                if (backend.getUnits() == ProfileGenerator.Units.FEET) {
+                if( backend.getUnits() == ProfileGenerator.Units.FEET )
+                {
                     rnd_x = Mathf.round(raw_x, 0.5);
                     rnd_y = Mathf.round(raw_y, 0.5);
-                } else if (backend.getUnits() == ProfileGenerator.Units.METERS) {
+                }
+                else if( backend.getUnits() == ProfileGenerator.Units.METERS )
+                {
                     rnd_x = Mathf.round(raw_x, 0.25);
                     rnd_y = Mathf.round(raw_y, 0.25);
-                } else if (backend.getUnits() == ProfileGenerator.Units.INCHES) {
+                }
+                else if( backend.getUnits() == ProfileGenerator.Units.INCHES )
+                {
                     rnd_x = Mathf.round(raw_x, 6.0);
                     rnd_y = Mathf.round(raw_y, 6.0);
-                } else {
+                }
+                else
+                {
                     rnd_x = Mathf.round(raw_x, 2);
                     rnd_y = Mathf.round(raw_y, 2);
                 }
 
 
-                if (rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() &&
-                        rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound()) {
+                if( ( rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() )
+                 && ( rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound() ) )
+                {
+
                     // Clicking to add point not working on Mac???
                     if (OSValidator.isMac()) {
-                        Optional<Waypoint> result;
+                        Optional<WaypointInternal> result;
 
-                        result = DialogFactory.createWaypointDialog(String.valueOf(rnd_x), String.valueOf(rnd_y)).showAndWait();
+                        result = DialogFactory.createWaypointDialog( String.valueOf(rnd_x), String.valueOf(rnd_y) ).showAndWait();
 
-                        result.ifPresent((Waypoint w) -> waypointsList.add(w));
-                    } else {
-                        Waypoint temp = new Waypoint(rnd_x, rnd_y, 0.0);
-                        waypointsList.add(temp);
+                        result.ifPresent( (WaypointInternal w) -> backend.addPoint( w ) );
+                    }
+                    else
+                    {
+                        backend.addPoint( rnd_x, rnd_y, 0.0 );
                     }
                 }
             }
