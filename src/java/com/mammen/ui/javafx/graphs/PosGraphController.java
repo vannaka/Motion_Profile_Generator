@@ -199,7 +199,7 @@ public class PosGraphController
 
     private void refreshPoints()
     {
-        // TODO: This only adds new points to the graph; It will not remove points that do not exist anymore in the waypoints list.
+        // TODO: This only adds new points to the graph; It will not remove points from the graph that do not exist anymore in the waypoints list.
         // Display waypoints
         if( dsplyWaypoints && !backend.isWaypointListEmpty() )
         {
@@ -225,17 +225,19 @@ public class PosGraphController
     {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
 
-        for( int i = 0; i < traj.segments.length; i++ )
+        if( traj != null )
         {
-            // Holds x, y data for a single entry in the series.
-            XYChart.Data<Double, Double> data = new XYChart.Data<>();
+            for (int i = 0; i < traj.segments.length; i++) {
+                // Holds x, y data for a single entry in the series.
+                XYChart.Data<Double, Double> data = new XYChart.Data<>();
 
-            // Set the x, y data.
-            data.setXValue( traj.get(i).x );
-            data.setYValue( traj.get(i).y );
+                // Set the x, y data.
+                data.setXValue(traj.get(i).x);
+                data.setYValue(traj.get(i).y);
 
-            // Add the data to the series.
-            series.getData().add( data );
+                // Add the data to the series.
+                series.getData().add( data );
+            }
         }
         return series;
     }

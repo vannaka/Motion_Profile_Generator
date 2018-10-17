@@ -739,6 +739,11 @@ public class ProfileGenerator
 
             Element docEle = dom.getDocumentElement();
 
+            // Load units first so that the change event it causes won't unnecessarily convert the other variables.
+            units       .setValue( Units    .valueOf( docEle.getAttribute("units"       ) ) );
+            driveBase   .setValue( DriveBase.valueOf( docEle.getAttribute("driveBase"   ) ) );
+            fitMethod   .setValue( FitMethod.valueOf( docEle.getAttribute("fitMethod"   ) ) );
+
             timeStep    .set( Double.parseDouble( docEle.getAttribute("dt"              ) ) );
             velocity    .set( Double.parseDouble( docEle.getAttribute("velocity"        ) ) );
             accel       .set( Double.parseDouble( docEle.getAttribute("acceleration"    ) ) );
@@ -746,9 +751,6 @@ public class ProfileGenerator
             wheelBaseW  .set( Double.parseDouble( docEle.getAttribute("wheelBaseW"      ) ) );
             wheelBaseD  .set( Double.parseDouble( docEle.getAttribute("wheelBaseD"      ) ) );
 
-            driveBase   .setValue( DriveBase.valueOf( docEle.getAttribute("driveBase"   ) ) );
-            units       .setValue( Units    .valueOf( docEle.getAttribute("units"       ) ) );
-            fitMethod   .setValue( FitMethod.valueOf( docEle.getAttribute("fitMethod"   ) ) );
 
             NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
 
