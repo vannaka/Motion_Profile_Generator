@@ -1,6 +1,7 @@
 package com.mammen.ui.javafx.motion_vars;
 
 import com.mammen.generator.ProfileGenerator;
+import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -34,6 +35,9 @@ public class MotionVarsController
     @FXML
     private ChoiceBox<ProfileGenerator.Units> choUnits;
 
+    @FXML
+    private CheckBox chk_reverse;
+
     private ProfileGenerator backend;
 
     StringConverter<Number> converter;
@@ -58,6 +62,8 @@ public class MotionVarsController
         choFitMethod    .valueProperty().bindBidirectional( backend.fitMethodProperty() );
         choDriveBase    .valueProperty().bindBidirectional( backend.driveBaseProperty() );
         choUnits        .valueProperty().bindBidirectional( backend.unitsProperty()     );
+
+        chk_reverse     .selectedProperty().bindBidirectional( backend.reversedProperty());
 
         txtTimeStep     .textProperty().bindBidirectional( backend.timeStepProperty(),   converter );
         txtVelocity     .textProperty().bindBidirectional( backend.velocityProperty(),   converter );
@@ -91,7 +97,6 @@ public class MotionVarsController
 
         // Populate units ChoiceBox
         choUnits.getItems().setAll( ProfileGenerator.Units.values() );
-
 
         // Formats number typed into TextFields
         UnaryOperator<TextFormatter.Change> filter = t ->

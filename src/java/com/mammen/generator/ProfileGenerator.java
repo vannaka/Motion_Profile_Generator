@@ -189,6 +189,8 @@ public class ProfileGenerator
     private Property<FitMethod> fitMethod   = new SimpleObjectProperty<>();
     private Property<Units> units           = new SimpleObjectProperty<>();
 
+    private BooleanProperty isReversed    = new SimpleBooleanProperty();
+
     private ListProperty<WaypointInternal> waypointList = new SimpleListProperty<>(
                                                                 FXCollections.observableArrayList(
                                                                         p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
@@ -579,28 +581,28 @@ public class ProfileGenerator
             for( int i = 0; i < fl.getValue().length(); i++ )
             {
                 Segment seg = fl.getValue().get( i );
-                flpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+                flpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
             }
 
             // save front right path to CSV
             for( int i = 0; i < fr.getValue().length(); i++ )
             {
                 Segment seg = fr.getValue().get( i );
-                frpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+                frpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
             }
 
             // save back left path to CSV
             for( int i = 0; i < bl.getValue().length(); i++ )
             {
                 Segment seg = bl.getValue().get( i );
-                blpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+                blpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
             }
 
             // save back right path to CSV
             for( int i = 0; i < br.getValue().length(); i++ )
             {
                 Segment seg = br.getValue().get( i );
-                brpw.printf( "%f, %f, %d\n", seg.position, seg.velocity, (int)(seg.dt * 1000) );
+                brpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
             }
             flpw.close();
             frpw.close();
@@ -620,14 +622,14 @@ public class ProfileGenerator
             for( int i = 0; i < fl.getValue().length(); i++ )
             {
                 Segment seg = fl.getValue().get( i );
-                lpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
+                lpw.printf("%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), ( int )( seg.dt * 1000 ) );
             }
 
             // save right path to CSV
             for( int i = 0; i < fr.getValue().length(); i++ )
             {
                 Segment seg = fr.getValue().get( i );
-                rpw.printf("%f, %f, %d\n", seg.position, seg.velocity, (int)( seg.dt * 1000 ) );
+                rpw.printf("%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), ( int )( seg.dt * 1000 ) );
             }
 
             lpw.close();
@@ -677,46 +679,46 @@ public class ProfileGenerator
                 {
                     // Get String to same case as our enums for comparison.
                     temp = temp.toUpperCase();
-
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
                     }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.x);
+                        data = data + String.format("%f,", seg.x );
                     }
-                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.y);
+                        data = data + String.format("%f,", seg.y );
                     }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.position);
+                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity);
+                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration);
+                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk);
+                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading);
+                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
                     }
                 }
                 // Remove the comma from the end of the line
@@ -732,46 +734,46 @@ public class ProfileGenerator
                 {
                     // Get String to same case as our enums for comparison.
                     temp = temp.toUpperCase();
-
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
                     }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.x);
+                        data = data + String.format("%f,", seg.x );
                     }
-                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.y);
+                        data = data + String.format("%f,", seg.y );
                     }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.position);
+                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity);
+                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration);
+                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk);
+                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading);
+                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
                     }
                 }
                 // Remove the comma from the end of the line
@@ -787,46 +789,46 @@ public class ProfileGenerator
                 {
                     // Get String to same case as our enums for comparison.
                     temp = temp.toUpperCase();
-
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
                     }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.x);
+                        data = data + String.format("%f,", seg.x );
                     }
-                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.y);
+                        data = data + String.format("%f,", seg.y );
                     }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.position);
+                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity);
+                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration);
+                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk);
+                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
                     {
                         Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading);
+                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
                     }
                 }
                 // Remove the comma from the end of the line
@@ -842,46 +844,46 @@ public class ProfileGenerator
                 {
                     // Get String to same case as our enums for comparison.
                     temp = temp.toUpperCase();
-
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
                     }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.x);
+                        data = data + String.format("%f,", seg.x );
                     }
-                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.y);
+                        data = data + String.format("%f,", seg.y );
                     }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.position);
+                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity);
+                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration);
+                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk);
+                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
                     {
                         Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading);
+                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
                     }
                 }
                 // Remove the comma from the end of the line
@@ -910,46 +912,46 @@ public class ProfileGenerator
                 {
                     // Get String to same case as our enums for comparison.
                     temp = temp.toUpperCase();
-
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
                     }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.x);
+                        data = data + String.format("%f,", seg.x );
                     }
-                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.y);
+                        data = data + String.format("%f,", seg.y );
                     }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.position);
+                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity);
+                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration);
+                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk);
+                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
                     {
                         Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading);
+                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
                     }
                 }
                 // Remove the comma from the end of the line
@@ -965,46 +967,46 @@ public class ProfileGenerator
                 {
                     // Get String to same case as our enums for comparison.
                     temp = temp.toUpperCase();
-
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
                     }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.x);
+                        data = data + String.format("%f,", seg.x );
                     }
-                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.y);
+                        data = data + String.format("%f,", seg.y );
                     }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.position);
+                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity);
+                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration);
+                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk);
+                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
                     }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
                     {
                         Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading);
+                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
                     }
                 }
                 // Remove the comma from the end of the line
@@ -1063,6 +1065,7 @@ public class ProfileGenerator
             trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getValue().getInternalLabel() );
             trajectoryEle.setAttribute("driveBase", "" + driveBase.getValue().getInternalLabel() );
             trajectoryEle.setAttribute("units", "" + units.getValue().getInternalLabel() );
+            trajectoryEle.setAttribute("reversed", ""  + isReversed.getValue().toString());
 
             dom.appendChild( trajectoryEle );
 
@@ -1136,6 +1139,7 @@ public class ProfileGenerator
             jerk        .set( Double.parseDouble( docEle.getAttribute("jerk"            ) ) );
             wheelBaseW  .set( Double.parseDouble( docEle.getAttribute("wheelBaseW"      ) ) );
             wheelBaseD  .set( Double.parseDouble( docEle.getAttribute("wheelBaseD"      ) ) );
+            isReversed  .set( Boolean.parseBoolean( docEle.getAttribute("reversed"      ) ) );
 
 
             NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
@@ -1180,6 +1184,7 @@ public class ProfileGenerator
         fitMethod.setValue( FitMethod.HERMITE_CUBIC );
         driveBase.setValue( DriveBase.TANK );
         units.setValue( newUnits );
+        isReversed.setValue( false );
 
         switch( newUnits )
     	{
@@ -1475,6 +1480,11 @@ public class ProfileGenerator
     public IntegerProperty numberOfGenerations()
     {
         return numberOfGenerations;
+    }
+
+    public BooleanProperty reversedProperty()
+    {
+        return isReversed;
     }
 
 }

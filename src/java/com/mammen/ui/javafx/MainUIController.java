@@ -333,7 +333,7 @@ public class MainUIController
             	}
             	else
                 {
-                    if ( !backend.s_ListChose.contains( "null" ) ) 
+                    if ( !backend.s_ListChose.contains( "null" ) )
                     {
                         backend.exportTrajectoriesCustom(new File(parentPath), backend.s_ListChose);
                     }
