@@ -197,7 +197,7 @@ public class PosGraphController
         }
     }
 
-    private void refreshPoints()
+    public void refreshPoints()
     {
         // TODO: This only adds new points to the graph; It will not remove points from the graph that do not exist anymore in the waypoints list.
         // Display waypoints

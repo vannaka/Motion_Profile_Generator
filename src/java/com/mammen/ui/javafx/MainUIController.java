@@ -264,6 +264,7 @@ public class MainUIController
                     // TODO: bind position graph bg image to the bg setting.
                     posGraphController.setBGImg( overlayDir );
                     posGraphController.refresh();
+                    posGraphController.refreshPoints();
 
                     // Update backend list with new values.
                     backend.s_ListChose = new LinkedList<>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
