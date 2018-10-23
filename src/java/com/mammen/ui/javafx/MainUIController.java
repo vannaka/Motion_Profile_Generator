@@ -2,9 +2,7 @@ package com.mammen.ui.javafx;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import com.mammen.generator.WaypointInternal;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
@@ -105,6 +103,8 @@ public class MainUIController
         // Setup motion variables
         motionVarsController.setup( backend );
 
+        // Put List in a variable
+        backend.s_ListChose = new LinkedList<>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
 
         // Retrieve the working dir from our properties file.
         // If the path isn't a dir for some reason, default to the user directory
@@ -265,6 +265,9 @@ public class MainUIController
                     posGraphController.setBGImg( overlayDir );
                     posGraphController.refresh();
 
+                    // Update backend list with new values.
+                    backend.s_ListChose = new LinkedList<>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
+
                     PropWrapper.storeProperties();
                 }
                 catch( IOException e )
@@ -324,10 +327,28 @@ public class MainUIController
             	{
             		backend.exportTrajectoriesJaci( new File( parentPath ) );
             	}
-            	else
+            	else if( csvType == 1 )
                 {
             		backend.exportTrajectoriesTalon( new File( parentPath ) );
             	}
+            	else
+                {
+                    if ( !backend.s_ListChose.contains( "null" ) ) 
+                    {
+                        backend.exportTrajectoriesCustom(new File(parentPath), backend.s_ListChose);
+                    }
+                    else
+                    {
+                        Alert alert = new Alert( Alert.AlertType.WARNING );
+
+                        alert.setTitle("No Values Chosen for Custom CSV!");
+                        alert.setHeaderText("CSV list is empty!");
+                        alert.setContentText("Please go to the settings and choose the values you want in the CSV.");
+
+                        alert.showAndWait();
+
+                    }
+                }
             }
             catch( IOException e )
             {

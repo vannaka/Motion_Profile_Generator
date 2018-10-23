@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -220,6 +221,10 @@ public class ProfileGenerator
     // File stuff
     private DocumentBuilderFactory dbFactory;
     private File workingProject;
+
+    // Property Lists
+    public List<String> s_ListAvail;
+    public List<String> s_ListChose;
 
     /**************************************************************************
      *   Constructor
@@ -629,6 +634,387 @@ public class ProfileGenerator
             rpw.close();
         }
     }   /* exportTrajectoriesTalon() */
+
+    /**************************************************************************
+     *  exportTrajectoriesCustom
+     *       Exports all trajectories to the parent folder, with the given root
+     *       name and file extension.
+     *
+     * @param parentPath Path to the directory to export to.
+     * @param csvList List of csv values to export.
+     * @throws IOException
+     * @throws IllegalArgumentException
+     **************************************************************************/
+    public void exportTrajectoriesCustom( File parentPath, List<String> csvList ) throws IOException
+    {
+        File dir = parentPath.getParentFile();
+
+        if( dir != null && !dir.exists() && dir.isDirectory() )
+        {
+            if (!dir.mkdirs())
+                return;
+        }
+
+        if( driveBase.getValue() == DriveBase.SWERVE )
+        {
+            File flFile = new File(parentPath + "_fl_Custom.csv");
+            File frFile = new File(parentPath + "_fr_Custom.csv");
+            File blFile = new File(parentPath + "_bl_Custom.csv");
+            File brFile = new File(parentPath + "_br_Custom.csv");
+            FileWriter flfw = new FileWriter( flFile );
+            FileWriter frfw = new FileWriter( frFile );
+            FileWriter blfw = new FileWriter( blFile );
+            FileWriter brfw = new FileWriter( brFile );
+            PrintWriter flpw = new PrintWriter( flfw );
+            PrintWriter frpw = new PrintWriter( frfw );
+            PrintWriter blpw = new PrintWriter( blfw );
+            PrintWriter brpw = new PrintWriter( brfw );
+            // save front left path to CSV
+            for( int i = 0; i < fl.getValue().length(); i++ )
+            {
+                String data = "";
+                for ( String temp : csvList)
+                {
+                    // Get String to same case as our enums for comparison.
+                    temp = temp.toUpperCase();
+
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                    }
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.x);
+                    }
+                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.y);
+                    }
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.position);
+                    }
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.velocity);
+                    }
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.acceleration);
+                    }
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.jerk);
+                    }
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.heading);
+                    }
+                }
+                // Remove the comma from the end of the line
+                data = data.replaceAll(",$", "");
+                flpw.printf( data + "\n" );
+            }
+
+            // save front right path to CSV
+            for( int i = 0; i < fr.getValue().length(); i++ )
+            {
+                String data = "";
+                for ( String temp : csvList)
+                {
+                    // Get String to same case as our enums for comparison.
+                    temp = temp.toUpperCase();
+
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                    }
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.x);
+                    }
+                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.y);
+                    }
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.position);
+                    }
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.velocity);
+                    }
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.acceleration);
+                    }
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.jerk);
+                    }
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.heading);
+                    }
+                }
+                // Remove the comma from the end of the line
+                data = data.replaceAll(",$", "");
+                frpw.printf( data + "\n" );
+            }
+
+            // save back left path to CSV
+            for( int i = 0; i < bl.getValue().length(); i++ )
+            {
+                String data = "";
+                for ( String temp : csvList)
+                {
+                    // Get String to same case as our enums for comparison.
+                    temp = temp.toUpperCase();
+
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                    }
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%f,", seg.x);
+                    }
+                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%f,", seg.y);
+                    }
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%f,", seg.position);
+                    }
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%f,", seg.velocity);
+                    }
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%f,", seg.acceleration);
+                    }
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%f,", seg.jerk);
+                    }
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    {
+                        Segment seg = bl.getValue().get( i );
+                        data = data + String.format("%f,", seg.heading);
+                    }
+                }
+                // Remove the comma from the end of the line
+                data = data.replaceAll(",$", "");
+                blpw.printf( data + "\n" );
+            }
+
+            // save back right path to CSV
+            for( int i = 0; i < br.getValue().length(); i++ )
+            {
+                String data = "";
+                for ( String temp : csvList)
+                {
+                    // Get String to same case as our enums for comparison.
+                    temp = temp.toUpperCase();
+
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                    }
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%f,", seg.x);
+                    }
+                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%f,", seg.y);
+                    }
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%f,", seg.position);
+                    }
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%f,", seg.velocity);
+                    }
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%f,", seg.acceleration);
+                    }
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%f,", seg.jerk);
+                    }
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    {
+                        Segment seg = br.getValue().get( i );
+                        data = data + String.format("%f,", seg.heading);
+                    }
+                }
+                // Remove the comma from the end of the line
+                data = data.replaceAll(",$", "");
+                brpw.printf( data + "\n" );
+            }
+            flpw.close();
+            frpw.close();
+            blpw.close();
+            brpw.close();
+        }
+        else
+        {
+            File lFile = new File(parentPath + "_left_Custom.csv");
+            File rFile = new File(parentPath + "_right_Custom.csv");
+            FileWriter lfw = new FileWriter( lFile );
+            FileWriter rfw = new FileWriter( rFile );
+            PrintWriter lpw = new PrintWriter( lfw );
+            PrintWriter rpw = new PrintWriter( rfw );
+
+            // save left path to CSV
+            for( int i = 0; i < fl.getValue().length(); i++ )
+            {
+                String data = "";
+                for ( String temp : csvList)
+                {
+                    // Get String to same case as our enums for comparison.
+                    temp = temp.toUpperCase();
+
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                    }
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.x);
+                    }
+                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.y);
+                    }
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.position);
+                    }
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.velocity);
+                    }
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.acceleration);
+                    }
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.jerk);
+                    }
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    {
+                        Segment seg = fl.getValue().get( i );
+                        data = data + String.format("%f,", seg.heading);
+                    }
+                }
+                // Remove the comma from the end of the line
+                data = data.replaceAll(",$", "");
+                lpw.printf( data + "\n" );
+            }
+
+            // save right path to CSV
+            for( int i = 0; i < fr.getValue().length(); i++ )
+            {
+                String data = "";
+                for ( String temp : csvList)
+                {
+                    // Get String to same case as our enums for comparison.
+                    temp = temp.toUpperCase();
+
+                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%d,", (int)( seg.dt * 1000 ));
+                    }
+                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.x);
+                    }
+                    else if ( temp.equals(ProfileElements.Y_POINT.internalLabel))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.y);
+                    }
+                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.position);
+                    }
+                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.velocity);
+                    }
+                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.acceleration);
+                    }
+                    else if ( temp.equals( ProfileElements.JERK.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.jerk);
+                    }
+                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ))
+                    {
+                        Segment seg = fr.getValue().get( i );
+                        data = data + String.format("%f,", seg.heading);
+                    }
+                }
+                // Remove the comma from the end of the line
+                data = data.replaceAll(",$", "");
+                rpw.printf( data + "\n" );
+            }
+            lpw.close();
+            rpw.close();
+        }
+    }   /* exportTrajectoriesCustom() */
 
 
     /**

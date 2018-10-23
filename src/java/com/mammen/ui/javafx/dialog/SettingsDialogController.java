@@ -38,12 +38,15 @@ public class SettingsDialogController
 
     private Properties properties;
 
+    private ProfileGenerator backend;
+
     private static DataFormat profileElementFormat = new DataFormat("com.mammen.ProfileGenerator.ProfileElements");
 
     @FXML
     private void initialize()
     {
         properties = PropWrapper.getProperties();
+        backend = new ProfileGenerator();
 
         btn_gen_styles();
 
@@ -57,13 +60,13 @@ public class SettingsDialogController
 
         chkAddWaypointOnClick.setSelected( Boolean.parseBoolean( properties.getProperty("ui.addWaypointOnClick", "false") ) );
 
-        List<String> s_ListAvail = new LinkedList<String>( Arrays.asList( properties.getProperty("csv.avail").split(",") ) );
+        backend.s_ListAvail = new LinkedList<>( Arrays.asList( properties.getProperty("csv.avail").split(",") ) );
 
         List<ProfileGenerator.ProfileElements> p_ListAvail = new ArrayList<>();
 
-        if(s_ListAvail.size() > 1) {
-            for (int i = 0; i < s_ListAvail.size(); i++) {
-                String s = s_ListAvail
+        if(backend.s_ListAvail.size() > 1) {
+            for (int i = 0; i < backend.s_ListAvail.size(); i++) {
+                String s = backend.s_ListAvail
                         .get(i)
                         .toUpperCase()
                         .trim()
@@ -76,14 +79,14 @@ public class SettingsDialogController
             lst_availabel_vals.getItems().setAll(ProfileGenerator.ProfileElements.NULL);
         }
 
-        List<String> s_ListChose = new LinkedList<String>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
+        backend.s_ListChose = new LinkedList<>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
 
         List<ProfileGenerator.ProfileElements> p_ListChose = new ArrayList<>();
 
-        if(s_ListChose.size() > 1 || !s_ListChose.contains(null)) {
+        if(backend.s_ListChose.size() > 1 || !backend.s_ListChose.contains(null)) {
 
-            for (int i = 0; i < s_ListChose.size(); i++) {
-                String s = s_ListChose
+            for (int i = 0; i < backend.s_ListChose.size(); i++) {
+                String s = backend.s_ListChose
                         .get(i)
                         .toUpperCase()
                         .trim()
