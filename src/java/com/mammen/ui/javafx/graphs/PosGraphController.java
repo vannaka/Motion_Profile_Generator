@@ -32,7 +32,6 @@ public class PosGraphController
 
     private boolean dsplyCenterPath;
     private boolean dsplyWaypoints;
-    private boolean dsblAddPoints;
 
     XYChart.Series<Double, Double> waypointSeries;
 
@@ -76,7 +75,6 @@ public class PosGraphController
     {
         dsplyCenterPath = false;
         dsplyWaypoints = true;
-        dsblAddPoints = false;
     }
 
 
@@ -358,11 +356,9 @@ public class PosGraphController
 
         if( addWaypointOnClick )
         {
-            if (dsblAddPoints)
+            // Only add a point if mouse has not moved since clicking. This filters out the mouse event from dragging a point.
+            if (event.isStillSincePress())
             {
-                dsblAddPoints = false;
-            }
-            else {
                 System.out.println("Point Added");
                 // get pixel location
                 Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
@@ -416,6 +412,10 @@ public class PosGraphController
                         backend.addPoint( rnd_x, rnd_y, 0.0 );
                     }
                 }
+            }
+            else
+            {
+                event.consume();
             }
         }
         else
