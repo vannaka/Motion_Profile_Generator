@@ -301,9 +301,9 @@ public class PosGraphController
         node.setOnMouseDragged(event -> {
             System.out.println("Point Dragged");
             // get pixel location
-            Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
-            double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
-            double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
+            Point2D mouseSceneCoords = new Point2D( event.getSceneX(), event.getSceneY() );
+            double xLocal = axisPosX.sceneToLocal( mouseSceneCoords ).getX();
+            double yLocal = axisPosY.sceneToLocal( mouseSceneCoords ).getY();
 
             // get location in units (ft, m, in)
             double raw_x = axisPosX.getValueForDisplay( xLocal ).doubleValue();
@@ -330,8 +330,17 @@ public class PosGraphController
                 rnd_y = Mathf.round( raw_y, 6.0 );
             }
 
-            data.setXValue( rnd_x );
-            data.setYValue( rnd_y );
+            if( rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() )
+            {
+
+                data.setXValue( rnd_x );
+
+            }
+
+            if( rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound() )
+            {
+                data.setYValue( rnd_y );
+            }
         });
 
         node.setOnMouseReleased(event -> {
