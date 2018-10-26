@@ -282,24 +282,10 @@ public class PosGraphController
     private void setOnPointEvent (Node node, XYChart.Data data)
     {
         node.setOnMouseEntered(event -> {
-            node.setCursor(Cursor.HAND);
-            System.out.println("Point Entered");
-        });
-
-        node.setOnMouseExited(event -> {
-            System.out.println("Point Exited");
-        });
-
-        node.setOnMouseClicked(event -> {
-            System.out.println("Point Clicked");
-        });
-
-        node.setOnMousePressed(event -> {
-            System.out.println("Point Pressed");
+            node.setCursor( Cursor.HAND );
         });
 
         node.setOnMouseDragged(event -> {
-            System.out.println("Point Dragged");
             // get pixel location
             Point2D mouseSceneCoords = new Point2D( event.getSceneX(), event.getSceneY() );
             double xLocal = axisPosX.sceneToLocal( mouseSceneCoords ).getX();
@@ -344,15 +330,11 @@ public class PosGraphController
         });
 
         node.setOnMouseReleased(event -> {
-            System.out.println("Point Released");
-
             int index = Integer.parseInt( node.getId() );
 
             WaypointInternal tmp = backend.getWaypoint( index - 1 );
             tmp.setX( (Double) data.getXValue() );
             tmp.setY( (Double) data.getYValue() );
-
-            //waypointsList.set( index - 1, tmp);
         });
     }
 
@@ -361,22 +343,19 @@ public class PosGraphController
     {
         boolean addWaypointOnClick = true;
 
-        System.out.println("Graph Clicked");
-
         if( addWaypointOnClick )
         {
             // Only add a point if mouse has not moved since clicking. This filters out the mouse event from dragging a point.
-            if (event.isStillSincePress())
+            if ( event.isStillSincePress() )
             {
-                System.out.println("Point Added");
                 // get pixel location
-                Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
-                double xLocal = axisPosX.sceneToLocal(mouseSceneCoords).getX();
-                double yLocal = axisPosY.sceneToLocal(mouseSceneCoords).getY();
+                Point2D mouseSceneCoords = new Point2D( event.getSceneX(), event.getSceneY() );
+                double xLocal = axisPosX.sceneToLocal( mouseSceneCoords ).getX();
+                double yLocal = axisPosY.sceneToLocal( mouseSceneCoords ).getY();
 
                 // get location in units (ft, m, in)
-                double raw_x = axisPosX.getValueForDisplay(xLocal).doubleValue();
-                double raw_y = axisPosY.getValueForDisplay(yLocal).doubleValue();
+                double raw_x = axisPosX.getValueForDisplay( xLocal ).doubleValue();
+                double raw_y = axisPosY.getValueForDisplay( yLocal ).doubleValue();
 
                 // round location
                 double rnd_x;
@@ -384,23 +363,23 @@ public class PosGraphController
 
                 if( backend.getUnits() == ProfileGenerator.Units.FEET )
                 {
-                    rnd_x = Mathf.round(raw_x, 0.5);
-                    rnd_y = Mathf.round(raw_y, 0.5);
+                    rnd_x = Mathf.round( raw_x, 0.5 );
+                    rnd_y = Mathf.round( raw_y, 0.5 );
                 }
                 else if( backend.getUnits() == ProfileGenerator.Units.METERS )
                 {
-                    rnd_x = Mathf.round(raw_x, 0.25);
-                    rnd_y = Mathf.round(raw_y, 0.25);
+                    rnd_x = Mathf.round( raw_x, 0.25 );
+                    rnd_y = Mathf.round( raw_y, 0.25 );
                 }
                 else if( backend.getUnits() == ProfileGenerator.Units.INCHES )
                 {
-                    rnd_x = Mathf.round(raw_x, 6.0);
-                    rnd_y = Mathf.round(raw_y, 6.0);
+                    rnd_x = Mathf.round( raw_x, 6.0 );
+                    rnd_y = Mathf.round( raw_y, 6.0 );
                 }
                 else
                 {
-                    rnd_x = Mathf.round(raw_x, 2);
-                    rnd_y = Mathf.round(raw_y, 2);
+                    rnd_x = Mathf.round( raw_x, 2 );
+                    rnd_y = Mathf.round( raw_y, 2 );
                 }
 
 
@@ -409,12 +388,13 @@ public class PosGraphController
                 {
 
                     // Clicking to add point not working on Mac???
-                    if (OSValidator.isMac()) {
+                    if ( OSValidator.isMac() )
+                    {
                         Optional<WaypointInternal> result;
 
-                        result = DialogFactory.createWaypointDialog( String.valueOf(rnd_x), String.valueOf(rnd_y) ).showAndWait();
+                        result = DialogFactory.createWaypointDialog( String.valueOf( rnd_x ), String.valueOf( rnd_y ) ).showAndWait();
 
-                        result.ifPresent( (WaypointInternal w) -> backend.addPoint( w ) );
+                        result.ifPresent( ( WaypointInternal w ) -> backend.addPoint( w ) );
                     }
                     else
                     {
