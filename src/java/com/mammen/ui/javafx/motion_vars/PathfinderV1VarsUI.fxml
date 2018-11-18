@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
@@ -12,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.motion_vars.MotionVarsController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.motion_vars.PathfinderV1VarsController">
             <!--maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">-->
 
     <TitledPane alignment="BOTTOM_CENTER" animated="false" collapsible="false" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" text="Motion Variables" textAlignment="CENTER" underline="true">
@@ -89,8 +88,6 @@
                             <Tooltip text="The max acceleration rate your robot is capable of achieving" textAlignment="CENTER" wrapText="true" />
                         </tooltip>
                     </TextField>
-               <Label text="Reverse Profile?:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-               <CheckBox fx:id="chk_reverse" mnemonicParsing="false" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                 </children>
             </GridPane>
         </content>

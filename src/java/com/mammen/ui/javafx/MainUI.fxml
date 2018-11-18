@@ -71,7 +71,7 @@
          <children>
             <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="635.0" prefWidth="420.0" spacing="10.0" HBox.hgrow="NEVER">
                <children>
-                   <fx:include fx:id="motionVars" source="motion_vars/MotionVarsUI.fxml" />
+                   <fx:include fx:id="motionVars" source="motion_vars/PathfinderV1VarsUI.fxml" />
                   <TitledPane alignment="BOTTOM_CENTER" animated="false" collapsible="false" contentDisplay="BOTTOM" layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="420.0" text="Waypoints" textAlignment="CENTER" underline="true">
                      <font>
                         <Font size="15.0" />

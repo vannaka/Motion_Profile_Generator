@@ -1,7 +1,9 @@
 package com.mammen.ui.javafx.motion_vars;
 
+import com.mammen.generator.DriveBase;
 import com.mammen.generator.ProfileGenerator;
-import javafx.beans.property.BooleanProperty;
+import com.mammen.generator.Units;
+import com.mammen.generator.wrappers.PfV1GeneratorVars;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -11,7 +13,7 @@ import javafx.util.converter.NumberStringConverter;
 
 import java.util.function.UnaryOperator;
 
-public class MotionVarsController
+public class PathfinderV1VarsController
 {
     @FXML
     private Label
@@ -27,18 +29,15 @@ public class MotionVarsController
             txtWheelBaseD;
 
     @FXML
-    private ChoiceBox<ProfileGenerator.FitMethod> choFitMethod;
+    private ChoiceBox<PfV1GeneratorVars.FitMethod> choFitMethod;
 
     @FXML
-    private ChoiceBox<ProfileGenerator.DriveBase> choDriveBase;
+    private ChoiceBox<DriveBase> choDriveBase;
 
     @FXML
-    private ChoiceBox<ProfileGenerator.Units> choUnits;
+    private ChoiceBox<Units> choUnits;
 
-    @FXML
-    private CheckBox chk_reverse;
-
-    private ProfileGenerator backend;
+    private PfV1GeneratorVars vars;
 
     StringConverter<Number> converter;
 
@@ -53,29 +52,27 @@ public class MotionVarsController
      *************************************************************************/
     public void setup( ProfileGenerator backend )
     {
-        this.backend = backend;
+        this.vars = (PfV1GeneratorVars)backend.getGeneratorVars();
 
         // Converts formatted string in TextField to format of bounded property.
         StringConverter<Number> converter = new NumberStringConverter();
 
         // Setup Bindings
-        choFitMethod    .valueProperty().bindBidirectional( backend.fitMethodProperty() );
-        choDriveBase    .valueProperty().bindBidirectional( backend.driveBaseProperty() );
-        choUnits        .valueProperty().bindBidirectional( backend.unitsProperty()     );
+        choFitMethod    .valueProperty().bindBidirectional( vars.fitMethodProperty() );
+        choDriveBase    .valueProperty().bindBidirectional( vars.driveBaseProperty() );
+        choUnits        .valueProperty().bindBidirectional( vars.unitsProperty()     );
 
-        chk_reverse     .selectedProperty().bindBidirectional( backend.reversedProperty());
-
-        txtTimeStep     .textProperty().bindBidirectional( backend.timeStepProperty(),   converter );
-        txtVelocity     .textProperty().bindBidirectional( backend.velocityProperty(),   converter );
-        txtAcceleration .textProperty().bindBidirectional( backend.accelProperty(),      converter );
-        txtJerk         .textProperty().bindBidirectional( backend.jerkProperty(),       converter );
-        txtWheelBaseW   .textProperty().bindBidirectional( backend.wheelBaseWProperty(), converter );
-        txtWheelBaseD   .textProperty().bindBidirectional( backend.wheelBaseDProperty(), converter );
+        txtTimeStep     .textProperty().bindBidirectional( vars.timeStepProperty(),   converter );
+        txtVelocity     .textProperty().bindBidirectional( vars.velocityProperty(),   converter );
+        txtAcceleration .textProperty().bindBidirectional( vars.accelProperty(),      converter );
+        txtJerk         .textProperty().bindBidirectional( vars.jerkProperty(),       converter );
+        txtWheelBaseW   .textProperty().bindBidirectional( vars.wheelBaseWProperty(), converter );
+        txtWheelBaseD   .textProperty().bindBidirectional( vars.wheelBaseDProperty(), converter );
 
         // Disable WheelBaseD for Tank DriveBase
-        backend.driveBaseProperty().addListener( ( o, oldValue, newValue ) ->
+        vars.driveBaseProperty().addListener( ( o, oldValue, newValue ) ->
         {
-            boolean dis = newValue == ProfileGenerator.DriveBase.TANK;
+            boolean dis = newValue == DriveBase.TANK;
             lblWheelBaseD.disableProperty().setValue( dis );
             txtWheelBaseD.disableProperty().setValue( dis );
         });
@@ -90,13 +87,14 @@ public class MotionVarsController
     @FXML private void initialize()
     {
         // Populate drive base ChoiceBox
-        choDriveBase.getItems().setAll( ProfileGenerator.DriveBase.values() );
+        choDriveBase.getItems().setAll( DriveBase.values() );
 
         // Populate fit method ChoiceBox
-        choFitMethod.getItems().setAll( ProfileGenerator.FitMethod.values() );
+        choFitMethod.getItems().setAll( PfV1GeneratorVars.FitMethod.values() );
 
         // Populate units ChoiceBox
-        choUnits.getItems().setAll( ProfileGenerator.Units.values() );
+        choUnits.getItems().setAll( Units.values() );
+
 
         // Formats number typed into TextFields
         UnaryOperator<TextFormatter.Change> filter = t ->

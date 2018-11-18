@@ -1,7 +1,12 @@
 package com.mammen.ui.javafx.graphs;
 
+import com.mammen.generator.DriveBase;
 import com.mammen.generator.ProfileGenerator;
-import com.mammen.generator.WaypointInternal;
+import com.mammen.generator.Units;
+import com.mammen.generator.wrappers.GeneratorVars;
+import com.mammen.generator.wrappers.Path;
+import com.mammen.generator.wrappers.PfV1GeneratorVars;
+import com.mammen.generator.wrappers.Waypoint;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.util.Mathf;
 import com.mammen.util.OSValidator;
@@ -29,6 +34,7 @@ public class PosGraphController
     private LineChart<Double, Double> posGraph;
 
     private ProfileGenerator backend;
+    private GeneratorVars vars;
 
     private boolean dsplyCenterPath;
     private boolean dsplyWaypoints;
@@ -44,6 +50,7 @@ public class PosGraphController
     public void setup( ProfileGenerator backend )
     {
         this.backend = backend;
+        this.vars = backend.getGeneratorVars();
 
         // Watch this to know when a new path has been generated
         backend.numberOfGenerations().addListener( ( o, oldValue, newValue ) ->
@@ -53,7 +60,7 @@ public class PosGraphController
             refreshPoints();
         });
 
-        backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->
+        vars.unitsProperty().addListener( ( o, oldValue, newValue ) ->
         {
             // Updata axis to reflect the new unit
             updateAxis( newValue );
@@ -96,7 +103,7 @@ public class PosGraphController
         }
     }
 
-    public void updateAxis( ProfileGenerator.Units unit )
+    public void updateAxis( Units unit )
     {
         switch( unit )
         {
@@ -145,13 +152,13 @@ public class PosGraphController
         // Start by drawing drive train trajectories
         if( backend.getNumWaypoints() > 1 )
         {
-            flSeries = buildSeries( backend.getFrontLeftTrajectory() );
-            frSeries = buildSeries( backend.getFrontRightTrajectory() );
+            flSeries = buildSeries( backend.getPath().getFrontLeft() );
+            frSeries = buildSeries( backend.getPath().getFrontRight() );
 
-            if( backend.getDriveBase() == ProfileGenerator.DriveBase.SWERVE )
+            if( vars.getDriveBase() == DriveBase.SWERVE )
             {
-                blSeries = buildSeries( backend.getBackLeftTrajectory() );
-                brSeries = buildSeries( backend.getBackRightTrajectory() );
+                blSeries = buildSeries( backend.getPath().getBackLeft() );
+                brSeries = buildSeries( backend.getPath().getBackRight() );
 
                 posGraph.getData().addAll( blSeries, brSeries, flSeries, frSeries );
                 flSeries.getNode().setStyle("-fx-stroke: red");
@@ -189,7 +196,7 @@ public class PosGraphController
         // Display center path
         if( dsplyCenterPath && backend.getNumWaypoints() > 1 )
         {
-            XYChart.Series<Double, Double> sourceSeries = buildSeries( backend.getSourceTrajectory() );
+            XYChart.Series<Double, Double> sourceSeries = buildSeries( backend.getPath().getCenter() );
             posGraph.getData().add( sourceSeries );
             sourceSeries.getNode().setStyle("-fx-stroke: orange");
 
@@ -209,7 +216,7 @@ public class PosGraphController
         if( dsplyWaypoints && !backend.isWaypointListEmpty() )
         {
             // Display waypoints
-            waypointSeries = buildSeries( backend.getWaypointList().toArray( new WaypointInternal[1] ) );
+            waypointSeries = buildSeries( backend.getWaypointList().toArray( new Waypoint[1] ) );
             posGraph.getData().add( waypointSeries );
             waypointSeries.getNode().setStyle("-fx-stroke: transparent");
 
@@ -231,27 +238,29 @@ public class PosGraphController
 
     /**
      * Builds a series from the given trajectory that is ready to display on a LineChart.
-     * @param traj Trajectory to build a series for.
+     * @param segments Trajectory to build a series for.
      * @return The created series to display.
      */
-    private static XYChart.Series<Double, Double> buildSeries( Trajectory traj )
+    private static XYChart.Series<Double, Double> buildSeries( Path.Segment[] segments )
     {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
 
-        if( traj != null )
+        if( segments != null )
         {
-            for (int i = 0; i < traj.segments.length; i++) {
+            for( Path.Segment segment : segments )
+            {
                 // Holds x, y data for a single entry in the series.
                 XYChart.Data<Double, Double> data = new XYChart.Data<>();
 
                 // Set the x, y data.
-                data.setXValue(traj.get(i).x);
-                data.setYValue(traj.get(i).y);
+                data.setXValue( segment.x );
+                data.setYValue( segment.y );
 
                 // Add the data to the series.
                 series.getData().add( data );
             }
         }
+
         return series;
     }
 
@@ -260,11 +269,11 @@ public class PosGraphController
      * @param waypoints Array of waypoints to build a series for.
      * @return The created series to display.
      */
-    private static XYChart.Series<Double, Double> buildSeries( WaypointInternal[] waypoints )
+    private static XYChart.Series<Double, Double> buildSeries( Waypoint[] waypoints )
     {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
 
-        for( WaypointInternal w : waypoints )
+        for( Waypoint w : waypoints )
         {
             // Holds x, y data for a single entry in the series.
             XYChart.Data<Double, Double> data = new XYChart.Data<>();
@@ -300,12 +309,12 @@ public class PosGraphController
             double rnd_y;
 
             // Snap to grid
-            if( backend.getUnits() == ProfileGenerator.Units.FEET )
+            if( vars.getUnits() == Units.FEET )
             {
                 rnd_x = Mathf.round( raw_x, 0.5 );
                 rnd_y = Mathf.round( raw_y, 0.5 );
             }
-            else if( backend.getUnits() == ProfileGenerator.Units.METERS )
+            else if( vars.getUnits() == Units.METERS )
             {
                 rnd_x = Mathf.round( raw_x, 0.25 );
                 rnd_y = Mathf.round( raw_y, 0.25 );
@@ -332,7 +341,7 @@ public class PosGraphController
         node.setOnMouseReleased(event -> {
             int index = Integer.parseInt( node.getId() );
 
-            WaypointInternal tmp = backend.getWaypoint( index - 1 );
+            Waypoint tmp = backend.getWaypoint( index - 1 );
             tmp.setX( (Double) data.getXValue() );
             tmp.setY( (Double) data.getYValue() );
         });
@@ -361,17 +370,17 @@ public class PosGraphController
                 double rnd_x;
                 double rnd_y;
 
-                if( backend.getUnits() == ProfileGenerator.Units.FEET )
+                if( vars.getUnits() == Units.FEET )
                 {
                     rnd_x = Mathf.round( raw_x, 0.5 );
                     rnd_y = Mathf.round( raw_y, 0.5 );
                 }
-                else if( backend.getUnits() == ProfileGenerator.Units.METERS )
+                else if( vars.getUnits() == Units.METERS )
                 {
                     rnd_x = Mathf.round( raw_x, 0.25 );
                     rnd_y = Mathf.round( raw_y, 0.25 );
                 }
-                else if( backend.getUnits() == ProfileGenerator.Units.INCHES )
+                else if( vars.getUnits() == Units.INCHES )
                 {
                     rnd_x = Mathf.round( raw_x, 6.0 );
                     rnd_y = Mathf.round( raw_y, 6.0 );
@@ -381,7 +390,6 @@ public class PosGraphController
                     rnd_x = Mathf.round( raw_x, 2 );
                     rnd_y = Mathf.round( raw_y, 2 );
                 }
-
 
                 if( ( rnd_x >= axisPosX.getLowerBound() && rnd_x <= axisPosX.getUpperBound() )
                  && ( rnd_y >= axisPosY.getLowerBound() && rnd_y <= axisPosY.getUpperBound() ) )

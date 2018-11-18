@@ -4,14 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import com.mammen.generator.WaypointInternal;
+import com.mammen.generator.wrappers.Waypoint;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import com.mammen.ui.javafx.graphs.PosGraphController;
 import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.generator.ProfileGenerator;
 
-import com.mammen.ui.javafx.motion_vars.MotionVarsController;
+import com.mammen.ui.javafx.motion_vars.PathfinderV1VarsController;
 import com.mammen.util.Mathf;
 import jaci.pathfinder.Pathfinder;
 
@@ -19,14 +19,12 @@ import javafx.beans.value.ObservableValueBase;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
@@ -42,10 +40,10 @@ public class MainUIController
     private Pane root;
 
     @FXML
-    private TableView<WaypointInternal> tblWaypoints;
+    private TableView<Waypoint> tblWaypoints;
 
     @FXML
-    private TableColumn<WaypointInternal, Double>
+    private TableColumn<Waypoint, Double>
         colWaypointX,
         colWaypointY,
         colWaypointAngle;
@@ -81,7 +79,7 @@ public class MainUIController
     private VelGraphController velGraphController;
 
     @FXML
-    private MotionVarsController motionVarsController;
+    private PathfinderV1VarsController pathfinderV1VarsController;
 
 
     /**************************************************************************
@@ -101,7 +99,7 @@ public class MainUIController
         velGraphController.setup( backend );
 
         // Setup motion variables
-        motionVarsController.setup( backend );
+        pathfinderV1VarsController.setup( backend );
 
         // Put List in a variable
         backend.s_ListChose = new LinkedList<>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
@@ -118,10 +116,10 @@ public class MainUIController
         btnDelete.setDisable( true );
 
         // Make sure only doubles are entered for waypoints.
-        Callback<TableColumn<WaypointInternal, Double>, TableCell<WaypointInternal, Double>> doubleCallback =
-            (TableColumn<WaypointInternal, Double> param) ->
+        Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
+            (TableColumn<Waypoint, Double> param) ->
         {
-                TextFieldTableCell<WaypointInternal, Double> cell = new TextFieldTableCell<>();
+                TextFieldTableCell<Waypoint, Double> cell = new TextFieldTableCell<>();
 
                 cell.setConverter( new DoubleStringConverter() );
 
@@ -129,9 +127,9 @@ public class MainUIController
         };
 
         // Handle editing waypoints table elements
-        EventHandler<TableColumn.CellEditEvent<WaypointInternal, Double>> editHandler = ( TableColumn.CellEditEvent<WaypointInternal, Double> t ) ->
+        EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler = (TableColumn.CellEditEvent<Waypoint, Double> t ) ->
         {
-                WaypointInternal curWaypoint = t.getRowValue();
+                Waypoint curWaypoint = t.getRowValue();
 
                 if( t.getTableColumn() == colWaypointAngle )
                     curWaypoint.setAngle( Pathfinder.d2r( t.getNewValue() ) );
@@ -150,7 +148,7 @@ public class MainUIController
         colWaypointY.setOnEditCommit( editHandler );
         colWaypointAngle.setOnEditCommit( editHandler );
 
-        colWaypointX.setCellValueFactory( ( TableColumn.CellDataFeatures<WaypointInternal, Double> d ) -> new ObservableValueBase<Double>()
+        colWaypointX.setCellValueFactory( ( TableColumn.CellDataFeatures<Waypoint, Double> d ) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
@@ -159,7 +157,7 @@ public class MainUIController
             }
         });
 
-        colWaypointY.setCellValueFactory((TableColumn.CellDataFeatures<WaypointInternal, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointY.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue() {
@@ -167,7 +165,7 @@ public class MainUIController
             }
         });
 
-        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<WaypointInternal, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
@@ -180,7 +178,7 @@ public class MainUIController
         /* ************************************************
          *  Waypoints Table Stuff
          *************************************************/
-        backend.waypointListProperty().addListener( ( ListChangeListener<WaypointInternal> ) c ->
+        backend.waypointListProperty().addListener( ( ListChangeListener<Waypoint> ) c ->
         {
             // Disable btn if no points exist
             btnClearPoints.setDisable( backend.isWaypointListEmpty() );
@@ -466,13 +464,13 @@ public class MainUIController
     @FXML
     private void showAddPointDialog() 
     {
-        Dialog<WaypointInternal> waypointDialog = DialogFactory.createWaypointDialog();
-        Optional<WaypointInternal> result = null;
+        Dialog<Waypoint> waypointDialog = DialogFactory.createWaypointDialog();
+        Optional<Waypoint> result = null;
 
         // Wait for the result
         result = waypointDialog.showAndWait();
 
-        result.ifPresent((WaypointInternal w) -> backend.addPoint( w ) );
+        result.ifPresent((Waypoint w) -> backend.addPoint( w ) );
     } /* showAddPointDialog() */
     
     @FXML

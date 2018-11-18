@@ -1,22 +1,19 @@
 package com.mammen.generator;
 
+import com.mammen.generator.wrappers.GeneratorVars;
+import com.mammen.generator.wrappers.Path;
+import com.mammen.generator.wrappers.PfV1GeneratorVars;
+import com.mammen.generator.wrappers.Waypoint;
 import com.mammen.util.Mathf;
 
 import javafx.beans.Observable;
 import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
-import jaci.pathfinder.Trajectory.Config;
 import jaci.pathfinder.Trajectory.Segment;
-import jaci.pathfinder.Waypoint;
-import jaci.pathfinder.modifiers.SwerveModifier;
-import jaci.pathfinder.modifiers.TankModifier;
 
-import javafx.collections.ObservableList;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -33,11 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /******************************************************************************
@@ -53,141 +46,12 @@ public class ProfileGenerator
 {
 	public static final String PROJECT_EXTENSION = "xml";
 
-	// Types of drive bases
-	public enum DriveBase
-    {
-        TANK( "TANK", "Tank" ),
-        SWERVE( "SWERVE", "Swerve" );
-        
-        private String label;
-        private String internalLabel;
-
-		DriveBase( String internalLabel, String label )
-		{
-		    this.internalLabel = internalLabel;
-            this.label = label;
-        }
-
-        public String toString()
-        {
-            return label;
-        }
-
-        public String getInternalLabel()
-        {
-            return internalLabel;
-        }
-    }
-
-    // Units of every value
-    public enum Units
-    {
-        FEET( "FEET", "Feet" ),
-        INCHES( "INCHES", "Inches" ),
-        METERS( "METERS", "Meter" );
-
-        private String label;
-        private String internalLabel;
-
-        Units( String internalLabel, String label )
-        {
-            this.internalLabel = internalLabel;
-            this.label = label;
-        }
-
-        public String toString()
-        {
-            return label;
-        }
-
-        public String getInternalLabel()
-        {
-            return internalLabel;
-        }
-    }
-
-    // This enum mirrors jaci.pathfinder.Trajectory.FitMethod for use internally.
-    public enum FitMethod
-    {
-        HERMITE_CUBIC( "HERMITE_CUBIC", "Cubic", Trajectory.FitMethod.HERMITE_CUBIC ),
-        HERMITE_QUINTIC( "HERMITE_QUINTIC", "Quintic", Trajectory.FitMethod.HERMITE_QUINTIC );
-
-
-        private String label;
-        private String internalLabel;
-        private jaci.pathfinder.Trajectory.FitMethod pf_fitMethod;
-
-        FitMethod( String internalLabel, String label, Trajectory.FitMethod fitMethod )
-        {
-            this.internalLabel = internalLabel;
-            this.label = label;
-            this.pf_fitMethod = fitMethod;
-        }
-
-        public String toString()
-        {
-            return label;
-        }
-
-        public String getInternalLabel()
-        {
-            return internalLabel;
-        }
-
-        public Trajectory.FitMethod getPfFitMethod()
-        {
-            return pf_fitMethod;
-        }
-    }
-
-    public enum ProfileElements
-    {
-        DELTA_TIME( "DELTA_TIME", "Delta Time", 1 ),
-        X_POINT( "X_POINT", "X Point", 2 ),
-        Y_POINT( "Y_POINT", "Y Point", 3 ),
-        POSITION( "POSITION", "Position", 4 ),
-        VELOCITY( "VELOCITY", "Velocity", 5 ),
-        ACCELERATION( "ACCELERATION", "Acceleration", 6 ),
-        JERK( "JERK", "Jerk", 7 ),
-        HEADING( "HEADING", "Heading", 8 ),
-        NULL(null, null, 0);
-
-        private String internalLabel;
-        private String label;
-        private int index;
-
-        ProfileElements( String internalLabel, String label, int index )
-        {
-            this.internalLabel = internalLabel;
-            this.label = label;
-            this.index = index;
-        }
-
-        public int getIndex() {return index;}
-
-        public String toString()
-        {
-            return label;
-        }
-
-        public String getInternalLabel()
-        {
-            return internalLabel;
-        }
-    }
-
     /******************************************************
      *   Property variables
      ******************************************************/
-    private DoubleProperty timeStep         = new SimpleDoubleProperty();
-    private DoubleProperty velocity         = new SimpleDoubleProperty();
-    private DoubleProperty accel            = new SimpleDoubleProperty();
-    private DoubleProperty jerk             = new SimpleDoubleProperty();
-    private DoubleProperty wheelBaseW       = new SimpleDoubleProperty();
-    private DoubleProperty wheelBaseD       = new SimpleDoubleProperty();
-    private Property<DriveBase> driveBase   = new SimpleObjectProperty<>();
-    private Property<FitMethod> fitMethod   = new SimpleObjectProperty<>();
-    private Property<Units> units           = new SimpleObjectProperty<>();
+//    private Property<GeneratorVars> generatorVars = new SimpleObjectProperty<>();
+    private Generator generator;
+    private GeneratorVars generatorVars;
 
     private BooleanProperty isReversed    = new SimpleBooleanProperty();
 
@@ -195,27 +59,10 @@ public class ProfileGenerator
                                                                 FXCollections.observableArrayList(
                                                                         p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
 
-    // Property Variables change listeners
-    // We're not using lambda's so that we can remove them to prevent change events from being handled.
-    private ChangeListener<Number> timeStepChangeListener       = this::timeStepListener;
-    private ChangeListener<Number> velocityChangeListener       = this::velocityListener;
-    private ChangeListener<Number> accelChangeListener          = this::accelListener;
-    private ChangeListener<Number> jerkChangeListener           = this::jerkListener;
-    private ChangeListener<Number> wheelBaseWChangeListener     = this::wheelBaseWListener;
-    private ChangeListener<Number> wheelBaseDChangeListener     = this::wheelBaseDListener;
-    private ChangeListener<DriveBase> driveBaseChangeListener   = this::driveBaseListener;
-    private ChangeListener<FitMethod> fitMethodChangeListener   = this::fitMethodListener;
-    private ChangeListener<Units> unitsChangeListener           = this::unitsListener;
-    private ChangeListener<ObservableList<WaypointInternal>> waypointListChangeListener = this::waypointListListener;
-
     /******************************************************
      *   Trajectories
      ******************************************************/
-    private Property<Trajectory> source = new SimpleObjectProperty<>();
-    private Property<Trajectory> fl     = new SimpleObjectProperty<>();
-    private Property<Trajectory> fr     = new SimpleObjectProperty<>();
-    private Property<Trajectory> bl     = new SimpleObjectProperty<>();
-    private Property<Trajectory> br     = new SimpleObjectProperty<>();
+    private Path path;
 
     // This is so we can send out a single notification when all 5 trajectories are done updating.
     private IntegerProperty numberOfGenerations = new SimpleIntegerProperty( 0 );
@@ -233,161 +80,35 @@ public class ProfileGenerator
      *************************************************************************/
     public ProfileGenerator()
     {
+        //generator = new PfV1Generator();
+        generator = new PfV1Generator();
+        generatorVars = new PfV1GeneratorVars();
+
     	dbFactory = DocumentBuilderFactory.newInstance();
-
-    	// Initialize to default values.
-    	setDefaultValues( Units.FEET );
-
-
-    	/**************************************************
-         *  Property Listeners
-    	 *************************************************/
-        addListeners();
 
     }   /* ProfileGenerator() */
 
-    private void addListeners()
-    {
-        fitMethod   .addListener( fitMethodChangeListener );
-        timeStep    .addListener( timeStepChangeListener );
-        velocity    .addListener( velocityChangeListener );
-        accel       .addListener( accelChangeListener );
-        jerk        .addListener( jerkChangeListener );
-        driveBase   .addListener( driveBaseChangeListener );
-        wheelBaseW  .addListener( wheelBaseWChangeListener );
-        wheelBaseD  .addListener( wheelBaseDChangeListener );
-        waypointList.addListener( waypointListChangeListener );
-        units       .addListener( unitsChangeListener );
-    }
-
-    private void removeListeners()
-    {
-        fitMethod   .removeListener( fitMethodChangeListener );
-        timeStep    .removeListener( timeStepChangeListener );
-        velocity    .removeListener( velocityChangeListener );
-        accel       .removeListener( accelChangeListener );
-        jerk        .removeListener( jerkChangeListener );
-        driveBase   .removeListener( driveBaseChangeListener );
-        wheelBaseW  .removeListener( wheelBaseWChangeListener );
-        wheelBaseD  .removeListener( wheelBaseDChangeListener );
-        waypointList.removeListener( waypointListChangeListener );
-        units       .removeListener( unitsChangeListener );
-    }
-
-    private void fitMethodListener( ObservableValue o, FitMethod oldValue, FitMethod newValue )
-    {
-        generateTraj();
-    }
-
-    private void timeStepListener( ObservableValue o, Number oldValue, Number newValue )
-    {
-        generateTraj();
-    }
-
-    private void velocityListener( ObservableValue o, Number oldValue, Number newValue )
-    {
-        generateTraj();
-    }
-
-    private void accelListener( ObservableValue o, Number oldValue, Number newValue )
-    {
-        generateTraj();
-    }
-
-    private void jerkListener( ObservableValue o, Number oldValue, Number newValue )
-    {
-        generateTraj();
-    }
-
-    private void driveBaseListener( ObservableValue o, DriveBase oldValue, DriveBase newValue )
-    {
-        generateTraj();
-    }
-
-    private void wheelBaseWListener( ObservableValue o, Number oldValue, Number newValue )
-    {
-        generateTraj();
-    }
-
-    private void wheelBaseDListener( ObservableValue o, Number oldValue, Number newValue )
-    {
-        generateTraj();
-    }
-
-    private void waypointListListener( ObservableValue<? extends ObservableList<WaypointInternal>> o, ObservableList<WaypointInternal> oldValue, ObservableList<WaypointInternal> newValue )
-    {
-        // Remove problematic point if we cannot generate a trajectory.
-        if( getNumWaypoints() > 1 && !generateTraj() )
-        {
-            removeLastPoint();
-            generateTraj();
-        }
-    }
-
-    private void unitsListener( ObservableValue o, Units oldValue, Units newValue )
-    {
-        // Remove to prevent each change from triggering a regeneration of the trajectories.
-        removeListeners();
-
-        // Update values and regenerate trajectories
-        updateVarUnits( oldValue, newValue );
-        generateTraj();
-
-        // Add listeners back.
-        addListeners();
-    }
 
     /**************************************************************************
      *  generateTraj
      *     Generates the trajectories for the waypoints in waypointList.
      * @return False if the generation failed, true otherwise.
      *************************************************************************/
-    private boolean generateTraj()
+    public boolean generatePath() throws Generator.PathGenerationException, Generator.NotEnoughPointsException
     {
-        // We need at least 2 points to generate a trajectory.
-        if( getNumWaypoints() > 1 )
+        path = generator.generate( waypointList, generatorVars );
+
+        if( path != null )
         {
-            Config config = new Config( fitMethod.getValue().getPfFitMethod(), Config.SAMPLES_HIGH, timeStep.get(), velocity.get(), accel.get(), jerk.get() );
-
-            try
-            {
-                source.setValue( Pathfinder.generate( WaypointInternal.toPathfinderArray( waypointList ) , config ) );
-            }
-            catch( Exception e )
-            {
-                return false;
-            }
-
-            if( driveBase.getValue() == DriveBase.SWERVE )
-            {
-                SwerveModifier swerve = new SwerveModifier( source.getValue() );
-                swerve.modify( wheelBaseW.get(), wheelBaseD.get(), SwerveModifier.Mode.SWERVE_DEFAULT );
-
-                fr.setValue( swerve.getFrontRightTrajectory() );
-                fl.setValue( swerve.getFrontLeftTrajectory() );
-                br.setValue( swerve.getBackRightTrajectory() );
-                bl.setValue( swerve.getBackLeftTrajectory() );
-            }
-            else  // DriveBase.Tank
-            {
-                TankModifier tank = new TankModifier( source.getValue() );
-                tank.modify( wheelBaseW.get() );
-
-                fr.setValue( tank.getRightTrajectory() );
-                fl.setValue( tank.getLeftTrajectory() );
-                br.setValue( null );
-                bl.setValue( null );
-            }
-
             // Signal that a new trajectory has been generated.
             int tmp = numberOfGenerations.get();
             numberOfGenerations.set( tmp + 1 );
-
             return true;
         }
 
         return false;
     }   /* generateTraj() */
+
 
     /**************************************************************************
      *  updateVarUnits
@@ -403,7 +124,7 @@ public class ProfileGenerator
         //          and only convert it for display.
 
     	// Convert each point in the waypoints list
-        for( WaypointInternal wp : waypointList )
+        for( Waypoint wp : waypointList )
         {
             double tmp_x = 0, tmp_y = 0;
 
@@ -1069,7 +790,7 @@ public class ProfileGenerator
 
             dom.appendChild( trajectoryEle );
 
-            for( WaypointInternal wp : waypointList )
+            for( Waypoint wp : waypointList )
             {
                 Element waypointEle = dom.createElement("Waypoint" );
                 Element xEle = dom.createElement("X" );
@@ -1156,7 +877,7 @@ public class ProfileGenerator
                             yText = waypointEle.getElementsByTagName("Y").item(0).getTextContent(),
                             angleText = waypointEle.getElementsByTagName("Angle").item(0).getTextContent();
 
-                    waypointList.add( new WaypointInternal(
+                    waypointList.add( new Waypoint(
                                             Double.parseDouble( xText ),
                                             Double.parseDouble( yText ),
                                             Double.parseDouble( angleText )
@@ -1175,60 +896,25 @@ public class ProfileGenerator
     {
         workingProject = null;
     }
-    
-    /**
-     * Resets configuration to default values for the given unit.
-     */
-    public void setDefaultValues( Units newUnits )
+
+
+    public GeneratorVars getGeneratorVars()
     {
-        fitMethod.setValue( FitMethod.HERMITE_CUBIC );
-        driveBase.setValue( DriveBase.TANK );
-        units.setValue( newUnits );
-        isReversed.setValue( false );
-
-        switch( newUnits )
-    	{
-        case FEET:
-	        timeStep.set( 0.05 );
-	        velocity.set( 4 );
-	        accel.set( 3 );
-	        jerk.set( 60 );
-	        wheelBaseW.set( 1.464 );
-	        wheelBaseD.set( 1.464 );
-	        break;
-
-        case METERS:
-    		timeStep.set( 0.05 );
-	        velocity.set( 1.2192 );
-	        accel.set( 0.9144 );
-	        jerk.set( 18.288 );
-	        wheelBaseW.set( 0.4462272 );
-	        wheelBaseD.set( 0.4462272 );
-	        break;
-
-        case INCHES:
-    		timeStep.set( 0.05 );
-	        velocity.set( 48 );
-	        accel.set( 36 );
-	        jerk .set( 720 );
-	        wheelBaseW.set( 17.568 );
-	        wheelBaseD.set( 17.568 );
-	        break;
-    	}
+        return generatorVars;
     }
-    
+
     /**
      * Adds a waypoint to the list of waypoints
      */
     public void addPoint( double x, double y, double angle ) 
     {
-        waypointList.add( new WaypointInternal( x, y, angle ) );
+        waypointList.add( new Waypoint( x, y, angle ) );
     }
 
     /**
      * Adds a waypoint to the list of waypoints
      */
-    public void addPoint( WaypointInternal wp )
+    public void addPoint( Waypoint wp )
     {
         waypointList.add( wp );
     }
@@ -1263,7 +949,7 @@ public class ProfileGenerator
         return waypointList.size();
     }
 
-    public WaypointInternal getWaypoint( int index )
+    public Waypoint getWaypoint(int index )
     {
         return waypointList.get( index );
     }
@@ -1275,160 +961,20 @@ public class ProfileGenerator
     public void clearPoints() 
     {
         waypointList.clear();
-
-        source.setValue( null );
-        fr.setValue( null );
-        fl.setValue( null );
-        br.setValue( null );
-        bl.setValue( null );
-    }
-    
-    public double getTimeStep()
-    {
-        return timeStep.get();
+        path = null;
     }
 
-    public void setTimeStep( double timeStep )
-    {
-        this.timeStep.set( timeStep );
-    }
-
-    public DoubleProperty timeStepProperty()
-    {
-        return timeStep;
-    }
-
-    public double getVelocity() 
-    {
-        return velocity.get();
-    }
-
-    public void setVelocity( double velocity )
-    {
-        this.velocity.set( velocity );
-    }
-
-    public DoubleProperty velocityProperty()
-    {
-        return velocity;
-    }
-
-    public double getAcceleration() 
-    {
-        return accel.get();
-    }
-
-    public void setAcceleration( double acceleration )
-    {
-        this.accel.set( acceleration );
-    }
-
-    public DoubleProperty accelProperty()
-    {
-        return accel;
-    }
-
-    public DriveBase getDriveBase()
-    {
-        return driveBase.getValue();
-    }
-
-    public void setDriveBase( DriveBase driveBase )
-    {
-        this.driveBase.setValue( driveBase );
-    }
-
-    public Property<DriveBase> driveBaseProperty()
-    {
-        return driveBase;
-    }
-
-    public FitMethod getFitMethod()
-    {
-        return fitMethod.getValue();
-    }
-
-    public void setFitMethod( FitMethod fitMethod )
-    {
-        this.fitMethod.setValue( fitMethod );
-    }
-
-    public Property<FitMethod> fitMethodProperty()
-    {
-        return  fitMethod;
-    }
-
-    public Units getUnits()
-    {
-        return units.getValue();
-    }
-
-    public void setUnits( Units units )
-    {
-        this.units.setValue( units );
-    }
-
-    public Property<Units> unitsProperty()
-    {
-        return units;
-    }
-
-    public double getJerk()
-    {
-        return jerk.get();
-    }
-
-    public void setJerk( double jerk )
-    {
-        this.jerk.set( jerk );
-    }
-
-    public DoubleProperty jerkProperty()
-    {
-        return jerk;
-    }
-
-    public double getWheelBaseW() 
-    {
-        return wheelBaseW.get();
-    }
-
-    public void setWheelBaseW( double wheelBaseW )
-    {
-        this.wheelBaseW.set( wheelBaseW );
-    }
-
-    public DoubleProperty wheelBaseWProperty()
-    {
-        return wheelBaseW;
-    }
-
-    public double getWheelBaseD()
-    {
-        return wheelBaseD.get();
-    }
-
-    public void setWheelBaseD( double wheelBaseD )
-    {
-        this.wheelBaseD.set( wheelBaseD );
-    }
-
-    public DoubleProperty wheelBaseDProperty()
-    {
-        return wheelBaseD;
-    }
-    
     public boolean hasWorkingProject()
     {
         return workingProject != null;
     }
 
-    public ListProperty<WaypointInternal> waypointListProperty()
+    public ListProperty<Waypoint> waypointListProperty()
     {
         return waypointList;
     }
 
-    public List<WaypointInternal> getWaypointList()
+    public List<Waypoint> getWaypointList()
     {
         // TODO: What is happening when a ListProperty is converted to a List?
         return waypointList;
@@ -1439,47 +985,9 @@ public class ProfileGenerator
         return waypointList.isEmpty();
     }
 
-
-    public Trajectory getSourceTrajectory()
+    public Path getPath()
     {
-        return source.getValue();
-    }
-
-    public Trajectory getFrontLeftTrajectory() 
-    {
-        return fl.getValue();
-    }
-
-    public Trajectory getFrontRightTrajectory() 
-    {
-        return fr.getValue();
-    }
-
-    public Trajectory getBackLeftTrajectory() 
-    {
-        return bl.getValue();
-    }
-
-    public Trajectory getBackRightTrajectory() 
-    {
-        return br.getValue();
-    }
-
-    public Property<Trajectory> fronLeftTrajProperty()
-    {
-        return fl;
-    }
-    public Property<Trajectory> fronRightTrajProperty()
-    {
-        return fr;
-    }
-    public Property<Trajectory> backLeftTrajProperty()
-    {
-        return bl;
-    }
-    public Property<Trajectory> backRightTrajProperty()
-    {
-        return br;
+        return path;
     }
 
     public IntegerProperty numberOfGenerations()

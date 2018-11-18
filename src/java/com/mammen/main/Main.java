@@ -1,15 +1,10 @@
 package com.mammen.main;
 
-import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import javafx.application.Application;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.fxml.FXMLLoader;
-import org.scijava.nativelib.NativeLoader;
-
-import java.io.IOException;
 
 
 public class Main extends Application 
@@ -17,19 +12,6 @@ public class Main extends Application
 	@Override
 	public void start( Stage primaryStage )
 	{
-		// Load Pathfinder native lib
-		try
-		{
-			NativeLoader.loadLibrary("pathfinderjava" );
-		}
-		catch( IOException e )
-		{
-			e.printStackTrace();
-			Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder lib!" );
-
-			alert.showAndWait();
-		}
-
 		try
 		{
 			Pane root = FXMLLoader.load( getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml") );
