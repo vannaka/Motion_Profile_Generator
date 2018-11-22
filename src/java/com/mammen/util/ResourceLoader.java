@@ -1,8 +1,11 @@
 package com.mammen.util;
 
-import java.io.IOException;
-import java.io.InputStream;
+import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
+import sun.misc.IOUtils;
+
+import java.io.*;
 import java.net.URL;
+import java.nio.file.StandardCopyOption;
 import java.util.jar.Manifest;
 
 public class ResourceLoader 
@@ -13,12 +16,21 @@ public class ResourceLoader
 
     public static URL getResource(String path)
     {
-        return ResourceLoader.class.getResource(path);
+        return ResourceLoader.class.getResource( path );
     }
 
-    public static InputStream getResourceAsStream(String path)
+    public static InputStream getResourceAsStream( String path )
     {
         return ResourceLoader.class.getResourceAsStream(path);
+    }
+
+    public static void resourceToFile( String rsPath, File file ) throws IOException
+    {
+        InputStream is = getResourceAsStream( rsPath );
+
+        java.nio.file.Files.copy( is, file.toPath(), StandardCopyOption.REPLACE_EXISTING );
+
+        is.close();
     }
 
     // TODO: Figure out what manifest this method is actually getting

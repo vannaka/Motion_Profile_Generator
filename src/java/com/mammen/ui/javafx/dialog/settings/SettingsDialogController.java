@@ -1,17 +1,13 @@
 package com.mammen.ui.javafx.dialog.settings;
 
-import com.mammen.generator.ProfileGenerator;
 import com.mammen.generator.Path;
 import com.mammen.settings.Settings;
 import com.mammen.settings.SourcePathDisplayType;
-import com.mammen.ui.javafx.PropWrapper;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
-import javafx.beans.value.ObservableValue;
 
 import java.io.File;
 import java.util.*;

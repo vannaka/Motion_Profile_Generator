@@ -8,6 +8,7 @@ import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.util.Mathf;
 import com.mammen.util.OSValidator;
+import com.mammen.util.ResourceLoader;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -19,6 +20,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -102,19 +105,34 @@ public class PosGraphController
 
         if( settings.getGraphBGImagePath() == null )
         {
-            path = this.getClass().getResource( "/images/FRC2018.jpg" ).toExternalForm();
+            File imgFile = new File( Settings.getSettingsDir() + "/FRC2018.jpg" );
+
+            if( !imgFile.exists() )
+            {
+                try
+                {
+                    ResourceLoader.resourceToFile( "/images/FRC2018.jpg", imgFile );
+                }
+                catch( IOException e )
+                {
+                    return;
+                }
+            }
+
+            // Get path to image
+            path = imgFile.toURI().toString();
+
+            // Update settings with new path
+            settings.setGraphBGImagePath( Settings.getSettingsDir() + "/FRC2018.jpg" );
         }
         else
         {
-            path = settings.getGraphBGImagePath();
+            File imgFile = new File( settings.getGraphBGImagePath() );
+            path = imgFile.toURI().toString();
         }
 
-        System.out.println( "Image path: " + path );
-
-        File img = new File( path );
-
         // Set background image via css styles
-        posGraph.lookup(".chart-plot-background").setStyle( "-fx-background-image: url(" + img.toURI().toString() + ");" +
+        posGraph.lookup(".chart-plot-background").setStyle( "-fx-background-image: url(" + path + ");" +
                                                                     "-fx-background-size: stretch;" +
                                                                     "-fx-background-position: top right;" +
                                                                     "-fx-background-repeat: no-repeat;" );
@@ -452,7 +470,7 @@ public class PosGraphController
                         alert.setHeaderText( "Invalid point" );
                         alert.setContentText("The point you entered was invalid.");
                         alert.showAndWait();
-                        
+
                     }
                     catch( Generator.NotEnoughPointsException e )
                     {

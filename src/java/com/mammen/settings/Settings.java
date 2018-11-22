@@ -13,10 +13,11 @@ import java.io.*;
 public class Settings implements Serializable
 {
     /******************************************************
-     *   Serializable stuff
+     *   Path and Serializable stuff
      ******************************************************/
     private static final String DIR_NAME = "motion-profile-generator";
-    private static final String path = System.getProperty("user.home") + File.separator + "." + DIR_NAME + File.separator + "settings.set";
+    private static final String SETTINGS_DIR = System.getProperty("user.home") + File.separator + "." + DIR_NAME;
+    private static final String SETTINGS_FILE_PATH = SETTINGS_DIR + File.separator + "settings.set";
     private static Settings settings = null;
 
 
@@ -71,7 +72,7 @@ public class Settings implements Serializable
     {
         if( settings == null )
         {
-            settings = (Settings)ObjectSerializer.loadObject( path );
+            settings = (Settings)ObjectSerializer.loadObject( SETTINGS_FILE_PATH );
 
             if( settings == null )
             {
@@ -89,7 +90,18 @@ public class Settings implements Serializable
      *************************************************************************/
     public void saveSettings() throws IOException
     {
-        ObjectSerializer.saveObject( this, path );
+        ObjectSerializer.saveObject( this, SETTINGS_FILE_PATH );
+    }
+
+
+    /**************************************************************************
+     *  getSettingsDir
+     *      Get the path to the settings directory
+     * @return The path to the settings directory.
+     *************************************************************************/
+    public static String getSettingsDir()
+    {
+        return SETTINGS_DIR;
     }
 
 
