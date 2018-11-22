@@ -1,6 +1,6 @@
 package com.mammen.ui.javafx.dialog;
 
-import com.mammen.ui.javafx.ResourceLoader;
+import com.mammen.util.ResourceLoader;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

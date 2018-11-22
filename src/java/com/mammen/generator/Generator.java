@@ -1,7 +1,6 @@
 package com.mammen.generator;
 
 import com.mammen.generator.wrappers.GeneratorVars;
-import com.mammen.generator.wrappers.Path;
 import com.mammen.generator.wrappers.Waypoint;
 
 import java.util.List;

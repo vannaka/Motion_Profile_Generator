@@ -60,7 +60,7 @@ public class PathfinderV1VarsController
         // Setup Bindings
         choFitMethod    .valueProperty().bindBidirectional( vars.fitMethodProperty() );
         choDriveBase    .valueProperty().bindBidirectional( vars.driveBaseProperty() );
-        choUnits        .valueProperty().bindBidirectional( vars.unitsProperty()     );
+        choUnits        .valueProperty().bindBidirectional( vars.unitProperty()      );
 
         txtTimeStep     .textProperty().bindBidirectional( vars.timeStepProperty(),   converter );
         txtVelocity     .textProperty().bindBidirectional( vars.velocityProperty(),   converter );
@@ -142,6 +142,11 @@ public class PathfinderV1VarsController
         txtJerk         .setTextFormatter( new TextFormatter<>( filter ) );
         txtWheelBaseW   .setTextFormatter( new TextFormatter<>( filter ) );
         txtWheelBaseD   .setTextFormatter( new TextFormatter<>( filter ) );
+    }
+
+    public void setVarsToDefault( Units unit )
+    {
+        vars.setDefaultValues( unit );
     }
 }
 

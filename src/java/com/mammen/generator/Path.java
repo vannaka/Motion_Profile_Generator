@@ -1,4 +1,4 @@
-package com.mammen.generator.wrappers;
+package com.mammen.generator;
 
 import com.mammen.generator.DriveBase;
 
@@ -9,38 +9,29 @@ public class Path
      */
     public enum Elements
     {
-        DELTA_TIME( "DELTA_TIME", "Delta Time", 1 ),
-        X_POINT( "X_POINT", "X Point", 2 ),
-        Y_POINT( "Y_POINT", "Y Point", 3 ),
-        POSITION( "POSITION", "Position", 4 ),
-        VELOCITY( "VELOCITY", "Velocity", 5 ),
-        ACCELERATION( "ACCELERATION", "Acceleration", 6 ),
-        JERK( "JERK", "Jerk", 7 ),
-        HEADING( "HEADING", "Heading", 8 ),
-        NULL(null, null, 0);
+        NULL( null ),
+        DELTA_TIME( "Delta Time" ),
+        X_POINT( "X Point" ),
+        Y_POINT( "Y Point" ),
+        POSITION( "Position" ),
+        VELOCITY( "Velocity" ),
+        ACCELERATION( "Acceleration" ),
+        JERK( "Jerk" ),
+        HEADING( "Heading" );
 
-        private String internalLabel;
         private String label;
-        private int index;
 
-        Elements( String internalLabel, String label, int index )
+        Elements( String label )
         {
-            this.internalLabel = internalLabel;
             this.label = label;
-            this.index = index;
         }
 
-        public int getIndex() {return index;}
-
+        @Override
         public String toString()
         {
             return label;
         }
 
-        public String getInternalLabel()
-        {
-            return internalLabel;
-        }
     }
 
     public static class Segment
@@ -126,6 +117,36 @@ public class Path
     public Segment[] getBackRight()
     {
         return backRight;
+    }
+
+    public int getLength()
+    {
+        return center.length;
+    }
+
+    public Segment getCenterSegment( int i )
+    {
+        return center[ i ];
+    }
+
+    public Segment getFrontLeftSegment( int i )
+    {
+        return frontLeft[ i ];
+    }
+
+    public Segment getFrontRightSegment( int i )
+    {
+        return frontRight[ i ];
+    }
+
+    public Segment getBackLeftSegment( int i )
+    {
+        return backLeft[ i ];
+    }
+
+    public Segment getBackRightSegment( int i )
+    {
+        return backRight[ i ];
     }
 
 }

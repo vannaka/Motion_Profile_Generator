@@ -1,10 +1,13 @@
 package com.mammen.ui.javafx;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
+import com.mammen.generator.Units;
 import com.mammen.generator.wrappers.Waypoint;
+import com.mammen.settings.Settings;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import com.mammen.ui.javafx.graphs.PosGraphController;
 import com.mammen.ui.javafx.graphs.VelGraphController;
@@ -64,12 +67,6 @@ public class MainUIController
         btnClearPoints,
         btnDelete;
 
-    // Interface for property manipulation.
-    private Properties properties;
-
-    // Last directory saved/exported to.
-    private File workingDirectory;
-
     // Reference to the PosGraphController object that JavaFX creates when it loads the fxml file.
     // This has to be named exactly like this
     @FXML
@@ -81,6 +78,11 @@ public class MainUIController
     @FXML
     private PathfinderV1VarsController pathfinderV1VarsController;
 
+    private Settings settings;
+
+    // Last directory saved/exported to.
+    private File workingDirectory;
+
 
     /**************************************************************************
      *  initialize
@@ -89,11 +91,11 @@ public class MainUIController
     @FXML public void initialize()
     {
         backend = new ProfileGenerator();
-        properties = PropWrapper.getProperties();
+
+        settings = Settings.getSettings();
 
         // Setup position graph
         posGraphController.setup( backend );
-        posGraphController.setBGImg( properties.getProperty("ui.overlayImg", "") );
 
         // Setup velocity graph
         velGraphController.setup( backend );
@@ -102,11 +104,12 @@ public class MainUIController
         pathfinderV1VarsController.setup( backend );
 
         // Put List in a variable
-        backend.s_ListChose = new LinkedList<>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
+        //backend.s_ListChose = new LinkedList<>( Arrays.asList( properties.getProperty("csv.chos").split(",") ) );
 
         // Retrieve the working dir from our properties file.
         // If the path isn't a dir for some reason, default to the user directory
-		workingDirectory = new File( properties.getProperty("file.workingDir", System.getProperty("user.dir") ) );
+		workingDirectory = new File( settings.getWorkingDirectory() );
+
         if( !workingDirectory.exists() || !workingDirectory.isDirectory() )
         {
             workingDirectory = new File( System.getProperty("user.dir") );
@@ -195,10 +198,11 @@ public class MainUIController
         
         Runtime.getRuntime().addShutdownHook( new Thread( () ->
         {
-            properties.setProperty( "file.workingDir", workingDirectory.getAbsolutePath() );
+            settings.setWorkingDirectory( workingDirectory.getAbsolutePath() );
+
             try
             {
-                PropWrapper.storeProperties();
+                settings.saveSettings();
             }
             catch( IOException e )
             {
@@ -222,53 +226,13 @@ public class MainUIController
             {
                 try
                 {
-                    DialogPane pane = settingsDialog.getDialogPane();
-
-                    String overlayDir = ( (TextField)pane.lookup("#txtOverlayDir" ) ).getText().trim();
-
-                    int sourceDisplay = ( (ChoiceBox)pane.lookup("#choSourceDisplay") )
-                            .getSelectionModel()
-                            .getSelectedIndex();
-                    
-                    int csvType = ( (ChoiceBox)pane.lookup("#choCSVType") )
-                    		.getSelectionModel()
-                    		.getSelectedIndex();
-
-                    String availList = ((ListView)pane.lookup("#lst_availabel_vals"))
-                            .getItems()
-                            .toString()
-                            .replace(", ", ",")
-                            .replace("[", "")
-                            .replace("]", "")
-                            .replace(" ", "_");
-
-                    String chosList = ((ListView)pane.lookup("#lst_chosen_vals"))
-                            .getItems()
-                            .toString()
-                            .replace(", ", ",")
-                            .replace("[", "")
-                            .replace("]", "")
-                            .replace(" ", "_");
-
-                    boolean addWaypointOnClick = ((CheckBox) pane.lookup("#chkAddWaypointOnClick")).isSelected();
-
-                    properties.setProperty("ui.overlayImg", overlayDir);
-                    properties.setProperty("ui.sourceDisplay", "" + sourceDisplay);
-                    properties.setProperty("ui.addWaypointOnClick", "" + addWaypointOnClick);
-                    properties.setProperty("ui.csvType", "" + csvType);
-                    properties.setProperty("csv.avail", "" + availList);
-                    properties.setProperty("csv.chos", "" + chosList);
-
                     // TODO: bind position graph bg image to the bg setting.
-                    posGraphController.setBGImg( overlayDir );
+                    posGraphController.setBGImg();
                     posGraphController.refresh();
                     posGraphController.refreshPoints();
 
-                    // Update backend list with new values.
-                    backend.s_ListChose = new LinkedList<>(Arrays.asList(properties.getProperty("csv.chos").split(",")));
-
-                    PropWrapper.storeProperties();
-                }
+                    settings.saveSettings();
+            }
                 catch( IOException e )
                 {
                     Alert alert = AlertFactory.createExceptionAlert( e );
@@ -291,7 +255,7 @@ public class MainUIController
     {
         if( backend.getNumWaypoints() < 2 )
         {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
+            Alert alert = new Alert( Alert.AlertType.WARNING );
 
             alert.setTitle("Not enough waypoints");
             alert.setHeaderText("Not enough waypoints");
@@ -315,43 +279,20 @@ public class MainUIController
             String parentPath = result.getAbsolutePath();
             String ext = parentPath.substring( parentPath.lastIndexOf(".") );
 
-            parentPath = parentPath.substring(0, parentPath.lastIndexOf(ext));
-
-            String csvTypeStr = properties.getProperty("ui.csvType", "0");
-            int csvType = Integer.parseInt( csvTypeStr );
+            parentPath = parentPath.substring( 0, parentPath.lastIndexOf( ext ) );
             
             try
             {
-            	if( csvType == 0 )
-            	{
-            		backend.exportTrajectoriesJaci( new File( parentPath ) );
-            	}
-            	else if( csvType == 1 )
-                {
-            		backend.exportTrajectoriesTalon( new File( parentPath ) );
-            	}
-            	else
-                {
-                    if ( !backend.s_ListChose.contains( "null" ) )
-                    {
-                        backend.exportTrajectoriesCustom(new File(parentPath), backend.s_ListChose);
-                    }
-                    else
-                    {
-                        Alert alert = new Alert( Alert.AlertType.WARNING );
-
-                        alert.setTitle("No Values Chosen for Custom CSV!");
-                        alert.setHeaderText("CSV list is empty!");
-                        alert.setContentText("Please go to the settings and choose the values you want in the CSV.");
-
-                        alert.showAndWait();
-
-                    }
-                }
+                backend.exportPath( new File( parentPath ) );
             }
-            catch( IOException e )
+            catch( FileNotFoundException e )
             {
-				e.printStackTrace();
+                Alert alert = new Alert( Alert.AlertType.ERROR);
+
+                alert.setTitle( "FileNotFoundException" );
+                alert.setHeaderText( "FileNotFoundException" );
+                alert.setContentText( e.getLocalizedMessage() );
+                alert.showAndWait();
 			}
         }
     } /* showExportDialog() */
@@ -453,8 +394,9 @@ public class MainUIController
             if( t == ButtonType.OK )
             {
                 backend.clearWorkingFiles();
-                backend.setDefaultValues( ProfileGenerator.Units.FEET );
                 backend.clearPoints();
+
+                pathfinderV1VarsController.setVarsToDefault( Units.FEET );
 
                 mnuFileSave.setDisable( true );
             }

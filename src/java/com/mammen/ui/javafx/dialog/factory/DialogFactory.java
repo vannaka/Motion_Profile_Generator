@@ -3,7 +3,7 @@ package com.mammen.ui.javafx.dialog.factory;
 import java.awt.Toolkit;
 
 import com.mammen.generator.wrappers.Waypoint;
-import com.mammen.ui.javafx.ResourceLoader;
+import com.mammen.util.ResourceLoader;
 import com.mammen.ui.javafx.dialog.AddWaypointDialogController;
 
 import jaci.pathfinder.Pathfinder;
@@ -50,7 +50,7 @@ public class DialogFactory
 
         try
         {
-            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/SettingsDialog.fxml" ) );
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/settings/SettingsDialog.fxml") );
 
             dialog.setDialogPane( loader.load() );
 

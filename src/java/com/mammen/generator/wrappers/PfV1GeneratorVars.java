@@ -2,6 +2,7 @@ package com.mammen.generator.wrappers;
 
 import com.mammen.generator.DriveBase;
 import com.mammen.generator.Units;
+import com.mammen.util.Mathf;
 import jaci.pathfinder.Trajectory;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
@@ -52,19 +53,19 @@ public class PfV1GeneratorVars implements GeneratorVars
     private DoubleProperty wheelBaseD       = new SimpleDoubleProperty( 2.0 );
     private Property<FitMethod> fitMethod   = new SimpleObjectProperty<>( FitMethod.HERMITE_CUBIC );
     private Property<DriveBase> driveBase   = new SimpleObjectProperty<>( DriveBase.TANK );
-    private Property<Units> units           = new SimpleObjectProperty<>( Units.FEET );
+    private Property<Units> unit           = new SimpleObjectProperty<>( Units.FEET );
 
 
     /**
      * Resets configuration to default values for the given unit.
      */
-    public void setDefaultValues( Units newUnits )
+    public void setDefaultValues( Units newUnit )
     {
         fitMethod.setValue( FitMethod.HERMITE_CUBIC );
         driveBase.setValue( DriveBase.TANK );
-        units.setValue( newUnits );
+        unit.setValue( newUnit );
 
-        switch( newUnits )
+        switch( newUnit )
         {
             case FEET:
                 timeStep.set( 0.05 );
@@ -91,6 +92,72 @@ public class PfV1GeneratorVars implements GeneratorVars
                 jerk .set( 720 );
                 wheelBaseW.set( 17.568 );
                 wheelBaseD.set( 17.568 );
+                break;
+        }
+    }
+
+    public void changeUnit( Units newUnit )
+    {
+        if( newUnit == unit.getValue() )
+            return;
+
+        // Convert each MP variable to the new unit
+        double tmp_WBW = 0, tmp_WBD = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
+
+        // convert to intermediate unit of feet
+        switch( unit.getValue() )
+        {
+            case FEET:
+                tmp_WBW = wheelBaseW.get();
+                tmp_WBD = wheelBaseD.get();
+                tmp_vel = velocity.get();
+                tmp_acc = accel.get();
+                tmp_jer = jerk.get();
+                break;
+
+            case INCHES:
+                tmp_WBW = Mathf.inchesToFeet( wheelBaseW.get() );
+                tmp_WBD = Mathf.inchesToFeet( wheelBaseD.get() );
+                tmp_vel = Mathf.inchesToFeet( velocity.get() );
+                tmp_acc = Mathf.inchesToFeet( accel.get() );
+                tmp_jer = Mathf.inchesToFeet( jerk.get() );
+                break;
+
+            case METERS:
+                tmp_WBW = Mathf.meterToFeet( wheelBaseW.get() );
+                tmp_WBD = Mathf.meterToFeet( wheelBaseD.get() );
+                tmp_vel = Mathf.meterToFeet( velocity.get() );
+                tmp_acc = Mathf.meterToFeet( accel.get() );
+                tmp_jer = Mathf.meterToFeet( jerk.get() );
+                break;
+        }
+
+        // convert from intermediate unit of feet
+        switch( newUnit )
+        {
+            case FEET:
+                wheelBaseW  .set( tmp_WBW );
+                wheelBaseD  .set( tmp_WBD );
+                velocity    .set( tmp_vel );
+                accel       .set( tmp_acc );
+                jerk        .set( tmp_jer );
+                break;
+
+            case INCHES:
+                wheelBaseW  .set( Mathf.round( Mathf.feetToInches( tmp_WBW ),4 ) );
+                wheelBaseD  .set( Mathf.round( Mathf.feetToInches( tmp_WBD ),4 ) );
+                velocity    .set( Mathf.round( Mathf.feetToInches( tmp_vel ),4 ) );
+                accel       .set( Mathf.round( Mathf.feetToInches( tmp_acc ),4 ) );
+                jerk        .set( Mathf.round( Mathf.feetToInches( tmp_jer ),4 ) );
+
+                break;
+
+            case METERS:
+                wheelBaseW  .set( Mathf.round( Mathf.feetToMeter( tmp_WBW ),4 ) );
+                wheelBaseD  .set( Mathf.round( Mathf.feetToMeter( tmp_WBD ),4 ) );
+                velocity    .set( Mathf.round( Mathf.feetToMeter( tmp_vel ),4 ) );
+                accel       .set( Mathf.round( Mathf.feetToMeter( tmp_acc ),4 ) );
+                jerk        .set( Mathf.round( Mathf.feetToMeter( tmp_jer ),4 ) );
                 break;
         }
     }
@@ -216,18 +283,18 @@ public class PfV1GeneratorVars implements GeneratorVars
         this.fitMethod.setValue( fitMethod );
     }
 
-    public Units getUnits()
+    public Units getUnit()
     {
-        return units.getValue();
+        return unit.getValue();
     }
 
-    public Property<Units> unitsProperty()
+    public Property<Units> unitProperty()
     {
-        return units;
+        return unit;
     }
 
-    public void setUnits( Units units )
+    public void setUnit( Units unit )
     {
-        this.units.setValue(units);
+        this.unit.setValue( unit );
     }
 }

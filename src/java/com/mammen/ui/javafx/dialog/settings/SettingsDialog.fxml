@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonType?>
 <?import javafx.scene.control.CheckBox?>
@@ -13,10 +14,12 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<DialogPane fx:id="root" maxHeight="300.0" minHeight="200.0" prefHeight="300.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.SettingsDialogController">
+<DialogPane fx:id="root" maxHeight="300.0" minHeight="200.0" prefHeight="300.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.SettingsDialogController">
    <content>
       <AnchorPane>
          <children>
@@ -33,7 +36,46 @@
             </AnchorPane>
             <AnchorPane layoutX="231.0" layoutY="19.0" prefHeight="138.0" prefWidth="424.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
                <children>
-                  <Pane fx:id="pnl_general" prefWidth="455.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" prefHeight="22.0" prefWidth="427.0" VBox.vgrow="NEVER">
+                                 <children>
+                                    <Label text="Drag elements you want to export into the right list." />
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="30.0" prefWidth="427.0" VBox.vgrow="NEVER">
+                                 <children>
+                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Available Elements" />
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                       <children>
+                                          <Label text="Elements in CSV" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" prefHeight="140.0" prefWidth="427.0" spacing="10.0" VBox.vgrow="ALWAYS">
+                                 <children>
+                                    <ListView fx:id="lst_availableElements" onDragDetected="#lst_aval_onDragDetected" onDragDone="#lst_aval_onDragDone" onDragDropped="#lst_avail_onDragDrop" onDragOver="#lst_avail_onDragOver" prefWidth="200.0" />
+                                    <ListView fx:id="lst_chosenElements" onDragDetected="#lst_chos_onDragDetected" onDragDone="#lst_chos_onDragDone" prefWidth="200.0" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="pnl_general" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <GridPane alignment="BASELINE_RIGHT" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="150.0" prefWidth="455.0" vgap="10.0">
                           <columnConstraints>
@@ -51,33 +93,11 @@
                               <Label text="Position Chart Background:" />
                               <TextField fx:id="txtOverlayDir" editable="false" GridPane.columnIndex="1" />
                               <Button fx:id="btnChooseOverlay" mnemonicParsing="false" onAction="#showChooseOverlayDialog" text="Find image..." GridPane.columnIndex="2" />
-                              <ChoiceBox fx:id="choSourceDisplay" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <ChoiceBox fx:id="choSourceDisplayType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <Label layoutX="38.0" layoutY="31.0" text="Source Trajectory Display:" GridPane.rowIndex="1" />
                               <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                            </children>
                         </GridPane>
-                     </children>
-                  </Pane>
-                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" prefWidth="455.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <GridPane alignment="BASELINE_RIGHT" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="39.0" prefWidth="425.0" vgap="10.0">
-                           <columnConstraints>
-                              <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                           </columnConstraints>
-                           <rowConstraints>
-                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           </rowConstraints>
-                           <children>
-                              <Label text="CSV Type:" />
-                              <ChoiceBox fx:id="choCSVType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" />
-                           </children>
-                        </GridPane>
-                        <ListView fx:id="lst_availabel_vals" layoutY="71.0" onDragDetected="#lst_aval_onDragDetected" onDragDone="#lst_aval_onDragDone" onDragDropped="#lst_avail_onDragDrop" onDragOver="#lst_avail_onDragOver" prefHeight="108.0" prefWidth="200.0" />
-                        <ListView fx:id="lst_chosen_vals" layoutX="224.0" layoutY="72.0" onDragDetected="#lst_chos_onDragDetected" onDragDone="#lst_chos_onDragDone" prefHeight="108.0" prefWidth="200.0" />
-                        <Label layoutX="57.0" layoutY="47.0" text="Available Values" />
-                        <Label layoutX="266.0" layoutY="47.0" text="Values in Custom CSV" />
                      </children>
                   </Pane>
                </children>

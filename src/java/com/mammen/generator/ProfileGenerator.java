@@ -1,18 +1,14 @@
 package com.mammen.generator;
 
 import com.mammen.generator.wrappers.GeneratorVars;
-import com.mammen.generator.wrappers.Path;
 import com.mammen.generator.wrappers.PfV1GeneratorVars;
 import com.mammen.generator.wrappers.Waypoint;
+import com.mammen.settings.Settings;
 import com.mammen.util.Mathf;
 
 import javafx.beans.Observable;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-
-import jaci.pathfinder.Pathfinder;
-import jaci.pathfinder.Trajectory;
-import jaci.pathfinder.Trajectory.Segment;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,7 +51,7 @@ public class ProfileGenerator
 
     private BooleanProperty isReversed    = new SimpleBooleanProperty();
 
-    private ListProperty<WaypointInternal> waypointList = new SimpleListProperty<>(
+    private ListProperty<Waypoint> waypointList = new SimpleListProperty<>(
                                                                 FXCollections.observableArrayList(
                                                                         p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
 
@@ -71,18 +67,17 @@ public class ProfileGenerator
     private DocumentBuilderFactory dbFactory;
     private File workingProject;
 
-    // Property Lists
-    public List<String> s_ListAvail;
-    public List<String> s_ListChose;
+    private Settings settings;
 
     /**************************************************************************
      *   Constructor
      *************************************************************************/
     public ProfileGenerator()
     {
-        //generator = new PfV1Generator();
         generator = new PfV1Generator();
         generatorVars = new PfV1GeneratorVars();
+
+        settings = Settings.getSettings();
 
     	dbFactory = DocumentBuilderFactory.newInstance();
 
@@ -96,13 +91,16 @@ public class ProfileGenerator
      *************************************************************************/
     public boolean generatePath() throws Generator.PathGenerationException, Generator.NotEnoughPointsException
     {
-        path = generator.generate( waypointList, generatorVars );
+        Path newPath = generator.generate( waypointList, generatorVars );
 
-        if( path != null )
+        if( newPath != null )
         {
+            path = newPath;
+
             // Signal that a new trajectory has been generated.
             int tmp = numberOfGenerations.get();
             numberOfGenerations.set( tmp + 1 );
+
             return true;
         }
 
@@ -167,577 +165,25 @@ public class ProfileGenerator
             }
         }
 
-        // Convert each MP variable to the new unit
-    	double tmp_WBW = 0, tmp_WBD = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
+        generatorVars.changeUnit( new_unit );
 
-    	// convert to intermediate unit of feet
-    	switch( old_unit )
-    	{
-            case FEET:
-                tmp_WBW = wheelBaseW.get();
-                tmp_WBD = wheelBaseD.get();
-                tmp_vel = velocity.get();
-                tmp_acc = accel.get();
-                tmp_jer = jerk.get();
-                break;
-
-            case INCHES:
-                tmp_WBW = Mathf.inchesToFeet( wheelBaseW.get() );
-                tmp_WBD = Mathf.inchesToFeet( wheelBaseD.get() );
-                tmp_vel = Mathf.inchesToFeet( velocity.get() );
-                tmp_acc = Mathf.inchesToFeet( accel.get() );
-                tmp_jer = Mathf.inchesToFeet( jerk.get() );
-                break;
-
-            case METERS:
-                tmp_WBW = Mathf.meterToFeet( wheelBaseW.get() );
-                tmp_WBD = Mathf.meterToFeet( wheelBaseD.get() );
-                tmp_vel = Mathf.meterToFeet( velocity.get() );
-                tmp_acc = Mathf.meterToFeet( accel.get() );
-                tmp_jer = Mathf.meterToFeet( jerk.get() );
-                break;
-    	}
-    	
-    	// convert from intermediate unit of feet
-    	switch( new_unit )
-    	{
-            case FEET:
-                wheelBaseW  .set( tmp_WBW );
-                wheelBaseD  .set( tmp_WBD );
-                velocity    .set( tmp_vel );
-                accel       .set( tmp_acc );
-                jerk        .set( tmp_jer );
-                break;
-
-            case INCHES:
-                wheelBaseW  .set( Mathf.round( Mathf.feetToInches( tmp_WBW ),4 ) );
-                wheelBaseD  .set( Mathf.round( Mathf.feetToInches( tmp_WBD ),4 ) );
-                velocity    .set( Mathf.round( Mathf.feetToInches( tmp_vel ),4 ) );
-                accel       .set( Mathf.round( Mathf.feetToInches( tmp_acc ),4 ) );
-                jerk        .set( Mathf.round( Mathf.feetToInches( tmp_jer ),4 ) );
-
-                break;
-
-            case METERS:
-                wheelBaseW  .set( Mathf.round( Mathf.feetToMeter( tmp_WBW ),4 ) );
-                wheelBaseD  .set( Mathf.round( Mathf.feetToMeter( tmp_WBD ),4 ) );
-                velocity    .set( Mathf.round( Mathf.feetToMeter( tmp_vel ),4 ) );
-                accel       .set( Mathf.round( Mathf.feetToMeter( tmp_acc ),4 ) );
-                jerk        .set( Mathf.round( Mathf.feetToMeter( tmp_jer ),4 ) );
-                break;
-    	}
     }   /* updateVarUnits() */
 
 
     /**************************************************************************
-     *  exportTrajectoriesJaci
+     *  exportPath
      *      Exports all trajectories to the parent folder, with the given root
      *      name and file extension.
      *
-     * @param parentPath Path to the directory to export to.
+     * @param parentPath The .csv file to save to. This method will write to
+     *                   multiple files depending on the drivebase of the Path.
+     *                   Each filename will be an appended version of the .csv
+     *                   that parentPath references.
      *************************************************************************/
-    public void exportTrajectoriesJaci( File parentPath )
+    public void exportPath( File parentPath ) throws FileNotFoundException
     {
-        File dir = parentPath.getParentFile();
-
-        if( dir != null && !dir.exists() && dir.isDirectory() )
-        {
-            if( !dir.mkdirs() )
-                return;
-        }
-
-        Pathfinder.writeToCSV( new File(parentPath + "_source_Jaci.csv"), source.getValue() );
-
-        if( driveBase.getValue() == DriveBase.SWERVE )
-        {
-            Pathfinder.writeToCSV( new File(parentPath + "_fl_Jaci.csv"), fl.getValue() );
-            Pathfinder.writeToCSV( new File(parentPath + "_fr_Jaci.csv"), fr.getValue() );
-            Pathfinder.writeToCSV( new File(parentPath + "_bl_Jaci.csv"), bl.getValue() );
-            Pathfinder.writeToCSV( new File(parentPath + "_br_Jaci.csv"), br.getValue() );
-        }
-        else
-        {
-            Pathfinder.writeToCSV( new File(parentPath + "_left_Jaci.csv"), fl.getValue() );
-            Pathfinder.writeToCSV( new File(parentPath + "_right_Jaci.csv"), fr.getValue() );
-        }
-
-    }   /* exportTrajectoriesJaci() */
-
-
-    /**************************************************************************
-     *  exportTrajectoriesTalon
-     *       Exports all trajectories to the parent folder, with the given root
-     *       name and file extension.
-     *
-     * @param parentPath Path to the directory to export to.
-     * @throws IOException
-     * @throws IllegalArgumentException
-     **************************************************************************/
-    public void exportTrajectoriesTalon( File parentPath ) throws IOException
-    {
-        File dir = parentPath.getParentFile();
-
-        if( dir != null && !dir.exists() && dir.isDirectory() )
-        {
-            if( !dir.mkdirs() )
-                return;
-        }
-
-        if( driveBase.getValue() == DriveBase.SWERVE )
-        {
-            File flFile = new File(parentPath + "_fl_Talon.csv");
-            File frFile = new File(parentPath + "_fr_Talon.csv");
-            File blFile = new File(parentPath + "_bl_Talon.csv");
-            File brFile = new File(parentPath + "_br_Talon.csv");
-            FileWriter flfw = new FileWriter( flFile );
-            FileWriter frfw = new FileWriter( frFile );
-            FileWriter blfw = new FileWriter( blFile );
-            FileWriter brfw = new FileWriter( brFile );
-            PrintWriter flpw = new PrintWriter( flfw );
-            PrintWriter frpw = new PrintWriter( frfw );
-            PrintWriter blpw = new PrintWriter( blfw );
-            PrintWriter brpw = new PrintWriter( brfw );
-            // CSV with position and velocity. To be used with Talon SRX Motion
-            // save front left path to CSV
-            for( int i = 0; i < fl.getValue().length(); i++ )
-            {
-                Segment seg = fl.getValue().get( i );
-                flpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
-            }
-
-            // save front right path to CSV
-            for( int i = 0; i < fr.getValue().length(); i++ )
-            {
-                Segment seg = fr.getValue().get( i );
-                frpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
-            }
-
-            // save back left path to CSV
-            for( int i = 0; i < bl.getValue().length(); i++ )
-            {
-                Segment seg = bl.getValue().get( i );
-                blpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
-            }
-
-            // save back right path to CSV
-            for( int i = 0; i < br.getValue().length(); i++ )
-            {
-                Segment seg = br.getValue().get( i );
-                brpw.printf( "%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), (int)( seg.dt * 1000 ) );
-            }
-            flpw.close();
-            frpw.close();
-            blpw.close();
-            brpw.close();
-        }
-        else
-        {
-            File lFile = new File(parentPath + "_left_Talon.csv");
-            File rFile = new File(parentPath + "_right_Talon.csv");
-            FileWriter lfw = new FileWriter( lFile );
-            FileWriter rfw = new FileWriter( rFile );
-            PrintWriter lpw = new PrintWriter( lfw );
-            PrintWriter rpw = new PrintWriter( rfw );
-            // CSV with position and velocity. To be used with Talon SRX Motion
-            // save left path to CSV
-            for( int i = 0; i < fl.getValue().length(); i++ )
-            {
-                Segment seg = fl.getValue().get( i );
-                lpw.printf("%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), ( int )( seg.dt * 1000 ) );
-            }
-
-            // save right path to CSV
-            for( int i = 0; i < fr.getValue().length(); i++ )
-            {
-                Segment seg = fr.getValue().get( i );
-                rpw.printf("%f, %f, %d\n", seg.position*( isReversed.getValue()?-1:1 ), seg.velocity*( isReversed.getValue()?-1:1 ), ( int )( seg.dt * 1000 ) );
-            }
-
-            lpw.close();
-            rpw.close();
-        }
-    }   /* exportTrajectoriesTalon() */
-
-    /**************************************************************************
-     *  exportTrajectoriesCustom
-     *       Exports all trajectories to the parent folder, with the given root
-     *       name and file extension.
-     *
-     * @param parentPath Path to the directory to export to.
-     * @param csvList List of csv values to export.
-     * @throws IOException
-     * @throws IllegalArgumentException
-     **************************************************************************/
-    public void exportTrajectoriesCustom( File parentPath, List<String> csvList ) throws IOException
-    {
-        File dir = parentPath.getParentFile();
-
-        if( dir != null && !dir.exists() && dir.isDirectory() )
-        {
-            if (!dir.mkdirs())
-                return;
-        }
-
-        if( driveBase.getValue() == DriveBase.SWERVE )
-        {
-            File flFile = new File(parentPath + "_fl_Custom.csv");
-            File frFile = new File(parentPath + "_fr_Custom.csv");
-            File blFile = new File(parentPath + "_bl_Custom.csv");
-            File brFile = new File(parentPath + "_br_Custom.csv");
-            FileWriter flfw = new FileWriter( flFile );
-            FileWriter frfw = new FileWriter( frFile );
-            FileWriter blfw = new FileWriter( blFile );
-            FileWriter brfw = new FileWriter( brFile );
-            PrintWriter flpw = new PrintWriter( flfw );
-            PrintWriter frpw = new PrintWriter( frfw );
-            PrintWriter blpw = new PrintWriter( blfw );
-            PrintWriter brpw = new PrintWriter( brfw );
-            // save front left path to CSV
-            for( int i = 0; i < fl.getValue().length(); i++ )
-            {
-                String data = "";
-                for ( String temp : csvList)
-                {
-                    // Get String to same case as our enums for comparison.
-                    temp = temp.toUpperCase();
-                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.x );
-                    }
-                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.y );
-                    }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
-                    }
-                }
-                // Remove the comma from the end of the line
-                data = data.replaceAll(",$", "");
-                flpw.printf( data + "\n" );
-            }
-
-            // save front right path to CSV
-            for( int i = 0; i < fr.getValue().length(); i++ )
-            {
-                String data = "";
-                for ( String temp : csvList)
-                {
-                    // Get String to same case as our enums for comparison.
-                    temp = temp.toUpperCase();
-                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.x );
-                    }
-                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.y );
-                    }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
-                    }
-                }
-                // Remove the comma from the end of the line
-                data = data.replaceAll(",$", "");
-                frpw.printf( data + "\n" );
-            }
-
-            // save back left path to CSV
-            for( int i = 0; i < bl.getValue().length(); i++ )
-            {
-                String data = "";
-                for ( String temp : csvList)
-                {
-                    // Get String to same case as our enums for comparison.
-                    temp = temp.toUpperCase();
-                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.x );
-                    }
-                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.y );
-                    }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
-                    {
-                        Segment seg = bl.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
-                    }
-                }
-                // Remove the comma from the end of the line
-                data = data.replaceAll(",$", "");
-                blpw.printf( data + "\n" );
-            }
-
-            // save back right path to CSV
-            for( int i = 0; i < br.getValue().length(); i++ )
-            {
-                String data = "";
-                for ( String temp : csvList)
-                {
-                    // Get String to same case as our enums for comparison.
-                    temp = temp.toUpperCase();
-                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.x );
-                    }
-                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.y );
-                    }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
-                    {
-                        Segment seg = br.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
-                    }
-                }
-                // Remove the comma from the end of the line
-                data = data.replaceAll(",$", "");
-                brpw.printf( data + "\n" );
-            }
-            flpw.close();
-            frpw.close();
-            blpw.close();
-            brpw.close();
-        }
-        else
-        {
-            File lFile = new File(parentPath + "_left_Custom.csv");
-            File rFile = new File(parentPath + "_right_Custom.csv");
-            FileWriter lfw = new FileWriter( lFile );
-            FileWriter rfw = new FileWriter( rFile );
-            PrintWriter lpw = new PrintWriter( lfw );
-            PrintWriter rpw = new PrintWriter( rfw );
-
-            // save left path to CSV
-            for( int i = 0; i < fl.getValue().length(); i++ )
-            {
-                String data = "";
-                for ( String temp : csvList)
-                {
-                    // Get String to same case as our enums for comparison.
-                    temp = temp.toUpperCase();
-                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.x );
-                    }
-                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.y );
-                    }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
-                    {
-                        Segment seg = fl.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
-                    }
-                }
-                // Remove the comma from the end of the line
-                data = data.replaceAll(",$", "");
-                lpw.printf( data + "\n" );
-            }
-
-            // save right path to CSV
-            for( int i = 0; i < fr.getValue().length(); i++ )
-            {
-                String data = "";
-                for ( String temp : csvList)
-                {
-                    // Get String to same case as our enums for comparison.
-                    temp = temp.toUpperCase();
-                    // X and Y are relative so they do not need to be inverted. Time needs to stay positive
-                    if ( temp.equals( ProfileElements.DELTA_TIME.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%d,", (int)( seg.dt * 1000 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.X_POINT.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.x );
-                    }
-                    else if ( temp.equals( ProfileElements.Y_POINT.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.y );
-                    }
-                    else if ( temp.equals( ProfileElements.POSITION.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.position*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.VELOCITY.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.velocity*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.ACCELERATION.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.acceleration*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.JERK.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.jerk*( isReversed.getValue()?-1:1 ) );
-                    }
-                    else if ( temp.equals( ProfileElements.HEADING.internalLabel ) )
-                    {
-                        Segment seg = fr.getValue().get( i );
-                        data = data + String.format("%f,", seg.heading*( isReversed.getValue()?-1:1 ) );
-                    }
-                }
-                // Remove the comma from the end of the line
-                data = data.replaceAll(",$", "");
-                rpw.printf( data + "\n" );
-            }
-            lpw.close();
-            rpw.close();
-        }
-    }   /* exportTrajectoriesCustom() */
+        FileIO.savePath( path, parentPath, settings.getAvailableCSVElements() );
+    }   /* exportPath() */
 
 
     /**
@@ -775,21 +221,24 @@ public class ProfileGenerator
             DocumentBuilder db = dbFactory.newDocumentBuilder();
             Document dom = db.newDocument();
 
+            // Write generator vars to xml file
             Element trajectoryEle = dom.createElement("Trajectory" );
 
-            trajectoryEle.setAttribute("dt", "" + timeStep.getValue() );
-            trajectoryEle.setAttribute("velocity", "" + velocity.getValue() );
-            trajectoryEle.setAttribute("acceleration", "" + accel.getValue() );
-            trajectoryEle.setAttribute("jerk", "" + jerk.getValue() );
-            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW.getValue() );
-            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD.getValue() );
-            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getValue().getInternalLabel() );
-            trajectoryEle.setAttribute("driveBase", "" + driveBase.getValue().getInternalLabel() );
-            trajectoryEle.setAttribute("units", "" + units.getValue().getInternalLabel() );
-            trajectoryEle.setAttribute("reversed", ""  + isReversed.getValue().toString());
+            // TODO: Make this work for all objects that implement GeneratorVars interface
+//            trajectoryEle.setAttribute("dt", "" + timeStep.getValue() );
+//            trajectoryEle.setAttribute("velocity", "" + velocity.getValue() );
+//            trajectoryEle.setAttribute("acceleration", "" + accel.getValue() );
+//            trajectoryEle.setAttribute("jerk", "" + jerk.getValue() );
+//            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW.getValue() );
+//            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD.getValue() );
+//            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getValue().getInternalLabel() );
+//            trajectoryEle.setAttribute("driveBase", "" + driveBase.getValue().getInternalLabel() );
+//            trajectoryEle.setAttribute("units", "" + units.getValue().getInternalLabel() );
+//            trajectoryEle.setAttribute("reversed", ""  + isReversed.getValue().toString() );
+//
+//            dom.appendChild( trajectoryEle );
 
-            dom.appendChild( trajectoryEle );
-
+            // Write waypoints to xml file
             for( Waypoint wp : waypointList )
             {
                 Element waypointEle = dom.createElement("Waypoint" );
@@ -828,7 +277,7 @@ public class ProfileGenerator
             }
             catch( Exception e )
             {
-                throw new RuntimeException(e);
+                throw new RuntimeException( e );
             }
         }
     }
@@ -849,19 +298,19 @@ public class ProfileGenerator
 
             Element docEle = dom.getDocumentElement();
 
-            // Load units first so that the change event it causes won't unnecessarily convert the other variables.
-            units       .setValue( Units    .valueOf( docEle.getAttribute("units"       ) ) );
-            driveBase   .setValue( DriveBase.valueOf( docEle.getAttribute("driveBase"   ) ) );
-            fitMethod   .setValue( FitMethod.valueOf( docEle.getAttribute("fitMethod"   ) ) );
-
-            timeStep    .set( Double.parseDouble( docEle.getAttribute("dt"              ) ) );
-            velocity    .set( Double.parseDouble( docEle.getAttribute("velocity"        ) ) );
-            accel       .set( Double.parseDouble( docEle.getAttribute("acceleration"    ) ) );
-            jerk        .set( Double.parseDouble( docEle.getAttribute("jerk"            ) ) );
-            wheelBaseW  .set( Double.parseDouble( docEle.getAttribute("wheelBaseW"      ) ) );
-            wheelBaseD  .set( Double.parseDouble( docEle.getAttribute("wheelBaseD"      ) ) );
-            isReversed  .set( Boolean.parseBoolean( docEle.getAttribute("reversed"      ) ) );
-
+            // TODO: Make this work for all objects that implement GeneratorVars interface
+//            // Load units first so that the change event it causes won't unnecessarily convert the other variables.
+//            units       .setValue( Units    .valueOf( docEle.getAttribute("units"       ) ) );
+//            driveBase   .setValue( DriveBase.valueOf( docEle.getAttribute("driveBase"   ) ) );
+//            fitMethod   .setValue( FitMethod.valueOf( docEle.getAttribute("fitMethod"   ) ) );
+//
+//            timeStep    .set( Double.parseDouble( docEle.getAttribute("dt"              ) ) );
+//            velocity    .set( Double.parseDouble( docEle.getAttribute("velocity"        ) ) );
+//            accel       .set( Double.parseDouble( docEle.getAttribute("acceleration"    ) ) );
+//            jerk        .set( Double.parseDouble( docEle.getAttribute("jerk"            ) ) );
+//            wheelBaseW  .set( Double.parseDouble( docEle.getAttribute("wheelBaseW"      ) ) );
+//            wheelBaseD  .set( Double.parseDouble( docEle.getAttribute("wheelBaseD"      ) ) );
+//            isReversed  .set( Boolean.parseBoolean( docEle.getAttribute("reversed"      ) ) );
 
             NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
 
@@ -976,7 +425,6 @@ public class ProfileGenerator
 
     public List<Waypoint> getWaypointList()
     {
-        // TODO: What is happening when a ListProperty is converted to a List?
         return waypointList;
     }
 

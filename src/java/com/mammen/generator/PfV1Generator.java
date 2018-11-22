@@ -2,7 +2,6 @@ package com.mammen.generator;
 
 import com.mammen.generator.wrappers.GeneratorVars;
 import com.mammen.generator.wrappers.PfV1GeneratorVars;
-import com.mammen.generator.wrappers.Path;
 import com.mammen.generator.wrappers.Waypoint;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import jaci.pathfinder.Pathfinder;
@@ -97,18 +96,24 @@ public class PfV1Generator implements Generator
         if( traj == null )
             return null;
 
+        System.out.println( "Traj legth: " + traj.length() );
+
         Path.Segment[] segments = new Path.Segment[ traj.length() ];
+
+        System.out.println( "Segment[] length: " + segments.length );
 
         for( int i = 0; i < traj.length(); i++ )
         {
-            segments[ i ].dt           = traj.segments[ i ].dt;
-            segments[ i ].x            = traj.segments[ i ].x;
-            segments[ i ].y            = traj.segments[ i ].y;
-            segments[ i ].position     = traj.segments[ i ].position;
-            segments[ i ].velocity     = traj.segments[ i ].velocity;
-            segments[ i ].acceleration = traj.segments[ i ].acceleration;
-            segments[ i ].jerk         = traj.segments[ i ].jerk;
-            segments[ i ].heading      = traj.segments[ i ].heading;
+            segments[ i ] = new Path.Segment(
+                    traj.segments[ i ].dt,
+                    traj.segments[ i ].x,
+                    traj.segments[ i ].y,
+                    traj.segments[ i ].position,
+                    traj.segments[ i ].velocity,
+                    traj.segments[ i ].acceleration,
+                    traj.segments[ i ].jerk,
+                    traj.segments[ i ].heading
+            );
         }
 
         return segments;

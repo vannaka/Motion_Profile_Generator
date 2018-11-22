@@ -1,6 +1,9 @@
 package com.mammen.ui.javafx.graphs;
 
+import com.mammen.generator.DriveBase;
+import com.mammen.generator.Path;
 import com.mammen.generator.ProfileGenerator;
+import com.mammen.generator.Units;
 import jaci.pathfinder.Trajectory;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
@@ -37,7 +40,7 @@ public class VelGraphController
 
 
         // Update axis to reflect the new unit
-        backend.unitsProperty().addListener( ( o, oldValue, newValue ) ->
+        backend.getGeneratorVars().unitProperty().addListener( ( o, oldValue, newValue ) ->
         {
             updateAxis( newValue );
         });
@@ -53,7 +56,7 @@ public class VelGraphController
     }
 
 
-    public void updateAxis( ProfileGenerator.Units units )
+    public void updateAxis( Units units )
     {
         switch( units )
         {
@@ -77,23 +80,22 @@ public class VelGraphController
      */
     public void refresh()
     {
-        XYChart.Series<Double, Double> flSeries, frSeries;
-        XYChart.Series<Double, Double> blSeries, brSeries;
+        XYChart.Series<Double, Double> flSeries, frSeries, blSeries, brSeries;
 
         // Clear data from velocity graph
         velGraph.getData().clear();
 
         if( backend.getNumWaypoints() > 1 )
         {
-            flSeries = buildSeries( backend.getFrontLeftTrajectory() );
-            frSeries = buildSeries( backend.getFrontRightTrajectory() );
+            flSeries = buildSeries( backend.getPath().getFrontLeft() );
+            frSeries = buildSeries( backend.getPath().getFrontRight() );
 
             velGraph.getData().addAll( flSeries, frSeries );
 
-            if( backend.getDriveBase() == ProfileGenerator.DriveBase.SWERVE )
+            if( backend.getGeneratorVars().getDriveBase() == DriveBase.SWERVE )
             {
-                blSeries = buildSeries( backend.getBackLeftTrajectory() );
-                brSeries = buildSeries( backend.getBackRightTrajectory() );
+                blSeries = buildSeries( backend.getPath().getBackLeft() );
+                brSeries = buildSeries( backend.getPath().getBackRight() );
 
                 velGraph.getData().addAll( blSeries, brSeries );
 
@@ -112,25 +114,32 @@ public class VelGraphController
 
     /**
      * Builds a series from the given trajectory that is ready to display on a LineChart.
-     * @param traj Trajectory to build a series for.
+     * @param segments Partial path to build a series for.
      * @return The created series to display.
      */
-    private static XYChart.Series<Double, Double> buildSeries( Trajectory traj )
+    private static XYChart.Series<Double, Double> buildSeries( Path.Segment[] segments )
     {
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
 
-        for( int i = 0; i < traj.segments.length; i++ )
+        if( segments != null )
         {
-            // Holds x, y data for a single entry in the series.
-            XYChart.Data<Double, Double> data = new XYChart.Data<>();
+            int i = 0;
+            for( Path.Segment seg : segments )
+            {
+                // Holds x, y data for a single entry in the series.
+                XYChart.Data<Double, Double> data = new XYChart.Data<>();
 
-            // Set the x, y data.
-            data.setXValue( traj.get(i).dt * i );
-            data.setYValue( traj.get(i).velocity );
+                // Set the x, y data.
+                data.setXValue( seg.dt * i );
+                data.setYValue( seg.velocity );
 
-            // Add the data to the series.
-            series.getData().add( data );
+                // Add the data to the series.
+                series.getData().add( data );
+
+                i++;
+            }
         }
+
         return series;
     }
 }
