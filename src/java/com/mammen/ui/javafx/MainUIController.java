@@ -5,14 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
+import com.mammen.generator.Generator;
 import com.mammen.generator.Units;
-import com.mammen.generator.wrappers.Waypoint;
-import com.mammen.settings.Settings;
+import com.mammen.path.Waypoint;
+import com.mammen.settings.SettingsModel;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import com.mammen.ui.javafx.graphs.PosGraphController;
 import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
-import com.mammen.generator.ProfileGenerator;
+import com.mammen.main.MainUIModel;
 
 import com.mammen.ui.javafx.motion_vars.PathfinderV1VarsController;
 import com.mammen.util.Mathf;
@@ -26,7 +27,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
@@ -37,7 +37,7 @@ import static com.mammen.util.Mathf.round;
 
 public class MainUIController 
 {
-	private ProfileGenerator backend;
+	private MainUIModel backend;
 	
 	@FXML
     private Pane root;
@@ -78,7 +78,7 @@ public class MainUIController
     @FXML
     private PathfinderV1VarsController pathfinderV1VarsController;
 
-    private Settings settings;
+    private SettingsModel settings;
 
     // Last directory saved/exported to.
     private File workingDirectory;
@@ -90,9 +90,8 @@ public class MainUIController
      *************************************************************************/
     @FXML public void initialize()
     {
-        backend = new ProfileGenerator();
-
-        settings = Settings.getSettings();
+        backend = MainUIModel.getBackend();
+        settings = SettingsModel.getSettings();
 
         // Setup position graph
         posGraphController.setup( backend );
@@ -103,16 +102,13 @@ public class MainUIController
         // Setup motion variables
         pathfinderV1VarsController.setup( backend );
 
-        // Put List in a variable
-        //backend.s_ListChose = new LinkedList<>( Arrays.asList( properties.getProperty("csv.chos").split(",") ) );
-
         // Retrieve the working dir from our properties file.
         // If the path isn't a dir for some reason, default to the user directory
 		workingDirectory = new File( settings.getWorkingDirectory() );
 
         if( !workingDirectory.exists() || !workingDirectory.isDirectory() )
         {
-            workingDirectory = new File( System.getProperty("user.dir") );
+            workingDirectory = new File( System.getProperty( "user.dir" ) );
         }
 
         // Disable delete btn until we have points to delete.
@@ -120,7 +116,7 @@ public class MainUIController
 
         // Make sure only doubles are entered for waypoints.
         Callback<TableColumn<Waypoint, Double>, TableCell<Waypoint, Double>> doubleCallback =
-            (TableColumn<Waypoint, Double> param) ->
+            ( TableColumn<Waypoint, Double> param ) ->
         {
                 TextFieldTableCell<Waypoint, Double> cell = new TextFieldTableCell<>();
 
@@ -130,7 +126,7 @@ public class MainUIController
         };
 
         // Handle editing waypoints table elements
-        EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler = (TableColumn.CellEditEvent<Waypoint, Double> t ) ->
+        EventHandler<TableColumn.CellEditEvent<Waypoint, Double>> editHandler = ( TableColumn.CellEditEvent<Waypoint, Double> t ) ->
         {
                 Waypoint curWaypoint = t.getRowValue();
 
@@ -226,7 +222,6 @@ public class MainUIController
             {
                 try
                 {
-                    // TODO: bind position graph bg image to the bg setting.
                     posGraphController.setBGImg();
                     posGraphController.refresh();
                     posGraphController.refreshPoints();
@@ -383,9 +378,9 @@ public class MainUIController
     {
         Alert alert = new Alert( Alert.AlertType.CONFIRMATION );
 
-        alert.setTitle("Create New Project?");
-        alert.setHeaderText("Confirm Reset");
-        alert.setContentText("Are you sure you want to reset all data? Have you saved?");
+        alert.setTitle( "Create New Project?" );
+        alert.setHeaderText( "Confirm Reset" );
+        alert.setContentText( "Are you sure you want to reset all data? All unsaved work will be lost." );
 
         Optional<ButtonType> result = alert.showAndWait();
 
@@ -412,7 +407,34 @@ public class MainUIController
         // Wait for the result
         result = waypointDialog.showAndWait();
 
-        result.ifPresent((Waypoint w) -> backend.addPoint( w ) );
+        result.ifPresent( (Waypoint w) -> backend.addPoint( w ) );
+
+        // Generate a path
+        try
+        {
+            // Generate path with new point.
+            if( backend.getNumWaypoints() > 1 )
+                backend.generatePath();
+        }
+        catch( Generator.PathGenerationException e )
+        {
+            // Remove problem point.
+            backend.removeLastPoint();
+
+            Alert alert = new Alert( Alert.AlertType.INFORMATION );
+            alert.setTitle( "Invalid point" );
+            alert.setHeaderText( "Invalid point" );
+            alert.setContentText("The point you entered was invalid.");
+            alert.showAndWait();
+
+        }
+        catch( Generator.NotEnoughPointsException e )
+        {
+            // It is imposable for this exception to be thrown since we check
+            //  the number of waypoints first.
+            e.printStackTrace();
+        }
+
     } /* showAddPointDialog() */
     
     @FXML

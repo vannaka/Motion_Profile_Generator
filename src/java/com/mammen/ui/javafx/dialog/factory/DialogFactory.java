@@ -2,7 +2,7 @@ package com.mammen.ui.javafx.dialog.factory;
 
 import java.awt.Toolkit;
 
-import com.mammen.generator.wrappers.Waypoint;
+import com.mammen.path.Waypoint;
 import com.mammen.util.ResourceLoader;
 import com.mammen.ui.javafx.dialog.AddWaypointDialogController;
 
@@ -58,7 +58,7 @@ public class DialogFactory
             ((Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL)).setDefaultButton(false);
 
             // Some header stuff
-            dialog.setTitle("Settings");
+            dialog.setTitle("SettingsModel");
             dialog.setHeaderText("Manage settings");
 
             dialog.setResultConverter((ButtonType buttonType) -> buttonType.getButtonData() == ButtonBar.ButtonData.APPLY );

@@ -1,7 +1,7 @@
 package com.mammen.ui.javafx.dialog.settings;
 
-import com.mammen.generator.Path;
-import com.mammen.settings.Settings;
+import com.mammen.path.Path;
+import com.mammen.settings.SettingsModel;
 import com.mammen.settings.SourcePathDisplayType;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -32,14 +32,14 @@ public class SettingsDialogController
     @FXML
     private ListView<Path.Elements> lst_availableElements, lst_chosenElements;
 
-    private Settings settings;
+    private SettingsModel settings;
 
-    private static DataFormat profileElementFormat = new DataFormat("com.mammen.generator.Path.Elements" );
+    private static DataFormat profileElementFormat = new DataFormat("com.mammen.path.Path.Elements" );
 
     @FXML
     private void initialize()
     {
-        settings = Settings.getSettings();
+        settings = SettingsModel.getSettings();
 
         btn_gen_styles();
 
@@ -50,7 +50,7 @@ public class SettingsDialogController
 
 
         /******************************************************
-         *   Setup bindings to the Settings object
+         *   Setup bindings to the SettingsModel object
          ******************************************************/
         txtOverlayDir.textProperty().bindBidirectional( settings.graphBGImagePathProperty() );
         choSourceDisplayType.valueProperty().bindBidirectional( settings.sourcePathDisplayTypeProperty() );

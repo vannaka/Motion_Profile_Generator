@@ -3,16 +3,14 @@ package com.mammen.generator;
 // Units of every value
 public enum Units
 {
-    FEET( "FEET", "Feet" ),
-    INCHES( "INCHES", "Inches" ),
-    METERS( "METERS", "Meter" );
+    FEET( "Feet" ),
+    INCHES( "Inches" ),
+    METERS( "Meter" );
 
     private String label;
-    private String internalLabel;
 
-    Units( String internalLabel, String label )
+    Units( String label )
     {
-        this.internalLabel = internalLabel;
         this.label = label;
     }
 
@@ -21,8 +19,4 @@ public enum Units
         return label;
     }
 
-    public String getInternalLabel()
-    {
-        return internalLabel;
-    }
 }

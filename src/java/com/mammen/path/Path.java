@@ -1,4 +1,4 @@
-package com.mammen.generator;
+package com.mammen.path;
 
 import com.mammen.generator.DriveBase;
 

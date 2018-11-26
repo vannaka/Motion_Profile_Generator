@@ -1,11 +1,10 @@
 package com.mammen.util.SerializeHelpers;
 
-import com.mammen.generator.Path;
+import com.mammen.path.Path;
 import com.mammen.settings.SourcePathDisplayType;
 import javafx.beans.property.*;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class WriteObjectsHelper

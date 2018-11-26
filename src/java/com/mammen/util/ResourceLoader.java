@@ -1,8 +1,5 @@
 package com.mammen.util;
 
-import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
-import sun.misc.IOUtils;
-
 import java.io.*;
 import java.net.URL;
 import java.nio.file.StandardCopyOption;

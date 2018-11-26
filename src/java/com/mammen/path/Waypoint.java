@@ -1,4 +1,4 @@
-package com.mammen.generator.wrappers;
+package com.mammen.path;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;

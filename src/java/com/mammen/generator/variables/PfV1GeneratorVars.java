@@ -1,29 +1,25 @@
-package com.mammen.generator.wrappers;
+package com.mammen.generator.variables;
 
 import com.mammen.generator.DriveBase;
 import com.mammen.generator.Units;
 import com.mammen.util.Mathf;
 import jaci.pathfinder.Trajectory;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
+import org.w3c.dom.Element;
 
-public class PfV1GeneratorVars implements GeneratorVars
+public class PfV1GeneratorVars extends GeneratorVars
 {
 
     public enum FitMethod
     {
-        HERMITE_CUBIC( "HERMITE_CUBIC", "Cubic", Trajectory.FitMethod.HERMITE_CUBIC ),
-        HERMITE_QUINTIC( "HERMITE_QUINTIC", "Quintic", Trajectory.FitMethod.HERMITE_QUINTIC );
+        HERMITE_CUBIC( "Cubic", Trajectory.FitMethod.HERMITE_CUBIC ),
+        HERMITE_QUINTIC( "Quintic", Trajectory.FitMethod.HERMITE_QUINTIC );
 
         private String label;
-        private String internalLabel;
         private jaci.pathfinder.Trajectory.FitMethod pf_fitMethod;
 
-        FitMethod( String internalLabel, String label, Trajectory.FitMethod fitMethod )
+        FitMethod( String label, Trajectory.FitMethod fitMethod )
         {
-            this.internalLabel = internalLabel;
             this.label = label;
             this.pf_fitMethod = fitMethod;
         }
@@ -34,17 +30,13 @@ public class PfV1GeneratorVars implements GeneratorVars
             return label;
         }
 
-        public String getInternalLabel()
-        {
-            return internalLabel;
-        }
-
         public Trajectory.FitMethod pfFitMethod()
         {
             return pf_fitMethod;
         }
     }
 
+    // Pathfinder V1 vars
     private DoubleProperty timeStep         = new SimpleDoubleProperty( 0.05 );
     private DoubleProperty velocity         = new SimpleDoubleProperty( 4.0 );
     private DoubleProperty accel            = new SimpleDoubleProperty( 3.0 );
@@ -52,13 +44,44 @@ public class PfV1GeneratorVars implements GeneratorVars
     private DoubleProperty wheelBaseW       = new SimpleDoubleProperty( 1.5 );
     private DoubleProperty wheelBaseD       = new SimpleDoubleProperty( 2.0 );
     private Property<FitMethod> fitMethod   = new SimpleObjectProperty<>( FitMethod.HERMITE_CUBIC );
-    private Property<DriveBase> driveBase   = new SimpleObjectProperty<>( DriveBase.TANK );
-    private Property<Units> unit           = new SimpleObjectProperty<>( Units.FEET );
+    private BooleanProperty isReversed    = new SimpleBooleanProperty( false );
 
+
+    @Override
+    public void writeXMLAttributes( Element element )
+    {
+        element.setAttribute("dt",              "" + timeStep.getValue()         );
+        element.setAttribute("velocity",        "" + velocity.getValue()         );
+        element.setAttribute("acceleration",    "" + accel.getValue()            );
+        element.setAttribute("jerk",            "" + jerk.getValue()             );
+        element.setAttribute("wheelBaseW",      "" + wheelBaseW.getValue()       );
+        element.setAttribute("wheelBaseD",      "" + wheelBaseD.getValue()       );
+        element.setAttribute("fitMethod",       "" + fitMethod.getValue().name() );
+        element.setAttribute("driveBase",       "" + driveBase.getValue().name() );
+        element.setAttribute("unit",            "" + unit.getValue().name()      );
+        element.setAttribute("reversed",        "" + isReversed.getValue().toString() );
+    }
+
+    @Override
+    public void readXMLAttributes( Element element )
+    {
+        unit        .setValue( Units    .valueOf( element.getAttribute("unit"       ) ) );
+        driveBase   .setValue( DriveBase.valueOf( element.getAttribute("driveBase"   ) ) );
+        fitMethod   .setValue( FitMethod.valueOf( element.getAttribute("fitMethod"   ) ) );
+
+        timeStep    .set( Double.parseDouble( element.getAttribute("dt"              ) ) );
+        velocity    .set( Double.parseDouble( element.getAttribute("velocity"        ) ) );
+        accel       .set( Double.parseDouble( element.getAttribute("acceleration"    ) ) );
+        jerk        .set( Double.parseDouble( element.getAttribute("jerk"            ) ) );
+        wheelBaseW  .set( Double.parseDouble( element.getAttribute("wheelBaseW"      ) ) );
+        wheelBaseD  .set( Double.parseDouble( element.getAttribute("wheelBaseD"      ) ) );
+        isReversed  .set( Boolean.parseBoolean( element.getAttribute("reversed"      ) ) );
+    }
 
     /**
      * Resets configuration to default values for the given unit.
      */
+    @Override
     public void setDefaultValues( Units newUnit )
     {
         fitMethod.setValue( FitMethod.HERMITE_CUBIC );
@@ -96,6 +119,7 @@ public class PfV1GeneratorVars implements GeneratorVars
         }
     }
 
+    @Override
     public void changeUnit( Units newUnit )
     {
         if( newUnit == unit.getValue() )
@@ -253,21 +277,6 @@ public class PfV1GeneratorVars implements GeneratorVars
         this.wheelBaseD.set( wheelBaseD );
     }
 
-    public DriveBase getDriveBase()
-    {
-        return driveBase.getValue();
-    }
-
-    public Property<DriveBase> driveBaseProperty()
-    {
-        return driveBase;
-    }
-
-    public void setDriveBase( DriveBase driveBase )
-    {
-        this.driveBase.setValue( driveBase );
-    }
-
     public FitMethod getFitMethod()
     {
         return fitMethod.getValue();
@@ -283,18 +292,20 @@ public class PfV1GeneratorVars implements GeneratorVars
         this.fitMethod.setValue( fitMethod );
     }
 
-    public Units getUnit()
+
+    public boolean isIsReversed()
     {
-        return unit.getValue();
+        return isReversed.get();
     }
 
-    public Property<Units> unitProperty()
+    public BooleanProperty isReversedProperty()
     {
-        return unit;
+        return isReversed;
     }
 
-    public void setUnit( Units unit )
+    public void setIsReversed( boolean isReversed )
     {
-        this.unit.setValue( unit );
+        this.isReversed.set( isReversed );
     }
+
 }

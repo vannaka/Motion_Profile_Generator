@@ -1,10 +1,9 @@
 package com.mammen.ui.javafx.graphs;
 
 import com.mammen.generator.DriveBase;
-import com.mammen.generator.Path;
-import com.mammen.generator.ProfileGenerator;
+import com.mammen.main.MainUIModel;
+import com.mammen.path.Path;
 import com.mammen.generator.Units;
-import jaci.pathfinder.Trajectory;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -18,7 +17,7 @@ public class VelGraphController
     @FXML
     private NumberAxis axisTime, axisVel;
 
-    private ProfileGenerator backend;
+    private MainUIModel backend;
 
 
     /**************************************************************************
@@ -27,14 +26,14 @@ public class VelGraphController
      *
      * @param backend Reference to the backend of the program.
      *************************************************************************/
-    public void setup( ProfileGenerator backend )
+    public void setup( MainUIModel backend )
     {
         this.backend = backend;
 
         // Watch this to know when a new path has been generated
-        backend.numberOfGenerations().addListener( ( o, oldValue, newValue ) ->
+        backend.pathProperty().addListener( ( o, oldValue, newValue ) ->
         {
-            // Update graph when the trajectory changes
+            // Update graph when the path changes
             refresh();
         });
 

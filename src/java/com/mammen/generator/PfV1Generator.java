@@ -1,8 +1,9 @@
 package com.mammen.generator;
 
-import com.mammen.generator.wrappers.GeneratorVars;
-import com.mammen.generator.wrappers.PfV1GeneratorVars;
-import com.mammen.generator.wrappers.Waypoint;
+import com.mammen.generator.variables.GeneratorVars;
+import com.mammen.generator.variables.PfV1GeneratorVars;
+import com.mammen.path.Path;
+import com.mammen.path.Waypoint;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
@@ -91,16 +92,12 @@ public class PfV1Generator implements Generator
         return wpArray;
     }
 
-    private static Path.Segment[] traj2Path( Trajectory traj )
+    private static Path.Segment[] traj2Path(Trajectory traj )
     {
         if( traj == null )
             return null;
 
-        System.out.println( "Traj legth: " + traj.length() );
-
         Path.Segment[] segments = new Path.Segment[ traj.length() ];
-
-        System.out.println( "Segment[] length: " + segments.length );
 
         for( int i = 0; i < traj.length(); i++ )
         {

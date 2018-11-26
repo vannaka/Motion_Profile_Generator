@@ -1,10 +1,12 @@
 package com.mammen.ui.javafx.graphs;
 
 import com.mammen.generator.*;
-import com.mammen.generator.wrappers.GeneratorVars;
-import com.mammen.generator.wrappers.Waypoint;
-import com.mammen.settings.Settings;
-import com.mammen.ui.javafx.dialog.factory.AlertFactory;
+import com.mammen.generator.variables.GeneratorVars;
+import com.mammen.path.Path;
+import com.mammen.path.Waypoint;
+import com.mammen.main.MainUIModel;
+import com.mammen.settings.SettingsModel;
+import com.mammen.settings.SourcePathDisplayType;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.util.Mathf;
 import com.mammen.util.OSValidator;
@@ -21,10 +23,6 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Optional;
 
 public class PosGraphController
@@ -37,15 +35,12 @@ public class PosGraphController
     @FXML
     private LineChart<Double, Double> posGraph;
 
-    private ProfileGenerator backend;
+    private MainUIModel backend;
     private GeneratorVars vars;
-
-    private boolean dsplyCenterPath;
-    private boolean dsplyWaypoints;
 
     XYChart.Series<Double, Double> waypointSeries;
 
-    Settings settings;
+    SettingsModel settings;
 
     /**************************************************************************
      *  setup
@@ -53,26 +48,26 @@ public class PosGraphController
      *
      * @param backend Reference to the backend of the program.
      *************************************************************************/
-    public void setup( ProfileGenerator backend )
+    public void setup( MainUIModel backend )
     {
         this.backend = backend;
         this.vars = backend.getGeneratorVars();
 
-        settings = Settings.getSettings();
+        settings = SettingsModel.getSettings();
 
         setBGImg();
 
         // Watch this to know when a new path has been generated
-        backend.numberOfGenerations().addListener( ( o, oldValue, newValue ) ->
+        backend.pathProperty().addListener( ( o, oldValue, newValue ) ->
         {
-            // Update graph when the trajectory changes
+            // Update graph when the path changes
             refresh();
             refreshPoints();
         });
 
         vars.unitProperty().addListener( ( o, oldValue, newValue ) ->
         {
-            // Updata axis to reflect the new unit
+            // Update axis to reflect the new unit
             updateAxis( newValue );
         });
 
@@ -91,8 +86,6 @@ public class PosGraphController
      *************************************************************************/
     @FXML public void initialize()
     {
-        dsplyCenterPath = false;
-        dsplyWaypoints = true;
     }
 
 
@@ -105,7 +98,7 @@ public class PosGraphController
 
         if( settings.getGraphBGImagePath() == null )
         {
-            File imgFile = new File( Settings.getSettingsDir() + "/FRC2018.jpg" );
+            File imgFile = new File( SettingsModel.getSettingsDir() + "/FRC2018.jpg" );
 
             if( !imgFile.exists() )
             {
@@ -123,7 +116,7 @@ public class PosGraphController
             path = imgFile.toURI().toString();
 
             // Update settings with new path
-            settings.setGraphBGImagePath( Settings.getSettingsDir() + "/FRC2018.jpg" );
+            settings.setGraphBGImagePath( SettingsModel.getSettingsDir() + "/FRC2018.jpg" );
         }
         else
         {
@@ -187,9 +180,6 @@ public class PosGraphController
         // Start by drawing drive train trajectories
         if( backend.getNumWaypoints() > 1 )
         {
-            System.out.println( "Number of waypoints: " + backend.getNumWaypoints() );
-
-
             flSeries = buildSeries( backend.getPath().getFrontLeft() );
             frSeries = buildSeries( backend.getPath().getFrontRight() );
 
@@ -215,13 +205,7 @@ public class PosGraphController
                 posGraph.getData().addAll( flSeries, frSeries );
 
                 flSeries.getNode().setStyle("-fx-stroke: magenta");
-//                flSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
-//                                            "-fx-stroke-width: 10px;" +
-//                                            "-fx-stroke-line-cap: round");
                 frSeries.getNode().setStyle("-fx-stroke: magenta");
-//                frSeries.getNode().setStyle("-fx-stroke: linear-gradient(from 0% 0% to 100% 100%, red, green);" +
-//                                            "-fx-stroke-width: 10px;" +
-//                                            "-fx-stroke-line-cap: round");
             }
 
             for (XYChart.Data<Double, Double> data : flSeries.getData())
@@ -232,7 +216,8 @@ public class PosGraphController
         }
 
         // Display center path
-        if( dsplyCenterPath && backend.getNumWaypoints() > 1 )
+        if( ( settings.getSourcePathDisplayType() == SourcePathDisplayType.WP_PLUS_PATH )
+         && ( backend.getNumWaypoints() > 1                                             ) )
         {
             XYChart.Series<Double, Double> sourceSeries = buildSeries( backend.getPath().getCenter() );
             posGraph.getData().add( sourceSeries );
@@ -243,15 +228,20 @@ public class PosGraphController
                 data.getNode().setVisible( false );
             }
         }
+
+//        Thread.dumpStack();
     }
 
     public void refreshPoints()
     {
         int counter = 0;
 
-        // TODO: This only adds new points to the graph; It will not remove points from the graph that do not exist anymore in the waypoints list.
-        // Display waypoints
-        if( dsplyWaypoints && !backend.isWaypointListEmpty() )
+        // Remove old Points
+        posGraph.getData().remove( waypointSeries );
+
+        if( ( ( settings.getSourcePathDisplayType() == SourcePathDisplayType.WP_PLUS_PATH )
+           || ( settings.getSourcePathDisplayType() == SourcePathDisplayType.WP_ONLY      ) )
+         && ( !backend.isWaypointListEmpty()                                                ) )
         {
             // Display waypoints
             waypointSeries = buildSeries( backend.getWaypointList().toArray( new Waypoint[1] ) );
@@ -265,17 +255,9 @@ public class PosGraphController
                 Node node = data.getNode();
                 counter += 1;
                 node.setId( String.valueOf( counter ) );
-                setOnPointEvent(node, data);
+                setOnPointEvent( node, data );
             }
         }
-
-//        for( XYChart.Data<Double, Double> data : waypointSeries.getData() )
-//        {
-//            Node node = data.getNode();
-//            counter += 1;
-//            node.setId( String.valueOf( counter ) );
-//            setOnPointEvent(node, data);
-//        }
     }
 
 
@@ -328,12 +310,13 @@ public class PosGraphController
             // Add the data to the series.
             series.getData().add( data );
         }
+
         return series;
     }
 
-    private void setOnPointEvent (Node node, XYChart.Data data)
+    private void setOnPointEvent( Node node, XYChart.Data data )
     {
-        node.setOnMouseEntered(event ->
+        node.setOnMouseEntered( event ->
         {
             node.setCursor( Cursor.HAND );
         });
@@ -383,7 +366,7 @@ public class PosGraphController
             }
         });
 
-        node.setOnMouseReleased(event ->
+        node.setOnMouseReleased( event ->
         {
             int index = Integer.parseInt( node.getId() );
 
@@ -443,9 +426,7 @@ public class PosGraphController
                     if ( OSValidator.isMac() )
                     {
                         Optional<Waypoint> result;
-
                         result = DialogFactory.createWaypointDialog( String.valueOf( rnd_x ), String.valueOf( rnd_y ) ).showAndWait();
-
                         result.ifPresent( ( Waypoint w ) -> backend.addPoint( w ) );
                     }
                     else
@@ -476,6 +457,7 @@ public class PosGraphController
                     {
                         // It is imposable for this exception to be thrown since we check
                         //  the number of waypoints first.
+                        e.printStackTrace();
                     }
                 }
             }

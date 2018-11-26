@@ -1,9 +1,12 @@
-package com.mammen.generator;
+package com.mammen.main;
 
-import com.mammen.generator.wrappers.GeneratorVars;
-import com.mammen.generator.wrappers.PfV1GeneratorVars;
-import com.mammen.generator.wrappers.Waypoint;
-import com.mammen.settings.Settings;
+import com.mammen.file_io.FileIO;
+import com.mammen.generator.*;
+import com.mammen.generator.variables.GeneratorVars;
+import com.mammen.generator.variables.PfV1GeneratorVars;
+import com.mammen.path.Path;
+import com.mammen.path.Waypoint;
+import com.mammen.settings.SettingsModel;
 import com.mammen.util.Mathf;
 
 import javafx.beans.Observable;
@@ -30,82 +33,96 @@ import java.util.List;
 
 
 /******************************************************************************
-*   ProfileGenerator
-*       This is the model for the program. It contains all the data needed to
-*       generate a trajectory as well as the trajectories themselves. We use
-*       the JavaBeans model of properties. The trajectories are setup so that
-*       they are recalculated whenever any of their dependencies changes value.
-*       These dependencies (velocity, accel, jerk, ect. ) are bound to gui
-*       elements in their respective fxml controllers.
-******************************************************************************/
-public class ProfileGenerator 
+ *   MainUIModel
+ *       This is the model for the program. It contains all the data needed to
+ *       generate a path as well as the path itself. We use the JavaBeans model
+ *       of properties. The trajectories are setup so that
+ *       they are recalculated whenever any of their dependencies changes value.
+ *       These dependencies (velocity, accel, jerk, ect. ) are bound to gui
+ *       elements in their respective fxml controllers.
+ ******************************************************************************/
+public class MainUIModel
 {
-	public static final String PROJECT_EXTENSION = "xml";
+	private static final String PROJECT_EXTENSION = "xml";
 
     /******************************************************
      *   Property variables
      ******************************************************/
-//    private Property<GeneratorVars> generatorVars = new SimpleObjectProperty<>();
+//    private Property<variables> generatorVars = new SimpleObjectProperty<>();
     private Generator generator;
     private GeneratorVars generatorVars;
-
-    private BooleanProperty isReversed    = new SimpleBooleanProperty();
 
     private ListProperty<Waypoint> waypointList = new SimpleListProperty<>(
                                                                 FXCollections.observableArrayList(
                                                                         p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
 
     /******************************************************
-     *   Trajectories
+     *   Generated path.
      ******************************************************/
-    private Path path;
-
-    // This is so we can send out a single notification when all 5 trajectories are done updating.
-    private IntegerProperty numberOfGenerations = new SimpleIntegerProperty( 0 );
+    private Property<Path> path = new SimpleObjectProperty<>();
     
     // File stuff
     private DocumentBuilderFactory dbFactory;
     private File workingProject;
 
-    private Settings settings;
+    /******************************************************
+     *   Program settings.
+     ******************************************************/
+    private SettingsModel settings;
+
+    /******************************************************
+     *   The one and only instance of this class.
+     ******************************************************/
+    private static MainUIModel backend = null;
 
     /**************************************************************************
      *   Constructor
      *************************************************************************/
-    public ProfileGenerator()
+    public MainUIModel()
     {
         generator = new PfV1Generator();
         generatorVars = new PfV1GeneratorVars();
 
-        settings = Settings.getSettings();
+        settings = SettingsModel.getSettings();
 
     	dbFactory = DocumentBuilderFactory.newInstance();
 
-    }   /* ProfileGenerator() */
+    }   /* MainUIModel() */
 
 
     /**************************************************************************
-     *  generateTraj
-     *     Generates the trajectories for the waypoints in waypointList.
-     * @return False if the generation failed, true otherwise.
+     * <p>Returns the backend model.</p>
+     *
+     * @return The one and only instance of the backend model.
      *************************************************************************/
-    public boolean generatePath() throws Generator.PathGenerationException, Generator.NotEnoughPointsException
+    public static MainUIModel getBackend()
+    {
+        if( backend == null )
+        {
+            backend = new MainUIModel();
+        }
+
+        return backend;
+    }
+
+
+    /**************************************************************************
+     * <p>Generates a Path that fits the given waypoints.</p>
+     *
+     * @throws com.mammen.generator.Generator.PathGenerationException
+     *      The path failed to generate.
+     * @throws com.mammen.generator.Generator.NotEnoughPointsException
+     *      There were not enough points to generate a path.
+     *************************************************************************/
+    public void generatePath() throws Generator.PathGenerationException, Generator.NotEnoughPointsException
     {
         Path newPath = generator.generate( waypointList, generatorVars );
 
         if( newPath != null )
         {
-            path = newPath;
-
-            // Signal that a new trajectory has been generated.
-            int tmp = numberOfGenerations.get();
-            numberOfGenerations.set( tmp + 1 );
-
-            return true;
+            path.setValue( newPath );
         }
-
-        return false;
-    }   /* generateTraj() */
+    }   /* generatePath() */
 
 
     /**************************************************************************
@@ -115,7 +132,7 @@ public class ProfileGenerator
      * @param old_unit The current Unit.
      * @param new_unit The Unit to convert to.
      **************************************************************************/
-    private void updateVarUnits( Units old_unit, Units new_unit )
+    private void updateVarUnits(Units old_unit, Units new_unit )
     {
         // TODO: Find a better way of doing this!!!
         //          Maybe storing the values in the backend in feet
@@ -171,9 +188,8 @@ public class ProfileGenerator
 
 
     /**************************************************************************
-     *  exportPath
-     *      Exports all trajectories to the parent folder, with the given root
-     *      name and file extension.
+     * <p>Exports the Path to the parent folder, with the given root
+     *      name and file extension.</p>
      *
      * @param parentPath The .csv file to save to. This method will write to
      *                   multiple files depending on the drivebase of the Path.
@@ -182,17 +198,17 @@ public class ProfileGenerator
      *************************************************************************/
     public void exportPath( File parentPath ) throws FileNotFoundException
     {
-        FileIO.savePath( path, parentPath, settings.getAvailableCSVElements() );
+        FileIO.savePath( path.getValue(), parentPath, settings.getChosenCSVElements() );
     }   /* exportPath() */
 
 
     /**
      * Saves the project in XML format.
      */
-    public void saveProjectAs( File path ) throws IOException, ParserConfigurationException
+    public void saveProjectAs( File path ) throws ParserConfigurationException
     {
-        if( !path.getAbsolutePath().endsWith("." + PROJECT_EXTENSION) )
-            path = new File(path + "." + PROJECT_EXTENSION);
+        if( !path.getAbsolutePath().endsWith("." + PROJECT_EXTENSION ) )
+            path = new File(path + "." + PROJECT_EXTENSION );
 
         File dir = path.getParentFile();
 
@@ -213,7 +229,7 @@ public class ProfileGenerator
     /**
      * Saves the working project.
      */
-    public void saveWorkingProject() throws IOException, ParserConfigurationException
+    public void saveWorkingProject() throws ParserConfigurationException
     {
         if( workingProject != null )
         {
@@ -221,22 +237,12 @@ public class ProfileGenerator
             DocumentBuilder db = dbFactory.newDocumentBuilder();
             Document dom = db.newDocument();
 
-            // Write generator vars to xml file
-            Element trajectoryEle = dom.createElement("Trajectory" );
+            // XML entry for the path waypoints and vars
+            Element pathElement = dom.createElement("Path" );
 
-            // TODO: Make this work for all objects that implement GeneratorVars interface
-//            trajectoryEle.setAttribute("dt", "" + timeStep.getValue() );
-//            trajectoryEle.setAttribute("velocity", "" + velocity.getValue() );
-//            trajectoryEle.setAttribute("acceleration", "" + accel.getValue() );
-//            trajectoryEle.setAttribute("jerk", "" + jerk.getValue() );
-//            trajectoryEle.setAttribute("wheelBaseW", "" + wheelBaseW.getValue() );
-//            trajectoryEle.setAttribute("wheelBaseD", "" + wheelBaseD.getValue() );
-//            trajectoryEle.setAttribute("fitMethod", "" + fitMethod.getValue().getInternalLabel() );
-//            trajectoryEle.setAttribute("driveBase", "" + driveBase.getValue().getInternalLabel() );
-//            trajectoryEle.setAttribute("units", "" + units.getValue().getInternalLabel() );
-//            trajectoryEle.setAttribute("reversed", ""  + isReversed.getValue().toString() );
-//
-//            dom.appendChild( trajectoryEle );
+            // Write generator vars to xml file
+            generatorVars.writeXMLAttributes( pathElement );
+            dom.appendChild( pathElement );
 
             // Write waypoints to xml file
             for( Waypoint wp : waypointList )
@@ -257,7 +263,7 @@ public class ProfileGenerator
                 waypointEle.appendChild( yEle );
                 waypointEle.appendChild( angleEle );
 
-                trajectoryEle.appendChild( waypointEle );
+                pathElement.appendChild( waypointEle );
             }
 
             FileOutputStream fos = null;
@@ -272,7 +278,7 @@ public class ProfileGenerator
                 
                 LSOutput lso = impl.createLSOutput();
                 lso.setByteStream( fos );
-                serializer.write( dom,lso );
+                serializer.write( dom, lso );
                
             }
             catch( Exception e )
@@ -293,25 +299,14 @@ public class ProfileGenerator
         if( path.getAbsolutePath().toLowerCase().endsWith( "." + PROJECT_EXTENSION ) )
         {
             DocumentBuilder db = dbFactory.newDocumentBuilder();
-
-            Document dom = db.parse(path);
+            Document dom = db.parse( path );
 
             Element docEle = dom.getDocumentElement();
 
-            // TODO: Make this work for all objects that implement GeneratorVars interface
-//            // Load units first so that the change event it causes won't unnecessarily convert the other variables.
-//            units       .setValue( Units    .valueOf( docEle.getAttribute("units"       ) ) );
-//            driveBase   .setValue( DriveBase.valueOf( docEle.getAttribute("driveBase"   ) ) );
-//            fitMethod   .setValue( FitMethod.valueOf( docEle.getAttribute("fitMethod"   ) ) );
-//
-//            timeStep    .set( Double.parseDouble( docEle.getAttribute("dt"              ) ) );
-//            velocity    .set( Double.parseDouble( docEle.getAttribute("velocity"        ) ) );
-//            accel       .set( Double.parseDouble( docEle.getAttribute("acceleration"    ) ) );
-//            jerk        .set( Double.parseDouble( docEle.getAttribute("jerk"            ) ) );
-//            wheelBaseW  .set( Double.parseDouble( docEle.getAttribute("wheelBaseW"      ) ) );
-//            wheelBaseD  .set( Double.parseDouble( docEle.getAttribute("wheelBaseD"      ) ) );
-//            isReversed  .set( Boolean.parseBoolean( docEle.getAttribute("reversed"      ) ) );
+            // Get generator vars from xml file.
+            generatorVars.readXMLAttributes( docEle );
 
+            // Get waypoints from xml file.
             NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
 
             waypointList.clear();
@@ -319,12 +314,11 @@ public class ProfileGenerator
             {
                 for( int i = 0; i < waypointEleList.getLength(); i++ )
                 {
-                    Element waypointEle = (Element) waypointEleList.item(i);
+                    Element waypointEle = (Element) waypointEleList.item( i );
 
-                    String
-                            xText = waypointEle.getElementsByTagName("X").item(0).getTextContent(),
-                            yText = waypointEle.getElementsByTagName("Y").item(0).getTextContent(),
-                            angleText = waypointEle.getElementsByTagName("Angle").item(0).getTextContent();
+                    String xText = waypointEle.getElementsByTagName("X").item(0).getTextContent();
+                    String yText = waypointEle.getElementsByTagName("Y").item(0).getTextContent();
+                    String angleText = waypointEle.getElementsByTagName("Angle").item(0).getTextContent();
 
                     waypointList.add( new Waypoint(
                                             Double.parseDouble( xText ),
@@ -368,16 +362,6 @@ public class ProfileGenerator
         waypointList.add( wp );
     }
     
-    /**
-     * Edit a waypoint already in the list
-     */
-    public void editWaypoint( int index, double x, double y, double angle )
-    {
-        waypointList.get( index ).setX( x );
-        waypointList.get( index ).setY( y );
-        waypointList.get( index ).setAngle( angle );
-    }
-    
     public void removePoint( int index )
     {
         waypointList.remove( index );
@@ -413,11 +397,6 @@ public class ProfileGenerator
         path = null;
     }
 
-    public boolean hasWorkingProject()
-    {
-        return workingProject != null;
-    }
-
     public ListProperty<Waypoint> waypointListProperty()
     {
         return waypointList;
@@ -435,19 +414,13 @@ public class ProfileGenerator
 
     public Path getPath()
     {
+        return path.getValue();
+    }
+
+    public Property<Path> pathProperty()
+    {
         return path;
     }
-
-    public IntegerProperty numberOfGenerations()
-    {
-        return numberOfGenerations;
-    }
-
-    public BooleanProperty reversedProperty()
-    {
-        return isReversed;
-    }
-
 }
 
 

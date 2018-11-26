@@ -1,6 +1,6 @@
 package com.mammen.settings;
 
-import com.mammen.generator.Path;
+import com.mammen.path.Path;
 import com.mammen.util.SerializeHelpers.ObjectSerializer;
 import com.mammen.util.SerializeHelpers.ReadObjectsHelper;
 import com.mammen.util.SerializeHelpers.WriteObjectsHelper;
@@ -10,19 +10,25 @@ import javafx.collections.ObservableList;
 
 import java.io.*;
 
-public class Settings implements Serializable
+public class SettingsModel implements Serializable
 {
     /******************************************************
-     *   Path and Serializable stuff
+     *   File stuff
      ******************************************************/
+    private static final String FILE_NAME = "settings.set";
     private static final String DIR_NAME = "motion-profile-generator";
     private static final String SETTINGS_DIR = System.getProperty("user.home") + File.separator + "." + DIR_NAME;
-    private static final String SETTINGS_FILE_PATH = SETTINGS_DIR + File.separator + "settings.set";
-    private static Settings settings = null;
+    private static final String SETTINGS_FILE_PATH = SETTINGS_DIR + File.separator + FILE_NAME;
 
 
     /******************************************************
-     *   Settings
+     *   The one and only instance of this class.
+     ******************************************************/
+    private static SettingsModel settings = null;
+
+
+    /******************************************************
+     *   SettingsModel
      ******************************************************/
     private transient StringProperty graphBGImagePath;
     private transient BooleanProperty addPointOnClick;
@@ -36,7 +42,7 @@ public class Settings implements Serializable
      *   Constructors
      ******************************************************/
     // Prevent instantiation of this class
-    private Settings()
+    private SettingsModel()
     {
         initialize();
 
@@ -58,7 +64,7 @@ public class Settings implements Serializable
         sourcePathDisplayType = new SimpleObjectProperty<>( SourcePathDisplayType.WP_ONLY );
         chosenCSVElements = new SimpleListProperty<>( FXCollections.observableArrayList() );
         availableCSVElements = new SimpleListProperty<>( FXCollections.observableArrayList() );
-        workingDirectory = new SimpleStringProperty( System.getProperty("user.dir") );
+        workingDirectory = new SimpleStringProperty( System.getProperty( "user.dir" ) );
     }
 
 
@@ -68,15 +74,15 @@ public class Settings implements Serializable
      * @return If the settings file is found it will return previous settings.
      *         If not then default settings will be returned.
      *************************************************************************/
-    public static Settings getSettings()
+    public static SettingsModel getSettings()
     {
         if( settings == null )
         {
-            settings = (Settings)ObjectSerializer.loadObject( SETTINGS_FILE_PATH );
+            settings = (SettingsModel)ObjectSerializer.loadObject( SETTINGS_FILE_PATH );
 
             if( settings == null )
             {
-                settings = new Settings();
+                settings = new SettingsModel();
             }
         }
 

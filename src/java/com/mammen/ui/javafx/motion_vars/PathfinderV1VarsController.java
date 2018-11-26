@@ -1,9 +1,9 @@
 package com.mammen.ui.javafx.motion_vars;
 
 import com.mammen.generator.DriveBase;
-import com.mammen.generator.ProfileGenerator;
+import com.mammen.main.MainUIModel;
 import com.mammen.generator.Units;
-import com.mammen.generator.wrappers.PfV1GeneratorVars;
+import com.mammen.generator.variables.PfV1GeneratorVars;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -50,7 +50,7 @@ public class PathfinderV1VarsController
      *
      * @param backend Reference to the backend of the program.
      *************************************************************************/
-    public void setup( ProfileGenerator backend )
+    public void setup( MainUIModel backend )
     {
         this.vars = (PfV1GeneratorVars)backend.getGeneratorVars();
 
