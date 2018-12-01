@@ -71,7 +71,7 @@ public class DialogFactory
         return dialog;
     }
 
-    public static Dialog<Waypoint> createWaypointDialog(String xPos, String yPos )
+    public static Dialog<Waypoint> createWaypointDialog( String xPos, String yPos )
     {
         Dialog<Waypoint> dialog = new Dialog<>();
 
@@ -92,24 +92,24 @@ public class DialogFactory
             txtWY = controller.getTxtWY();
             txtWA = controller.getTxtWA();
 
-            txtWX.setText(xPos);
-            txtWY.setText(yPos);
+            txtWX.setText( xPos );
+            txtWY.setText( yPos );
 
             // Some header stuff
-            dialog.setTitle("Add Waypoint");
-            dialog.setHeaderText("Add a new waypoint");
+            dialog.setTitle( "Add Waypoint" );
+            dialog.setHeaderText( "Add a new waypoint" );
 
-            dialog.getDialogPane().getButtonTypes().add(add);
+            dialog.getDialogPane().getButtonTypes().add( add );
 
             dialog.setResultConverter( (ButtonType buttonType) ->
             {
-                if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE)
+                if( buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE )
                 {
-                    double x     = Double.parseDouble(txtWX.getText().trim()),
-                           y     = Double.parseDouble(txtWY.getText().trim()),
-                           angle = Double.parseDouble(txtWA.getText().trim());
+                    double x     = Double.parseDouble( txtWX.getText().trim() );
+                    double y     = Double.parseDouble( txtWY.getText().trim() );
+                    double angle = Double.parseDouble( txtWA.getText().trim() );
 
-                    return new Waypoint( x, y, Pathfinder.d2r( angle ) );
+                    return new Waypoint( x, y, angle );
                 }
 
                 return null;
@@ -127,9 +127,9 @@ public class DialogFactory
                 {
                     Alert alert = new Alert(Alert.AlertType.WARNING);
 
-                    alert.setTitle("Invalid Point!");
-                    alert.setHeaderText("Invalid point input!");
-                    alert.setContentText("Please check your fields and try again.");
+                    alert.setTitle( "Invalid Point!" );
+                    alert.setHeaderText( "Invalid point input!" );
+                    alert.setContentText( "Please check your fields and try again." );
 
                     Toolkit.getDefaultToolkit().beep();
                     alert.showAndWait();
@@ -143,7 +143,7 @@ public class DialogFactory
         }
         finally
         {
-            dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+            dialog.getDialogPane().getButtonTypes().add( ButtonType.CANCEL );
         }
 
         return dialog;

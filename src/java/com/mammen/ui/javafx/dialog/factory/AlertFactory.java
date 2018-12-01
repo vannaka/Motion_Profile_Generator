@@ -11,11 +11,13 @@ import javafx.scene.layout.Priority;
 
 public class AlertFactory 
 {
-	public static Alert createExceptionAlert(Exception e) {
-        return createExceptionAlert(e, e.getMessage());
+	public static Alert createExceptionAlert( Exception e )
+    {
+        return createExceptionAlert( e, e.getMessage() );
     }
 
-    public static Alert createExceptionAlert(Exception e, String msg) {
+    public static Alert createExceptionAlert( Exception e, String msg )
+    {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Exception Dialog");
         alert.setHeaderText("Whoops!");
@@ -49,7 +51,8 @@ public class AlertFactory
         return alert;
     }
     
-    public static Alert createInvalidOSAlert(String msg) {
+    public static Alert createInvalidOSAlert( String msg )
+    {
     	Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Invalid OS");
         alert.setHeaderText("Whoops!");

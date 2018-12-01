@@ -85,8 +85,11 @@ public class PfV1Generator implements Generator
 
         for( int i = 0; i < wpList.size(); i++ )
         {
+            double x = wpList.get( i ).getX();
+            double y = wpList.get( i ).getY();
+            double angle = Pathfinder.d2r( wpList.get( i ).getAngle() );
 
-            wpArray[ i ] = new jaci.pathfinder.Waypoint( wpList.get( i ).getX(), wpList.get( i ).getY(), wpList.get( i ).getAngle() );
+            wpArray[ i ] = new jaci.pathfinder.Waypoint( x, y, angle );
         }
 
         return wpArray;

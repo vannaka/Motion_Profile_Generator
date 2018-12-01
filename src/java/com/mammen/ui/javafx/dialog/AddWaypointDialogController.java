@@ -15,20 +15,23 @@ public class AddWaypointDialogController
 
     @FXML
     private void initialize() {
-        txtWX.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-        txtWY.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
-        txtWA.setTextFormatter(new TextFormatter<>(new DoubleStringConverter()));
+        txtWX.setTextFormatter( new TextFormatter<>( new DoubleStringConverter() ) );
+        txtWY.setTextFormatter( new TextFormatter<>( new DoubleStringConverter() ) );
+        txtWA.setTextFormatter( new TextFormatter<>( new DoubleStringConverter() ) );
     }
 
-    public TextField getTxtWX() {
+    public TextField getTxtWX()
+    {
         return txtWX;
     }
 
-    public TextField getTxtWY() {
+    public TextField getTxtWY()
+    {
         return txtWY;
     }
 
-    public TextField getTxtWA() {
+    public TextField getTxtWA()
+    {
         return txtWA;
     }
 }
