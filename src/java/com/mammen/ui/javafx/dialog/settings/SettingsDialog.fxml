@@ -68,7 +68,7 @@
                               <HBox alignment="CENTER" prefHeight="140.0" prefWidth="427.0" spacing="10.0" VBox.vgrow="ALWAYS">
                                  <children>
                                     <ListView fx:id="lst_availableElements" onDragDetected="#lst_aval_onDragDetected" onDragDone="#lst_aval_onDragDone" onDragDropped="#lst_avail_onDragDrop" onDragOver="#lst_avail_onDragOver" prefWidth="200.0" />
-                                    <ListView fx:id="lst_chosenElements" onDragDetected="#lst_chos_onDragDetected" onDragDone="#lst_chos_onDragDone" prefWidth="200.0" />
+                                    <ListView fx:id="lst_chosenElements" onDragDetected="#lst_chos_onDragDetected" onDragDone="#lst_chos_onDragDone" onDragDropped="#lst_chos_onDragDrop" onDragOver="#lst_chos_onDragOver" prefWidth="200.0" />
                                  </children>
                               </HBox>
                            </children>

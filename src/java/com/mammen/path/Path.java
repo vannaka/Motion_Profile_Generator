@@ -9,7 +9,6 @@ public class Path
      */
     public enum Elements
     {
-        NULL( null ),
         DELTA_TIME( "Delta Time" ),
         X_POINT( "X Point" ),
         Y_POINT( "Y Point" ),

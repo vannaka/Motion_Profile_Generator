@@ -18,7 +18,6 @@ public class Main extends Application
 	        root.autosize();
 
 	        FXMLLoader loader = new FXMLLoader( getClass().getResource("/com/mammen/ui/javafx/graphs/PosGraphController.fxml") );
-	        loader.getController();
 
 			primaryStage.setScene( new Scene( root ) );
 			primaryStage.sizeToScene();

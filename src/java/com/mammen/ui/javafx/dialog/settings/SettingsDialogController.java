@@ -52,11 +52,11 @@ public class SettingsDialogController
         /******************************************************
          *   Setup bindings to the SettingsModel object
          ******************************************************/
-        txtOverlayDir.textProperty().bindBidirectional( settings.graphBGImagePathProperty() );
-        choSourceDisplayType.valueProperty().bindBidirectional( settings.sourcePathDisplayTypeProperty() );
-        chkAddWaypointOnClick.selectedProperty().bindBidirectional( settings.addPointOnClickProperty() );
-        lst_chosenElements.itemsProperty().bindBidirectional( settings.chosenCSVElementsProperty() );
-        lst_availableElements.itemsProperty().bindBidirectional( settings.availableCSVElementsProperty() );
+        txtOverlayDir           .textProperty()     .bindBidirectional( settings.graphBGImagePathProperty() );
+        choSourceDisplayType    .valueProperty()    .bindBidirectional( settings.sourcePathDisplayTypeProperty() );
+        chkAddWaypointOnClick   .selectedProperty() .bindBidirectional( settings.addPointOnClickProperty() );
+        lst_chosenElements      .itemsProperty()    .bindBidirectional( settings.chosenCSVElementsProperty() );
+        lst_availableElements   .itemsProperty()    .bindBidirectional( settings.availableCSVElementsProperty() );
 
         // Set visibility of settings panels
         pnl_csv.setVisible( false );
@@ -68,7 +68,7 @@ public class SettingsDialogController
             ListCell<Path.Elements> cell = new ListCell<Path.Elements>()
             {
                 @Override
-                protected void updateItem( Path.Elements item, boolean empty)
+                protected void updateItem( Path.Elements item, boolean empty )
                 {
                     super.updateItem( item, empty );
                     if( empty || item == null )
@@ -89,6 +89,8 @@ public class SettingsDialogController
                 {
                     event.acceptTransferModes( TransferMode.MOVE );
                 }
+
+                event.consume();
             });
 
             cell.setOnDragDropped( event ->
@@ -100,21 +102,19 @@ public class SettingsDialogController
                     if( cell.isEmpty() )
                     {
                         lst_chosenElements.getItems().add( (Path.Elements)db.getContent( profileElementFormat ) );
-                        lst_chosenElements.getItems().remove( Path.Elements.NULL );
                         success = true;
                     }
                     else
                     {
                         int index = cell.getIndex();
-
-                        lst_chosenElements.getItems().remove( Path.Elements.NULL );
-
                         lst_chosenElements.getItems().add( index, (Path.Elements)db.getContent( profileElementFormat ) );
                         success = true;
                     }
                 }
 
                 event.setDropCompleted( success );
+
+                event.consume();
             });
 
             // highlight cells when drag target
@@ -173,30 +173,6 @@ public class SettingsDialogController
         db.setContent( content );
     }
 
-    @FXML
-    private void lst_aval_onDragDone( DragEvent event )
-    {
-        if (event.getTransferMode() == TransferMode.MOVE)
-        {
-            if( lst_availableElements.getItems().size() == 1 )
-            {
-                lst_availableElements.getItems().remove(lst_availableElements.getSelectionModel().getSelectedIndex());
-                lst_availableElements.getItems().add( Path.Elements.NULL );
-                return;
-            }
-            lst_availableElements.getItems().remove(lst_availableElements.getSelectionModel().getSelectedIndex());
-        }
-    }
-
-    /* Drag from chosen to available*/
-    @FXML
-    private void lst_chos_onDragDetected()
-    {
-        Dragboard db = lst_chosenElements.startDragAndDrop( TransferMode.MOVE );
-        ClipboardContent content = new ClipboardContent();
-        content.put( profileElementFormat, lst_chosenElements.getSelectionModel().getSelectedItem() );
-        db.setContent( content );
-    }
 
     @FXML
     private void lst_avail_onDragOver( DragEvent event )
@@ -208,6 +184,7 @@ public class SettingsDialogController
         }
     }
 
+
     @FXML
     private void lst_avail_onDragDrop( DragEvent event )
     {
@@ -217,10 +194,6 @@ public class SettingsDialogController
         boolean success = false;
         if( db.hasContent( profileElementFormat ) )
         {
-            if( lst_availableElements.getItems().contains( Path.Elements.NULL ) )
-            {
-                lst_availableElements.getItems().remove( Path.Elements.NULL );
-            }
             lst_availableElements.getItems().add( (Path.Elements)db.getContent( profileElementFormat ) );
             lst_availableElements.getItems().sort( Comparator.comparing( Path.Elements::ordinal ) );
             success = true;
@@ -230,6 +203,62 @@ public class SettingsDialogController
         event.setDropCompleted( success );
     }
 
+
+    @FXML
+    private void lst_aval_onDragDone( DragEvent event )
+    {
+        if (event.getTransferMode() == TransferMode.MOVE)
+        {
+            if( lst_availableElements.getItems().size() == 1 )
+            {
+                lst_availableElements.getItems().remove(lst_availableElements.getSelectionModel().getSelectedIndex());
+                return;
+            }
+            lst_availableElements.getItems().remove(lst_availableElements.getSelectionModel().getSelectedIndex());
+        }
+    }
+
+
+    /* Drag from chosen to available*/
+    @FXML
+    private void lst_chos_onDragDetected()
+    {
+        Dragboard db = lst_chosenElements.startDragAndDrop( TransferMode.MOVE );
+        ClipboardContent content = new ClipboardContent();
+        content.put( profileElementFormat, lst_chosenElements.getSelectionModel().getSelectedItem() );
+        db.setContent( content );
+    }
+
+
+    @FXML
+    private void lst_chos_onDragOver( DragEvent event )
+    {
+        if( ( event.getGestureSource() != lst_chosenElements          )
+                && ( event.getDragboard().hasContent( profileElementFormat ) ) )
+        {
+            event.acceptTransferModes( TransferMode.MOVE );
+        }
+    }
+
+
+    @FXML
+    private void lst_chos_onDragDrop( DragEvent event )
+    {
+        /* data dropped */
+        /* if there is a string data on dragboard, read it and use it */
+        Dragboard db = event.getDragboard();
+        boolean success = false;
+        if( db.hasContent( profileElementFormat ) )
+        {
+            lst_chosenElements.getItems().add( (Path.Elements)db.getContent( profileElementFormat ) );
+            success = true;
+        }
+        /* let the source know whether the string was successfully
+         * transferred and used */
+        event.setDropCompleted( success );
+    }
+
+
     @FXML
     private void lst_chos_onDragDone( DragEvent event )
     {
@@ -238,12 +267,12 @@ public class SettingsDialogController
             if( lst_chosenElements.getItems().size() == 1 )
             {
                 lst_chosenElements.getItems().remove( lst_chosenElements.getSelectionModel().getSelectedIndex() );
-                lst_chosenElements.getItems().add( Path.Elements.NULL );
                 return;
             }
             lst_chosenElements.getItems().remove( lst_chosenElements.getSelectionModel().getSelectedIndex() );
         }
     }
+
 
     /* Button Effects */
     @FXML
