@@ -39,7 +39,7 @@ public class SettingsDialogController
     @FXML
     private void initialize()
     {
-        settings = SettingsModel.getSettings();
+        settings = SettingsModel.getInstance();
 
         btn_gen_styles();
 

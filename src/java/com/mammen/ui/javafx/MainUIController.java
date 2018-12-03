@@ -90,17 +90,17 @@ public class MainUIController
      *************************************************************************/
     @FXML public void initialize()
     {
-        backend = MainUIModel.getBackend();
-        settings = SettingsModel.getSettings();
+        backend = MainUIModel.getInstance();
+        settings = SettingsModel.getInstance();
 
         // Setup position graph
-        posGraphController.setup( backend );
+        posGraphController.setup();
 
         // Setup velocity graph
-        velGraphController.setup( backend );
+        velGraphController.setup();
 
         // Setup motion variables
-        pathfinderV1VarsController.setup( backend );
+        pathfinderV1VarsController.setup();
 
         // Retrieve the working dir from our properties file.
         // If the path isn't a dir for some reason, default to the user directory

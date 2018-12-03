@@ -83,7 +83,7 @@ public class MainUIModel
         generator = new PfV1Generator();
         generatorVars = new PfV1GeneratorVars();
 
-        settings = SettingsModel.getSettings();
+        settings = SettingsModel.getInstance();
 
     	dbFactory = DocumentBuilderFactory.newInstance();
 
@@ -95,7 +95,7 @@ public class MainUIModel
      *
      * @return The one and only instance of the backend model.
      *************************************************************************/
-    public static MainUIModel getBackend()
+    public static MainUIModel getInstance()
     {
         if( backend == null )
         {

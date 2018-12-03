@@ -48,12 +48,12 @@ public class PosGraphController
      *
      * @param backend Reference to the backend of the program.
      *************************************************************************/
-    public void setup( MainUIModel backend )
+    public void setup()
     {
-        this.backend = backend;
-        this.vars = backend.getGeneratorVars();
+        backend = MainUIModel.getInstance();
+        vars = backend.getGeneratorVars();
 
-        settings = SettingsModel.getSettings();
+        settings = SettingsModel.getInstance();
 
         setBGImg();
 

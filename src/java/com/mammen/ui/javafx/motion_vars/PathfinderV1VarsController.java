@@ -50,9 +50,9 @@ public class PathfinderV1VarsController
      *
      * @param backend Reference to the backend of the program.
      *************************************************************************/
-    public void setup( MainUIModel backend )
+    public void setup()
     {
-        this.vars = (PfV1GeneratorVars)backend.getGeneratorVars();
+        this.vars = (PfV1GeneratorVars)MainUIModel.getInstance().getGeneratorVars();
 
         // Converts formatted string in TextField to format of bounded property.
         StringConverter<Number> converter = new NumberStringConverter();

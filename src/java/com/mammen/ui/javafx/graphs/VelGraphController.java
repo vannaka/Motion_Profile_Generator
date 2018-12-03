@@ -26,9 +26,9 @@ public class VelGraphController
      *
      * @param backend Reference to the backend of the program.
      *************************************************************************/
-    public void setup( MainUIModel backend )
+    public void setup()
     {
-        this.backend = backend;
+        backend = MainUIModel.getInstance();
 
         // Watch this to know when a new path has been generated
         backend.pathProperty().addListener( ( o, oldValue, newValue ) ->

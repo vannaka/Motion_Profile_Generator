@@ -59,12 +59,12 @@ public class SettingsModel implements Serializable
 
     private void initialize()
     {
-        graphBGImagePath = new SimpleStringProperty();
-        addPointOnClick = new SimpleBooleanProperty( true );
-        sourcePathDisplayType = new SimpleObjectProperty<>( SourcePathDisplayType.WP_ONLY );
-        chosenCSVElements = new SimpleListProperty<>( FXCollections.observableArrayList() );
-        availableCSVElements = new SimpleListProperty<>( FXCollections.observableArrayList() );
-        workingDirectory = new SimpleStringProperty( System.getProperty( "user.dir" ) );
+        graphBGImagePath        = new SimpleStringProperty();
+        addPointOnClick         = new SimpleBooleanProperty( true );
+        sourcePathDisplayType   = new SimpleObjectProperty<>( SourcePathDisplayType.WP_ONLY );
+        chosenCSVElements       = new SimpleListProperty<>( FXCollections.observableArrayList() );
+        availableCSVElements    = new SimpleListProperty<>( FXCollections.observableArrayList() );
+        workingDirectory        = new SimpleStringProperty( System.getProperty( "user.dir" ) );
     }
 
 
@@ -74,7 +74,7 @@ public class SettingsModel implements Serializable
      * @return If the settings file is found it will return previous settings.
      *         If not then default settings will be returned.
      *************************************************************************/
-    public static SettingsModel getSettings()
+    public static SettingsModel getInstance()
     {
         if( settings == null )
         {
