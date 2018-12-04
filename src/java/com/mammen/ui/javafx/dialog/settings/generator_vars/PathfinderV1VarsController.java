@@ -1,9 +1,9 @@
-package com.mammen.ui.javafx.motion_vars;
+package com.mammen.ui.javafx.dialog.settings.generator_vars;
 
-import com.mammen.generator.DriveBase;
+import com.mammen.settings.DriveBase;
 import com.mammen.main.MainUIModel;
-import com.mammen.generator.Units;
-import com.mammen.generator.variables.PfV1GeneratorVars;
+import com.mammen.settings.Units;
+import com.mammen.settings.generator_vars.PfV1GeneratorVars;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -39,46 +39,6 @@ public class PathfinderV1VarsController
 
     private PfV1GeneratorVars vars;
 
-    StringConverter<Number> converter;
-
-    // Prevent unit conversion for next unit change event.
-    private boolean disblUnitConv = false;
-
-    /**************************************************************************
-     *  setup
-     *      Setup backend linkages stuff here.
-     *
-     * @param backend Reference to the backend of the program.
-     *************************************************************************/
-    public void setup()
-    {
-        this.vars = (PfV1GeneratorVars)MainUIModel.getInstance().getGeneratorVars();
-
-        // Converts formatted string in TextField to format of bounded property.
-        StringConverter<Number> converter = new NumberStringConverter();
-
-        // Setup Bindings
-        choFitMethod    .valueProperty().bindBidirectional( vars.fitMethodProperty() );
-        choDriveBase    .valueProperty().bindBidirectional( vars.driveBaseProperty() );
-        choUnits        .valueProperty().bindBidirectional( vars.unitProperty()      );
-
-        txtTimeStep     .textProperty().bindBidirectional( vars.timeStepProperty(),   converter );
-        txtVelocity     .textProperty().bindBidirectional( vars.velocityProperty(),   converter );
-        txtAcceleration .textProperty().bindBidirectional( vars.accelProperty(),      converter );
-        txtJerk         .textProperty().bindBidirectional( vars.jerkProperty(),       converter );
-        txtWheelBaseW   .textProperty().bindBidirectional( vars.wheelBaseWProperty(), converter );
-        txtWheelBaseD   .textProperty().bindBidirectional( vars.wheelBaseDProperty(), converter );
-
-        // Disable WheelBaseD for Tank DriveBase
-        vars.driveBaseProperty().addListener( ( o, oldValue, newValue ) ->
-        {
-            boolean dis = newValue == DriveBase.TANK;
-            lblWheelBaseD.disableProperty().setValue( dis );
-            txtWheelBaseD.disableProperty().setValue( dis );
-        });
-
-    } /* setup() */
-
 
     /**************************************************************************
      *  initialize
@@ -86,15 +46,12 @@ public class PathfinderV1VarsController
      *************************************************************************/
     @FXML private void initialize()
     {
-        // Populate drive base ChoiceBox
+        this.vars = (PfV1GeneratorVars)MainUIModel.getInstance().getGeneratorVars();
+
+        // Populate ChoiceBox's
         choDriveBase.getItems().setAll( DriveBase.values() );
-
-        // Populate fit method ChoiceBox
         choFitMethod.getItems().setAll( PfV1GeneratorVars.FitMethod.values() );
-
-        // Populate units ChoiceBox
         choUnits.getItems().setAll( Units.values() );
-
 
         // Formats number typed into TextFields
         UnaryOperator<TextFormatter.Change> filter = t ->
@@ -142,6 +99,30 @@ public class PathfinderV1VarsController
         txtJerk         .setTextFormatter( new TextFormatter<>( filter ) );
         txtWheelBaseW   .setTextFormatter( new TextFormatter<>( filter ) );
         txtWheelBaseD   .setTextFormatter( new TextFormatter<>( filter ) );
+
+
+        // Converts formatted string in TextField to format of bounded property.
+        StringConverter<Number> converter = new NumberStringConverter();
+
+        // Setup Bindings
+        choFitMethod    .valueProperty().bindBidirectional( vars.fitMethodProperty() );
+        choDriveBase    .valueProperty().bindBidirectional( vars.driveBaseProperty() );
+        choUnits        .valueProperty().bindBidirectional( vars.unitProperty()      );
+
+        txtTimeStep     .textProperty().bindBidirectional( vars.timeStepProperty(),   converter );
+        txtVelocity     .textProperty().bindBidirectional( vars.velocityProperty(),   converter );
+        txtAcceleration .textProperty().bindBidirectional( vars.accelProperty(),      converter );
+        txtJerk         .textProperty().bindBidirectional( vars.jerkProperty(),       converter );
+        txtWheelBaseW   .textProperty().bindBidirectional( vars.wheelBaseWProperty(), converter );
+        txtWheelBaseD   .textProperty().bindBidirectional( vars.wheelBaseDProperty(), converter );
+
+        // Disable WheelBaseD for Tank DriveBase
+        vars.driveBaseProperty().addListener( ( o, oldValue, newValue ) ->
+        {
+            boolean dis = newValue == DriveBase.TANK;
+            lblWheelBaseD.disableProperty().setValue( dis );
+            txtWheelBaseD.disableProperty().setValue( dis );
+        });
     }
 
     public void setVarsToDefault( Units unit )

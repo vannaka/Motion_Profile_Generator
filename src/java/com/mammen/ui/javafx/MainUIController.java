@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.mammen.generator.Generator;
-import com.mammen.generator.Units;
+import com.mammen.settings.Units;
 import com.mammen.path.Waypoint;
 import com.mammen.settings.SettingsModel;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
@@ -15,7 +15,7 @@ import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.main.MainUIModel;
 
-import com.mammen.ui.javafx.motion_vars.PathfinderV1VarsController;
+import com.mammen.ui.javafx.dialog.settings.generator_vars.PathfinderV1VarsController;
 import com.mammen.util.Mathf;
 import jaci.pathfinder.Pathfinder;
 
@@ -92,15 +92,6 @@ public class MainUIController
     {
         backend = MainUIModel.getInstance();
         settings = SettingsModel.getInstance();
-
-        // Setup position graph
-        posGraphController.setup();
-
-        // Setup velocity graph
-        velGraphController.setup();
-
-        // Setup motion variables
-        pathfinderV1VarsController.setup();
 
         // Retrieve the working dir from our properties file.
         // If the path isn't a dir for some reason, default to the user directory

@@ -19,9 +19,14 @@ public class ReadObjectsHelper
         prop.set( s.readBoolean() );
     }
 
-    public static void readPropSourcePathDsplyType( ObjectInputStream s, Property<SourcePathDisplayType> prop ) throws IOException, ClassNotFoundException
+    public static void readDoubleProp( ObjectInputStream s, DoubleProperty prop ) throws IOException
     {
-        prop.setValue( (SourcePathDisplayType)s.readObject() );
+        prop.set( s.readDouble() );
+    }
+
+    public static <T> void readObjectProp( ObjectInputStream s, Property<T> prop, Class<T> type ) throws IOException, ClassNotFoundException
+    {
+       prop.setValue( type.cast( s.readObject() ) );
     }
 
     // Read a ListProperty from ObjectInputStream (and return it)

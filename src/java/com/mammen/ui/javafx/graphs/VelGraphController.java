@@ -1,9 +1,9 @@
 package com.mammen.ui.javafx.graphs;
 
-import com.mammen.generator.DriveBase;
+import com.mammen.settings.DriveBase;
 import com.mammen.main.MainUIModel;
 import com.mammen.path.Path;
-import com.mammen.generator.Units;
+import com.mammen.settings.Units;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -21,12 +21,10 @@ public class VelGraphController
 
 
     /**************************************************************************
-     *  setup
-     *      Setup backend linkages stuff here.
-     *
-     * @param backend Reference to the backend of the program.
+     *  initialize
+     *      Setup gui stuff here.
      *************************************************************************/
-    public void setup()
+    @FXML public void initialize()
     {
         backend = MainUIModel.getInstance();
 
@@ -43,15 +41,6 @@ public class VelGraphController
         {
             updateAxis( newValue );
         });
-    } /* setup() */
-
-
-    /**************************************************************************
-     *  initialize
-     *      Setup gui stuff here.
-     *************************************************************************/
-    @FXML public void initialize()
-    {
     }
 
 

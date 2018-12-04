@@ -19,24 +19,26 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<DialogPane fx:id="root" maxHeight="300.0" minHeight="200.0" prefHeight="300.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.SettingsDialogController">
+<DialogPane fx:id="root" maxHeight="641.0" minHeight="200.0" prefHeight="641.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.SettingsDialogController">
    <content>
       <AnchorPane>
          <children>
-            <AnchorPane layoutX="20.0" layoutY="20.0" prefWidth="191.0" style="-fx-background-color: #f0f7ff;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <AnchorPane layoutX="20.0" layoutY="20.0" prefWidth="191.0" style="-fx-background-color: #f0f7ff;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="10.0">
                <children>
-                  <Button fx:id="btn_general" accessibleText="General" graphicTextGap="45.0" layoutY="21.0" mnemonicParsing="false" onAction="#showGeneralSettings" onMouseClicked="#btn_gen_styles" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #80000000;" text="General" />
-                  <Button fx:id="btn_csv" accessibleText="General" graphicTextGap="45.0" layoutY="46.0" mnemonicParsing="false" onAction="#showCSVSettings" onMouseClicked="#btn_csv_styles" prefHeight="25.0" prefWidth="191.0" style="-fx-background-color: #40000000;" text="CSV" />
+                  <Button fx:id="btn_general" accessibleText="General" graphicTextGap="45.0" layoutY="21.0" mnemonicParsing="false" onAction="#showGeneralSettings" onMouseClicked="#btn_gen_styles" prefHeight="25.0" style="-fx-background-color: #80000000;" text="General" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                  <Button fx:id="btn_csv" accessibleText="General" graphicTextGap="45.0" layoutY="46.0" mnemonicParsing="false" onAction="#showCSVSettings" onMouseClicked="#btn_csv_styles" prefHeight="25.0" style="-fx-background-color: #40000000;" text="CSV" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                  <Button fx:id="btn_generator" accessibleText="General" graphicTextGap="45.0" layoutY="71.0" mnemonicParsing="false" onAction="#showGeneratorSettings" onMouseClicked="#btn_generatorStyles" prefHeight="25.0" style="-fx-background-color: #40000000;" text="Generator" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                   <FontAwesomeIconView fill="#544d4d" glyphName="MAGIC" layoutX="18.0" layoutY="38.0" size="15" />
                   <FontAwesomeIconView fill="#544d4d" glyphName="FILE" layoutX="18.0" layoutY="63.0" size="15" />
+                  <FontAwesomeIconView fill="#544d4d" glyphName="COGS" layoutX="18.0" layoutY="88.0" size="15" />
                </children>
                <effect>
                   <DropShadow />
                </effect>
             </AnchorPane>
-            <AnchorPane layoutX="231.0" layoutY="19.0" prefHeight="138.0" prefWidth="424.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <AnchorPane layoutX="231.0" layoutY="30.0" prefWidth="424.0" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="10.0">
                <children>
-                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" prefWidth="424.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                            <children>
@@ -75,7 +77,7 @@
                         </VBox>
                      </children>
                   </Pane>
-                  <Pane fx:id="pnl_general" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <Pane fx:id="pnl_general" prefWidth="424.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <GridPane alignment="BASELINE_RIGHT" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="150.0" prefWidth="455.0" vgap="10.0">
                           <columnConstraints>
@@ -98,6 +100,31 @@
                               <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                            </children>
                         </GridPane>
+                     </children>
+                  </Pane>
+                  <Pane fx:id="pnl_generator" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <VBox spacing="20.0">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" spacing="20.0">
+                                 <children>
+                                    <Label text="Generator:" />
+                                    <ChoiceBox fx:id="cho_generatorType" prefWidth="150.0" />
+                                 </children>
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
+                              </HBox>
+                              <Pane fx:id="pnl_pfV1Vars">
+                                 <children>
+                                    <fx:include fx:id="pathfinderV1Vars" source="generator_vars/PathfinderV1VarsUI.fxml" />
+                                 </children>
+                              </Pane>
+                           </children>
+                           <padding>
+                              <Insets top="10.0" />
+                           </padding>
+                        </VBox>
                      </children>
                   </Pane>
                </children>

@@ -11,10 +11,10 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.motion_vars.PathfinderV1VarsController">
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.generator_vars.PathfinderV1VarsController">
             <!--maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">-->
 
-    <TitledPane alignment="BOTTOM_CENTER" animated="false" collapsible="false" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" text="Motion Variables" textAlignment="CENTER" underline="true">
+    <TitledPane alignment="BOTTOM_CENTER" animated="false" collapsible="false" contentDisplay="BOTTOM" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefWidth="420.0" text="Generator Variables" textAlignment="CENTER" underline="true">
         <font>
             <Font size="15.0" />
         </font>

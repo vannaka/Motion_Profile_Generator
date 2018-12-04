@@ -1,11 +1,12 @@
 package com.mammen.generator;
 
-import com.mammen.generator.variables.GeneratorVars;
+import com.mammen.settings.generator_vars.GeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface Generator
 {
     class PathGenerationException extends Exception
@@ -24,5 +25,5 @@ public interface Generator
         }
     }
 
-    Path generate(List<Waypoint> waypointList, GeneratorVars vars ) throws PathGenerationException, NotEnoughPointsException;
+    Path generate( List<Waypoint> waypointList, GeneratorVars vars ) throws PathGenerationException, NotEnoughPointsException;
 }

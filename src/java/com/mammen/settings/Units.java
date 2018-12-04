@@ -1,4 +1,4 @@
-package com.mammen.generator;
+package com.mammen.settings;
 
 // Units of every value
 public enum Units
@@ -14,6 +14,7 @@ public enum Units
         this.label = label;
     }
 
+    @Override
     public String toString()
     {
         return label;

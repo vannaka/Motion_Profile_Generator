@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox fx:id="root" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="681.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.MainUIController">
+<VBox fx:id="root" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="681.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.MainUIController">
   <children>
     <MenuBar maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="25.0" prefWidth="1052.0" VBox.vgrow="NEVER">
       <menus>
@@ -71,7 +71,7 @@
          <children>
             <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="635.0" prefWidth="420.0" spacing="10.0" HBox.hgrow="NEVER">
                <children>
-                   <fx:include fx:id="pathfinderV1Vars" source="motion_vars/PathfinderV1VarsUI.fxml" />
+                   <!--<fx:include fx:id="pathfinderV1Vars" source="generator_vars/PathfinderV1VarsUI.fxml" />-->
                   <TitledPane alignment="BOTTOM_CENTER" animated="false" collapsible="false" contentDisplay="BOTTOM" layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="305.0" prefWidth="420.0" text="Waypoints" textAlignment="CENTER" underline="true">
                      <font>
                         <Font size="15.0" />

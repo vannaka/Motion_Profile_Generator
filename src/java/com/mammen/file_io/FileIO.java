@@ -1,6 +1,6 @@
 package com.mammen.file_io;
 
-import com.mammen.generator.DriveBase;
+import com.mammen.settings.DriveBase;
 import com.mammen.path.Path;
 
 import java.io.File;

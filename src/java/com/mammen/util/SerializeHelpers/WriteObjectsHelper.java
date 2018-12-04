@@ -34,7 +34,12 @@ public class WriteObjectsHelper
         s.writeBoolean( boolProp.get() );
     }
 
-    public static void writePropSourcePathDsplyType( ObjectOutputStream s, Property<SourcePathDisplayType> prop ) throws IOException
+    public static void writeDoubleProp( ObjectOutputStream s, DoubleProperty doubleProp ) throws IOException
+    {
+        s.writeDouble( doubleProp.get() );
+    }
+
+    public static void writeObjectProp( ObjectOutputStream s, Property prop ) throws IOException
     {
         s.writeObject( prop.getValue() );
     }

@@ -1,5 +1,6 @@
 package com.mammen.ui.javafx.dialog.settings;
 
+import com.mammen.generator.GeneratorType;
 import com.mammen.path.Path;
 import com.mammen.settings.SettingsModel;
 import com.mammen.settings.SourcePathDisplayType;
@@ -15,16 +16,19 @@ import java.util.*;
 public class SettingsDialogController
 {
     @FXML
-    private Pane root, pnl_general, pnl_csv;
+    private Pane root, pnl_general, pnl_csv, pnl_generator, pnl_pfV1Vars;
 
     @FXML
     private TextField txtOverlayDir;
 
     @FXML
-    private Button btnChooseOverlay, btn_general, btn_csv;
+    private Button btnChooseOverlay, btn_general, btn_csv, btn_generator;
 
     @FXML
     private ChoiceBox<SourcePathDisplayType> choSourceDisplayType;
+
+    @FXML
+    private ChoiceBox<GeneratorType> cho_generatorType;
 
     @FXML
     private CheckBox chkAddWaypointOnClick;
@@ -47,20 +51,36 @@ public class SettingsDialogController
          *   Setup ui elements
          ******************************************************/
         choSourceDisplayType.getItems().setAll( SourcePathDisplayType.values() );
+        cho_generatorType   .getItems().setAll( GeneratorType.values()         );
 
 
         /******************************************************
          *   Setup bindings to the SettingsModel object
          ******************************************************/
-        txtOverlayDir           .textProperty()     .bindBidirectional( settings.graphBGImagePathProperty() );
+        txtOverlayDir           .textProperty()     .bindBidirectional( settings.graphBGImagePathProperty()      );
         choSourceDisplayType    .valueProperty()    .bindBidirectional( settings.sourcePathDisplayTypeProperty() );
-        chkAddWaypointOnClick   .selectedProperty() .bindBidirectional( settings.addPointOnClickProperty() );
-        lst_chosenElements      .itemsProperty()    .bindBidirectional( settings.chosenCSVElementsProperty() );
-        lst_availableElements   .itemsProperty()    .bindBidirectional( settings.availableCSVElementsProperty() );
+        chkAddWaypointOnClick   .selectedProperty() .bindBidirectional( settings.addPointOnClickProperty()       );
+        lst_chosenElements      .itemsProperty()    .bindBidirectional( settings.chosenCSVElementsProperty()     );
+        lst_availableElements   .itemsProperty()    .bindBidirectional( settings.availableCSVElementsProperty()  );
+        cho_generatorType       .valueProperty()    .bindBidirectional( settings.generatorTypeProperty()         );
 
         // Set visibility of settings panels
-        pnl_csv.setVisible( false );
         pnl_general.setVisible( true );
+        pnl_csv.setVisible( false );
+        pnl_generator.setVisible( false );
+
+        settings.generatorTypeProperty().addListener( (O, oldValue, newValue) ->
+        {
+            switch( newValue )
+            {
+                case PATHFINDER_V1:
+                    pnl_pfV1Vars.setVisible( true );
+                    break;
+
+                default:
+                    throw new RuntimeException( "The programmer forgot to add a case for the following generator: " + newValue );
+            }
+        });
 
 
         lst_chosenElements.setCellFactory( lv ->
@@ -151,16 +171,27 @@ public class SettingsDialogController
     private void showGeneralSettings()
     {
         pnl_general.toFront();
-        pnl_csv.setVisible(false);
-        pnl_general.setVisible(true);
+        pnl_csv.setVisible( false );
+        pnl_general.setVisible( true );
+        pnl_generator.setVisible( false );
     }
 
     @FXML
     private void showCSVSettings()
     {
         pnl_csv.toFront();
-        pnl_csv.setVisible(true);
-        pnl_general.setVisible(false);
+        pnl_csv.setVisible( true );
+        pnl_general.setVisible( false );
+        pnl_generator.setVisible( false );
+    }
+
+    @FXML
+    private void showGeneratorSettings()
+    {
+        pnl_generator.toFront();
+        pnl_generator.setVisible( true );
+        pnl_csv.setVisible( false );
+        pnl_general.setVisible( false );
     }
 
     //Drag from available to chosen
@@ -278,27 +309,58 @@ public class SettingsDialogController
     @FXML
     private void btn_gen_styles()
     {
-        btn_general.setStyle("-fx-background-color: DodgerBlue; " +
-                "-fx-text-fill: #FFFFFF");
+        btn_general  .setStyle( "-fx-background-color: DodgerBlue; " +
+                                "-fx-text-fill: #FFFFFF");
 
-        btn_csv.setStyle("-fx-border-color: transparent; " +
-                "-fx-border-width: 0; " +
-                "-fx-background-radius: 0; " +
-                "-fx-background-color: transparent;" +
-                "-fx-text-fill: #000000");
+        btn_csv      .setStyle( "-fx-border-color: transparent; " +
+                                "-fx-border-width: 0; " +
+                                "-fx-background-radius: 0; " +
+                                "-fx-background-color: transparent;" +
+                                "-fx-text-fill: #000000");
+
+        btn_generator.setStyle( "-fx-border-color: transparent; " +
+                                "-fx-border-width: 0; " +
+                                "-fx-background-radius: 0; " +
+                                "-fx-background-color: transparent;" +
+                                "-fx-text-fill: #000000");
     }
 
     @FXML
     private void btn_csv_styles()
     {
-        btn_csv.setStyle("-fx-background-color: DodgerBlue; " +
-                "-fx-text-fill: #FFFFFF");
+        btn_csv      .setStyle( "-fx-background-color: DodgerBlue; " +
+                                "-fx-text-fill: #FFFFFF");
 
-        btn_general.setStyle("-fx-border-color: transparent; " +
-                "-fx-border-width: 0; " +
-                "-fx-background-radius: 0; " +
-                "-fx-background-color: transparent;" +
-                "-fx-text-fill: #000000");
+        btn_general  .setStyle( "-fx-border-color: transparent; " +
+                                "-fx-border-width: 0; " +
+                                "-fx-background-radius: 0; " +
+                                "-fx-background-color: transparent;" +
+                                "-fx-text-fill: #000000");
+
+        btn_generator.setStyle( "-fx-border-color: transparent; " +
+                                "-fx-border-width: 0; " +
+                                "-fx-background-radius: 0; " +
+                                "-fx-background-color: transparent;" +
+                                "-fx-text-fill: #000000");
+    }
+
+    @FXML
+    private void btn_generatorStyles()
+    {
+        btn_general  .setStyle( "-fx-border-color: transparent; " +
+                                "-fx-border-width: 0; " +
+                                "-fx-background-radius: 0; " +
+                                "-fx-background-color: transparent;" +
+                                "-fx-text-fill: #000000");
+
+        btn_csv      .setStyle( "-fx-border-color: transparent; " +
+                                "-fx-border-width: 0; " +
+                                "-fx-background-radius: 0; " +
+                                "-fx-background-color: transparent;" +
+                                "-fx-text-fill: #000000");
+
+        btn_generator.setStyle( "-fx-background-color: DodgerBlue; " +
+                                "-fx-text-fill: #FFFFFF");
     }
 
 }

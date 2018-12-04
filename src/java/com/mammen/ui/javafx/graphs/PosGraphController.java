@@ -1,7 +1,9 @@
 package com.mammen.ui.javafx.graphs;
 
 import com.mammen.generator.*;
-import com.mammen.generator.variables.GeneratorVars;
+import com.mammen.settings.DriveBase;
+import com.mammen.settings.Units;
+import com.mammen.settings.generator_vars.GeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
 import com.mammen.main.MainUIModel;
@@ -42,13 +44,12 @@ public class PosGraphController
 
     SettingsModel settings;
 
+
     /**************************************************************************
-     *  setup
-     *      Setup backend linkages stuff here.
-     *
-     * @param backend Reference to the backend of the program.
+     *  initialize
+     *      Setup gui stuff here.
      *************************************************************************/
-    public void setup()
+    @FXML public void initialize()
     {
         backend = MainUIModel.getInstance();
         vars = backend.getGeneratorVars();
@@ -77,15 +78,6 @@ public class PosGraphController
             posGraph.getData().clear();
             refreshPoints();
         });
-    } /* setup() */
-
-
-    /**************************************************************************
-     *  initialize
-     *      Setup gui stuff here.
-     *************************************************************************/
-    @FXML public void initialize()
-    {
     }
 
 

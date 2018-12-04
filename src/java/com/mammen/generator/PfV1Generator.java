@@ -1,7 +1,8 @@
 package com.mammen.generator;
 
-import com.mammen.generator.variables.GeneratorVars;
-import com.mammen.generator.variables.PfV1GeneratorVars;
+import com.mammen.settings.DriveBase;
+import com.mammen.settings.generator_vars.GeneratorVars;
+import com.mammen.settings.generator_vars.PfV1GeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
@@ -27,13 +28,13 @@ public class PfV1Generator implements Generator
         catch( IOException e )
         {
             e.printStackTrace();
-            Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder lib!" );
+            Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder V1 lib!" );
 
             alert.showAndWait();
         }
     }
 
-    public Path generate(List<Waypoint> waypointList, GeneratorVars variables  ) throws PathGenerationException, NotEnoughPointsException
+    public Path generate( List<Waypoint> waypointList, GeneratorVars variables  ) throws PathGenerationException, NotEnoughPointsException
     {
         PfV1GeneratorVars vars = (PfV1GeneratorVars)variables;
         Trajectory source, fr, fl, br, bl;

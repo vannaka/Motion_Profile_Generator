@@ -2,8 +2,9 @@ package com.mammen.main;
 
 import com.mammen.file_io.FileIO;
 import com.mammen.generator.*;
-import com.mammen.generator.variables.GeneratorVars;
-import com.mammen.generator.variables.PfV1GeneratorVars;
+import com.mammen.settings.Units;
+import com.mammen.settings.generator_vars.GeneratorVars;
+import com.mammen.settings.generator_vars.PfV1GeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
 import com.mammen.settings.SettingsModel;
@@ -46,9 +47,9 @@ public class MainUIModel
 	private static final String PROJECT_EXTENSION = "xml";
 
     /******************************************************
-     *   Property variables
+     *   Property generator_vars
      ******************************************************/
-//    private Property<variables> generatorVars = new SimpleObjectProperty<>();
+//    private Property<generator_vars> generatorVars = new SimpleObjectProperty<>();
     private Generator generator;
     private GeneratorVars generatorVars;
 
@@ -81,9 +82,10 @@ public class MainUIModel
     public MainUIModel()
     {
         generator = new PfV1Generator();
-        generatorVars = new PfV1GeneratorVars();
 
         settings = SettingsModel.getInstance();
+
+        generatorVars;
 
     	dbFactory = DocumentBuilderFactory.newInstance();
 
@@ -127,7 +129,7 @@ public class MainUIModel
 
     /**************************************************************************
      *  updateVarUnits
-     *      Converts the variables from one Unit to another.
+     *      Converts the generator_vars from one Unit to another.
      *
      * @param old_unit The current Unit.
      * @param new_unit The Unit to convert to.

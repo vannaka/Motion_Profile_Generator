@@ -1,11 +1,17 @@
-package com.mammen.generator.variables;
+package com.mammen.settings.generator_vars;
 
-import com.mammen.generator.DriveBase;
-import com.mammen.generator.Units;
+import com.mammen.settings.DriveBase;
+import com.mammen.settings.Units;
 import com.mammen.util.Mathf;
+import com.mammen.util.SerializeHelpers.ReadObjectsHelper;
+import com.mammen.util.SerializeHelpers.WriteObjectsHelper;
 import jaci.pathfinder.Trajectory;
 import javafx.beans.property.*;
 import org.w3c.dom.Element;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class PfV1GeneratorVars extends GeneratorVars
 {
@@ -37,14 +43,11 @@ public class PfV1GeneratorVars extends GeneratorVars
     }
 
     // Pathfinder V1 vars
-    private DoubleProperty timeStep         = new SimpleDoubleProperty( 0.05 );
     private DoubleProperty velocity         = new SimpleDoubleProperty( 4.0 );
     private DoubleProperty accel            = new SimpleDoubleProperty( 3.0 );
     private DoubleProperty jerk             = new SimpleDoubleProperty( 5.0 );
-    private DoubleProperty wheelBaseW       = new SimpleDoubleProperty( 1.5 );
-    private DoubleProperty wheelBaseD       = new SimpleDoubleProperty( 2.0 );
     private Property<FitMethod> fitMethod   = new SimpleObjectProperty<>( FitMethod.HERMITE_CUBIC );
-    private BooleanProperty isReversed    = new SimpleBooleanProperty( false );
+    private BooleanProperty isReversed      = new SimpleBooleanProperty( false );
 
 
     @Override
@@ -65,7 +68,7 @@ public class PfV1GeneratorVars extends GeneratorVars
     @Override
     public void readXMLAttributes( Element element )
     {
-        unit        .setValue( Units    .valueOf( element.getAttribute("unit"       ) ) );
+        unit        .setValue( Units    .valueOf( element.getAttribute("unit"        ) ) );
         driveBase   .setValue( DriveBase.valueOf( element.getAttribute("driveBase"   ) ) );
         fitMethod   .setValue( FitMethod.valueOf( element.getAttribute("fitMethod"   ) ) );
 
@@ -186,22 +189,8 @@ public class PfV1GeneratorVars extends GeneratorVars
         }
     }
 
+
     // Getters and Setters
-    public double getTimeStep()
-    {
-        return timeStep.get();
-    }
-
-    public DoubleProperty timeStepProperty()
-    {
-        return timeStep;
-    }
-
-    public void setTimeStep( double timeStep )
-    {
-        this.timeStep.set( timeStep );
-    }
-
     public double getVelocity()
     {
         return velocity.get();
@@ -247,36 +236,6 @@ public class PfV1GeneratorVars extends GeneratorVars
         this.jerk.set( jerk );
     }
 
-    public double getWheelBaseW()
-    {
-        return wheelBaseW.get();
-    }
-
-    public DoubleProperty wheelBaseWProperty()
-    {
-        return wheelBaseW;
-    }
-
-    public void setWheelBaseW( double wheelBaseW )
-    {
-        this.wheelBaseW.set( wheelBaseW );
-    }
-
-    public double getWheelBaseD()
-    {
-        return wheelBaseD.get();
-    }
-
-    public DoubleProperty wheelBaseDProperty()
-    {
-        return wheelBaseD;
-    }
-
-    public void setWheelBaseD( double wheelBaseD )
-    {
-        this.wheelBaseD.set( wheelBaseD );
-    }
-
     public FitMethod getFitMethod()
     {
         return fitMethod.getValue();
@@ -291,7 +250,6 @@ public class PfV1GeneratorVars extends GeneratorVars
     {
         this.fitMethod.setValue( fitMethod );
     }
-
 
     public boolean isIsReversed()
     {

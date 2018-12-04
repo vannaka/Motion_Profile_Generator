@@ -1,18 +1,17 @@
 package com.mammen.generator;
 
-// Types of drive bases
-public enum DriveBase
+public enum GeneratorType
 {
-    TANK( "Tank" ),
-    SWERVE( "Swerve" );
+    PATHFINDER_V1( "Pathfinder Version 1" );
 
     private String label;
 
-    DriveBase( String label )
+    GeneratorType( String label )
     {
         this.label = label;
     }
 
+    @Override
     public String toString()
     {
         return label;
