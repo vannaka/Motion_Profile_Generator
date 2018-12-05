@@ -3,8 +3,6 @@ package com.mammen.main;
 import com.mammen.file_io.FileIO;
 import com.mammen.generator.*;
 import com.mammen.settings.Units;
-import com.mammen.settings.generator_vars.GeneratorVars;
-import com.mammen.settings.generator_vars.PfV1GeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
 import com.mammen.settings.SettingsModel;
@@ -30,6 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -47,12 +46,8 @@ public class MainUIModel
 	private static final String PROJECT_EXTENSION = "xml";
 
     /******************************************************
-     *   Property generator_vars
+     *   Waypoints
      ******************************************************/
-//    private Property<generator_vars> generatorVars = new SimpleObjectProperty<>();
-    private Generator generator;
-    private GeneratorVars generatorVars;
-
     private ListProperty<Waypoint> waypointList = new SimpleListProperty<>(
                                                                 FXCollections.observableArrayList(
                                                                         p -> new Observable[]{ p.xProperty(), p.yProperty(), p.angleProperty() } ) );
@@ -81,13 +76,14 @@ public class MainUIModel
      *************************************************************************/
     public MainUIModel()
     {
-        generator = new PfV1Generator();
-
         settings = SettingsModel.getInstance();
 
-        generatorVars;
-
     	dbFactory = DocumentBuilderFactory.newInstance();
+
+    	settings.getGeneratorVars().unitProperty().addListener( (o, oldValue, newValue) ->
+        {
+            updateVarUnits( oldValue, newValue );
+        });
 
     }   /* MainUIModel() */
 
@@ -118,7 +114,7 @@ public class MainUIModel
      *************************************************************************/
     public void generatePath() throws Generator.PathGenerationException, Generator.NotEnoughPointsException
     {
-        Path newPath = generator.generate( waypointList, generatorVars );
+        Path newPath = settings.getGenerator().generate( waypointList );
 
         if( newPath != null )
         {
@@ -139,6 +135,8 @@ public class MainUIModel
         // TODO: Find a better way of doing this!!!
         //          Maybe storing the values in the backend in feet
         //          and only convert it for display.
+
+        List<Waypoint> tmpList = new ArrayList<>();
 
     	// Convert each point in the waypoints list
         for( Waypoint wp : waypointList )
@@ -168,23 +166,38 @@ public class MainUIModel
             switch( new_unit )
             {
                 case FEET:
-                    wp.setX( tmp_x );
-                    wp.setY( tmp_y );
+//                    wp.setX( tmp_x );
+//                    wp.setY( tmp_y );
+
+                    tmpList.add( new Waypoint( tmp_x, tmp_y, wp.getAngle() ) );
                     break;
 
                 case INCHES:
-                    wp.setX( Mathf.feetToInches( tmp_x ) );
-                    wp.setY( Mathf.feetToInches( tmp_y ) );
+//                    wp.setX( Mathf.feetToInches( tmp_x ) );
+//                    wp.setY( Mathf.feetToInches( tmp_y ) );
+
+                    tmpList.add( new Waypoint( Mathf.feetToInches( tmp_x ),
+                                               Mathf.feetToInches( tmp_y ),
+                                               wp.getAngle() ) );
+
                     break;
 
                 case METERS:
-                    wp.setX( Mathf.feetToMeter( tmp_x ) );
-                    wp.setY( Mathf.feetToMeter( tmp_y ) );
+//                    wp.setX( Mathf.feetToMeter( tmp_x ) );
+//                    wp.setY( Mathf.feetToMeter( tmp_y ) );
+
+                    tmpList.add( new Waypoint( Mathf.feetToMeter( tmp_x ),
+                                               Mathf.feetToMeter( tmp_y ),
+                                               wp.getAngle() ) );
                     break;
             }
+
+            waypointList.clear();
+            waypointList.addAll( tmpList );
+
         }
 
-        generatorVars.changeUnit( new_unit );
+//        settings.getGeneratorVars().changeUnit( new_unit );
 
     }   /* updateVarUnits() */
 
@@ -242,8 +255,11 @@ public class MainUIModel
             // XML entry for the path waypoints and vars
             Element pathElement = dom.createElement("Path" );
 
+            // Save generator type
+            pathElement.setAttribute( "GeneratorType", settings.getGeneratorType().name() );
+
             // Write generator vars to xml file
-            generatorVars.writeXMLAttributes( pathElement );
+            settings.getGeneratorVars().writeXMLAttributes( pathElement );
             dom.appendChild( pathElement );
 
             // Write waypoints to xml file
@@ -305,8 +321,14 @@ public class MainUIModel
 
             Element docEle = dom.getDocumentElement();
 
+            // Get generator type
+            settings.setGeneratorType( Generator.Type.valueOf( docEle.getAttribute( "GeneratorType" ) ));
+
+            // TODO: Does the settings.generatorType change listener get call before the next line?
+            //  If not, the settings.generatorVars variable will potentially be the wrong one.
+
             // Get generator vars from xml file.
-            generatorVars.readXMLAttributes( docEle );
+            settings.getGeneratorVars().readXMLAttributes( docEle );
 
             // Get waypoints from xml file.
             NodeList waypointEleList = docEle.getElementsByTagName( "Waypoint" );
@@ -340,12 +362,6 @@ public class MainUIModel
     public void clearWorkingFiles()
     {
         workingProject = null;
-    }
-
-
-    public GeneratorVars getGeneratorVars()
-    {
-        return generatorVars;
     }
 
     /**
@@ -396,7 +412,7 @@ public class MainUIModel
     public void clearPoints() 
     {
         waypointList.clear();
-        path = null;
+        path.setValue( null );
     }
 
     public ListProperty<Waypoint> waypointListProperty()

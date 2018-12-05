@@ -1,6 +1,7 @@
 package com.mammen.settings;
 
-import com.mammen.generator.GeneratorType;
+import com.mammen.generator.Generator;
+import com.mammen.generator.PfV1Generator;
 import com.mammen.settings.generator_vars.GeneratorVars;
 import com.mammen.settings.generator_vars.PfV1GeneratorVars;
 import com.mammen.path.Path;
@@ -39,13 +40,15 @@ public class SettingsModel implements Serializable
     private transient ListProperty<Path.Elements> chosenCSVElements;
     private transient ListProperty<Path.Elements> availableCSVElements;
     private transient StringProperty workingDirectory;
-    private transient Property<GeneratorType> generatorType;
+    private transient Property<Generator.Type> generatorType;
     private transient Property<GeneratorVars> generatorVars;
+    private transient Property<Generator> generator;
 
     /******************************************************
      *   Instance of each generator vars type.
      ******************************************************/
     private transient PfV1GeneratorVars pfV1Vars;
+    private transient PfV1Generator pfV1Generator;
 
     /******************************************************
      *   Constructors
@@ -53,8 +56,6 @@ public class SettingsModel implements Serializable
     // Prevent instantiation of this class
     private SettingsModel()
     {
-        pfV1Vars = new PfV1GeneratorVars();
-
         initialize();
 
         chosenCSVElements.add( Path.Elements.DELTA_TIME );
@@ -73,6 +74,7 @@ public class SettingsModel implements Serializable
             {
                 case PATHFINDER_V1:
                     generatorVars.setValue( pfV1Vars );
+                    generator.setValue( pfV1Generator );
                     break;
 
                 default:
@@ -83,14 +85,18 @@ public class SettingsModel implements Serializable
 
     private void initialize()
     {
+        pfV1Vars = new PfV1GeneratorVars();
+        pfV1Generator = new PfV1Generator();
+
         graphBGImagePath        = new SimpleStringProperty();
         addPointOnClick         = new SimpleBooleanProperty( true );
         sourcePathDisplayType   = new SimpleObjectProperty<>( SourcePathDisplayType.WP_ONLY );
         chosenCSVElements       = new SimpleListProperty<>( FXCollections.observableArrayList() );
         availableCSVElements    = new SimpleListProperty<>( FXCollections.observableArrayList() );
         workingDirectory        = new SimpleStringProperty( System.getProperty( "user.dir" ) );
-        generatorType           = new SimpleObjectProperty<>( GeneratorType.PATHFINDER_V1 );
+        generatorType           = new SimpleObjectProperty<>( Generator.Type.PATHFINDER_V1 );
         generatorVars           = new SimpleObjectProperty<>( pfV1Vars );
+        generator               = new SimpleObjectProperty<>( pfV1Generator );
     }
 
 
@@ -231,17 +237,17 @@ public class SettingsModel implements Serializable
         this.workingDirectory.set( workingDirectory );
     }
 
-    public GeneratorType getGeneratorType()
+    public Generator.Type getGeneratorType()
     {
         return generatorType.getValue();
     }
 
-    public Property<GeneratorType> generatorTypeProperty()
+    public Property<Generator.Type> generatorTypeProperty()
     {
         return generatorType;
     }
 
-    public void setGeneratorType( GeneratorType generatorType )
+    public void setGeneratorType( Generator.Type generatorType )
     {
         this.generatorType.setValue(generatorType);
     }
@@ -259,6 +265,21 @@ public class SettingsModel implements Serializable
     public void setGeneratorVars( GeneratorVars generatorVars )
     {
         this.generatorVars.setValue(generatorVars);
+    }
+
+    public Generator getGenerator()
+    {
+        return generator.getValue();
+    }
+
+    public Property<Generator> generatorProperty()
+    {
+        return generator;
+    }
+
+    public PfV1GeneratorVars getPfV1Vars()
+    {
+        return pfV1Vars;
     }
 
     /**************************************************************************
@@ -285,12 +306,13 @@ public class SettingsModel implements Serializable
         ReadObjectsHelper.readListPropPathElem( s, chosenCSVElements );
         ReadObjectsHelper.readListPropPathElem( s, availableCSVElements );
         ReadObjectsHelper.readStringProp( s, workingDirectory );
-        ReadObjectsHelper.readObjectProp( s, generatorType, GeneratorType.class );
+        ReadObjectsHelper.readObjectProp( s, generatorType, Generator.Type.class );
 
         switch( generatorType.getValue() )
         {
             case PATHFINDER_V1:
                 generatorVars.setValue( pfV1Vars );
+                generator.setValue( pfV1Generator );
                 break;
 
             default:

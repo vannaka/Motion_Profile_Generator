@@ -1,7 +1,7 @@
 package com.mammen.generator;
 
 import com.mammen.settings.DriveBase;
-import com.mammen.settings.generator_vars.GeneratorVars;
+import com.mammen.settings.SettingsModel;
 import com.mammen.settings.generator_vars.PfV1GeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
@@ -34,9 +34,9 @@ public class PfV1Generator implements Generator
         }
     }
 
-    public Path generate( List<Waypoint> waypointList, GeneratorVars variables  ) throws PathGenerationException, NotEnoughPointsException
+    public Path generate( List<Waypoint> waypointList ) throws PathGenerationException, NotEnoughPointsException
     {
-        PfV1GeneratorVars vars = (PfV1GeneratorVars)variables;
+        PfV1GeneratorVars vars = (PfV1GeneratorVars) SettingsModel.getInstance().getGeneratorVars();
         Trajectory source, fr, fl, br, bl;
 
         // We need at least 2 points to generate a trajectory.

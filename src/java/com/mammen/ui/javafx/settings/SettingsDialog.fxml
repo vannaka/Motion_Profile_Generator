@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<DialogPane fx:id="root" maxHeight="641.0" minHeight="200.0" prefHeight="641.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.SettingsDialogController">
+<DialogPane fx:id="root" maxHeight="641.0" minHeight="200.0" prefHeight="641.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.settings.SettingsDialogController">
    <content>
       <AnchorPane>
          <children>

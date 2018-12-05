@@ -3,6 +3,8 @@ package com.mammen.ui.javafx.graphs;
 import com.mammen.settings.DriveBase;
 import com.mammen.main.MainUIModel;
 import com.mammen.path.Path;
+import com.mammen.settings.generator_vars.GeneratorVars;
+import com.mammen.settings.SettingsModel;
 import com.mammen.settings.Units;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
@@ -18,6 +20,7 @@ public class VelGraphController
     private NumberAxis axisTime, axisVel;
 
     private MainUIModel backend;
+    private GeneratorVars vars;
 
 
     /**************************************************************************
@@ -27,6 +30,7 @@ public class VelGraphController
     @FXML public void initialize()
     {
         backend = MainUIModel.getInstance();
+        vars = SettingsModel.getInstance().getGeneratorVars();
 
         // Watch this to know when a new path has been generated
         backend.pathProperty().addListener( ( o, oldValue, newValue ) ->
@@ -35,9 +39,8 @@ public class VelGraphController
             refresh();
         });
 
-
         // Update axis to reflect the new unit
-        backend.getGeneratorVars().unitProperty().addListener( ( o, oldValue, newValue ) ->
+        vars.unitProperty().addListener( ( o, oldValue, newValue ) ->
         {
             updateAxis( newValue );
         });
@@ -80,7 +83,7 @@ public class VelGraphController
 
             velGraph.getData().addAll( flSeries, frSeries );
 
-            if( backend.getGeneratorVars().getDriveBase() == DriveBase.SWERVE )
+            if( vars.getDriveBase() == DriveBase.SWERVE )
             {
                 blSeries = buildSeries( backend.getPath().getBackLeft() );
                 brSeries = buildSeries( backend.getPath().getBackRight() );

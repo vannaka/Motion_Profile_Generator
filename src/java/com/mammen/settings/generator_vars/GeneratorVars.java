@@ -23,11 +23,19 @@ public abstract class GeneratorVars
     DoubleProperty wheelBaseW       = new SimpleDoubleProperty( 1.5 );
     DoubleProperty wheelBaseD       = new SimpleDoubleProperty( 2.0 );
 
+    GeneratorVars()
+    {
+        unit.addListener( (o, oldValue, newValue) ->
+        {
+            changeUnit( oldValue, newValue );
+        });
+    }
+
     public abstract void writeXMLAttributes( Element element );
     public abstract  void readXMLAttributes( Element element );
 
     public abstract void setDefaultValues( Units newUnits );
-    public abstract void changeUnit( Units newUnits );
+    protected abstract void changeUnit( Units oldUnit, Units newUnit );
 
 
     // getters and setters

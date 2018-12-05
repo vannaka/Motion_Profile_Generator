@@ -1,7 +1,7 @@
-package com.mammen.ui.javafx.dialog.settings.generator_vars;
+package com.mammen.ui.javafx.settings.generator_vars;
 
 import com.mammen.settings.DriveBase;
-import com.mammen.main.MainUIModel;
+import com.mammen.settings.SettingsModel;
 import com.mammen.settings.Units;
 import com.mammen.settings.generator_vars.PfV1GeneratorVars;
 import javafx.fxml.FXML;
@@ -46,7 +46,7 @@ public class PathfinderV1VarsController
      *************************************************************************/
     @FXML private void initialize()
     {
-        this.vars = (PfV1GeneratorVars)MainUIModel.getInstance().getGeneratorVars();
+        this.vars = SettingsModel.getInstance().getPfV1Vars();
 
         // Populate ChoiceBox's
         choDriveBase.getItems().setAll( DriveBase.values() );
@@ -123,11 +123,7 @@ public class PathfinderV1VarsController
             lblWheelBaseD.disableProperty().setValue( dis );
             txtWheelBaseD.disableProperty().setValue( dis );
         });
-    }
 
-    public void setVarsToDefault( Units unit )
-    {
-        vars.setDefaultValues( unit );
     }
 }
 

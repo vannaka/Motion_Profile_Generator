@@ -1,6 +1,6 @@
-package com.mammen.ui.javafx.dialog.settings;
+package com.mammen.ui.javafx.settings;
 
-import com.mammen.generator.GeneratorType;
+import com.mammen.generator.Generator;
 import com.mammen.path.Path;
 import com.mammen.settings.SettingsModel;
 import com.mammen.settings.SourcePathDisplayType;
@@ -28,7 +28,7 @@ public class SettingsDialogController
     private ChoiceBox<SourcePathDisplayType> choSourceDisplayType;
 
     @FXML
-    private ChoiceBox<GeneratorType> cho_generatorType;
+    private ChoiceBox<Generator.Type> cho_generatorType;
 
     @FXML
     private CheckBox chkAddWaypointOnClick;
@@ -51,7 +51,7 @@ public class SettingsDialogController
          *   Setup ui elements
          ******************************************************/
         choSourceDisplayType.getItems().setAll( SourcePathDisplayType.values() );
-        cho_generatorType   .getItems().setAll( GeneratorType.values()         );
+        cho_generatorType   .getItems().setAll( Generator.Type.values()         );
 
 
         /******************************************************

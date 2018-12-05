@@ -3,15 +3,9 @@ package com.mammen.settings.generator_vars;
 import com.mammen.settings.DriveBase;
 import com.mammen.settings.Units;
 import com.mammen.util.Mathf;
-import com.mammen.util.SerializeHelpers.ReadObjectsHelper;
-import com.mammen.util.SerializeHelpers.WriteObjectsHelper;
 import jaci.pathfinder.Trajectory;
 import javafx.beans.property.*;
 import org.w3c.dom.Element;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 
 public class PfV1GeneratorVars extends GeneratorVars
 {
@@ -123,16 +117,13 @@ public class PfV1GeneratorVars extends GeneratorVars
     }
 
     @Override
-    public void changeUnit( Units newUnit )
+    protected void changeUnit(  Units oldUnit, Units newUnit )
     {
-        if( newUnit == unit.getValue() )
-            return;
-
         // Convert each MP variable to the new unit
         double tmp_WBW = 0, tmp_WBD = 0, tmp_vel = 0, tmp_acc = 0, tmp_jer = 0;
 
         // convert to intermediate unit of feet
-        switch( unit.getValue() )
+        switch( oldUnit )
         {
             case FEET:
                 tmp_WBW = wheelBaseW.get();

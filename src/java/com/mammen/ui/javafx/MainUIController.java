@@ -15,7 +15,7 @@ import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.main.MainUIModel;
 
-import com.mammen.ui.javafx.dialog.settings.generator_vars.PathfinderV1VarsController;
+import com.mammen.ui.javafx.settings.generator_vars.PathfinderV1VarsController;
 import com.mammen.util.Mathf;
 import jaci.pathfinder.Pathfinder;
 
@@ -74,9 +74,6 @@ public class MainUIController
 
     @FXML
     private VelGraphController velGraphController;
-
-    @FXML
-    private PathfinderV1VarsController pathfinderV1VarsController;
 
     private SettingsModel settings;
 
@@ -173,6 +170,24 @@ public class MainUIController
             // Disable btn if no points exist
             btnClearPoints.setDisable( backend.isWaypointListEmpty() );
             tblWaypoints.refresh();
+
+            try
+            {
+                // Generate new path with new settings
+                if( backend.getNumWaypoints() > 1 )
+                    backend.generatePath();
+            }
+            catch( Generator.PathGenerationException | Generator.NotEnoughPointsException e )
+            {
+                // Remove problem point.
+                backend.removeLastPoint();
+
+                Alert alert = new Alert( Alert.AlertType.INFORMATION );
+                alert.setTitle( "Invalid point" );
+                alert.setHeaderText( "Invalid point" );
+                alert.setContentText( "The point you entered was invalid.");
+                alert.showAndWait();
+            }
         });
 
         tblWaypoints.itemsProperty().bindBidirectional( backend.waypointListProperty() );
@@ -180,7 +195,7 @@ public class MainUIController
         tblWaypoints.getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
         tblWaypoints.getSelectionModel().selectedIndexProperty().addListener( (observable, oldValue, newValue) ->
         {
-            btnDelete.setDisable(tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1);
+            btnDelete.setDisable( tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1 );
         });
         
         Runtime.getRuntime().addShutdownHook( new Thread( () ->
@@ -213,9 +228,10 @@ public class MainUIController
             {
                 try
                 {
+                    // Generate new path with new settings
+                    backend.generatePath();
+
                     posGraphController.setBGImg();
-                    posGraphController.refresh();
-                    posGraphController.refreshPoints();
 
                     settings.saveSettings();
             }
@@ -223,6 +239,10 @@ public class MainUIController
                 {
                     Alert alert = AlertFactory.createExceptionAlert( e );
                     alert.showAndWait();
+                }
+                catch( Generator.PathGenerationException | Generator.NotEnoughPointsException e )
+                {
+                    // Don't do anything.
                 }
             }
         });
@@ -332,7 +352,18 @@ public class MainUIController
                 workingDirectory = result.getParentFile();
                 backend.loadProject( result );
 
+                backend.generatePath();
+
                 mnuFileSave.setDisable( false );
+            }
+            catch( Generator.PathGenerationException e )
+            {
+                Alert alert = new Alert( Alert.AlertType.INFORMATION );
+                alert.setTitle( "Path Problem" );
+                alert.setHeaderText( "Invalid points" );
+                alert.setContentText( "Path could not be generated with the points that were loaded in.\n" +
+                                      "Please delete the invalid point." );
+                alert.showAndWait();
             }
             catch( Exception e )
             {
@@ -382,7 +413,7 @@ public class MainUIController
                 backend.clearWorkingFiles();
                 backend.clearPoints();
 
-                pathfinderV1VarsController.setVarsToDefault( Units.FEET );
+                settings.getGeneratorVars().setDefaultValues( Units.FEET );
 
                 mnuFileSave.setDisable( true );
             }

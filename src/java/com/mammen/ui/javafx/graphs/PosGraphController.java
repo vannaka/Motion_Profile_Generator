@@ -52,9 +52,8 @@ public class PosGraphController
     @FXML public void initialize()
     {
         backend = MainUIModel.getInstance();
-        vars = backend.getGeneratorVars();
-
         settings = SettingsModel.getInstance();
+        vars = settings.getGeneratorVars();
 
         setBGImg();
 
@@ -427,30 +426,30 @@ public class PosGraphController
                     }
 
                     // Generate a path
-                    try
-                    {
-                        // Generate path with new point.
-                        if( backend.getNumWaypoints() > 1 )
-                            backend.generatePath();
-                    }
-                    catch( Generator.PathGenerationException e )
-                    {
-                        // Remove problem point.
-                        backend.removeLastPoint();
-
-                        Alert alert = new Alert( Alert.AlertType.INFORMATION );
-                        alert.setTitle( "Invalid point" );
-                        alert.setHeaderText( "Invalid point" );
-                        alert.setContentText("The point you entered was invalid.");
-                        alert.showAndWait();
-
-                    }
-                    catch( Generator.NotEnoughPointsException e )
-                    {
-                        // It is imposable for this exception to be thrown since we check
-                        //  the number of waypoints first.
-                        e.printStackTrace();
-                    }
+//                    try
+//                    {
+//                        // Generate path with new point.
+//                        if( backend.getNumWaypoints() > 1 )
+//                            backend.generatePath();
+//                    }
+//                    catch( Generator.PathGenerationException e )
+//                    {
+//                        // Remove problem point.
+//                        backend.removeLastPoint();
+//
+//                        Alert alert = new Alert( Alert.AlertType.INFORMATION );
+//                        alert.setTitle( "Invalid point" );
+//                        alert.setHeaderText( "Invalid point" );
+//                        alert.setContentText( "The point you entered was invalid.");
+//                        alert.showAndWait();
+//
+//                    }
+//                    catch( Generator.NotEnoughPointsException e )
+//                    {
+//                        // It is imposable for this exception to be thrown since we check
+//                        //  the number of waypoints first.
+//                        e.printStackTrace();
+//                    }
                 }
             }
             else
