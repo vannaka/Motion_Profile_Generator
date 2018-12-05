@@ -23,7 +23,7 @@ public class SettingsModel implements Serializable
     private static final String DIR_NAME = ".motion-profile-generator";
     private static final String SETTINGS_DIR = System.getProperty("user.home") + File.separator + DIR_NAME;
     private static final String SETTINGS_FILE_PATH = SETTINGS_DIR + File.separator + FILE_NAME;
-    private Boolean settingsDirExist = false;
+    private Boolean settingsDirExist;
 
 
     /******************************************************
@@ -311,6 +311,8 @@ public class SettingsModel implements Serializable
 
     private void readObject( ObjectInputStream s ) throws IOException, ClassNotFoundException
     {
+        settingsDirExist = true;
+
         initialize();
 
         ReadObjectsHelper.readStringProp( s, graphBGImagePath );
