@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.mammen.generator.Generator;
-import com.mammen.settings.Units;
 import com.mammen.path.Waypoint;
 import com.mammen.settings.SettingsModel;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
@@ -14,10 +13,7 @@ import com.mammen.ui.javafx.graphs.PosGraphController;
 import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.main.MainUIModel;
-
-import com.mammen.ui.javafx.settings.generator_vars.PathfinderV1VarsController;
 import com.mammen.util.Mathf;
-import jaci.pathfinder.Pathfinder;
 
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.ListChangeListener;
@@ -32,8 +28,6 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import javafx.util.converter.DoubleStringConverter;
-
-import static com.mammen.util.Mathf.round;
 
 public class MainUIController 
 {
@@ -119,8 +113,8 @@ public class MainUIController
                 Waypoint curWaypoint = t.getRowValue();
 
                 if( t.getTableColumn() == colWaypointAngle )
-                    curWaypoint.setAngle( Pathfinder.d2r( t.getNewValue() ) );
-                else if (t.getTableColumn() == colWaypointY)
+                    curWaypoint.setAngle( t.getNewValue() );
+                else if (t.getTableColumn() == colWaypointY )
                     curWaypoint.setY( t.getNewValue() );
                 else
                     curWaypoint.setX( t.getNewValue() );
@@ -144,7 +138,7 @@ public class MainUIController
             }
         });
 
-        colWaypointY.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointY.setCellValueFactory( (TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue() {
@@ -152,12 +146,12 @@ public class MainUIController
             }
         });
 
-        colWaypointAngle.setCellValueFactory((TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
+        colWaypointAngle.setCellValueFactory( (TableColumn.CellDataFeatures<Waypoint, Double> d) -> new ObservableValueBase<Double>()
         {
             @Override
             public Double getValue()
             {
-                return Mathf.round( Pathfinder.r2d( d.getValue().getAngle() ), 2 );
+                return Mathf.round( d.getValue().getAngle(), 2 );
             }
         });
 
@@ -231,10 +225,10 @@ public class MainUIController
                     // Generate new path with new settings
                     backend.generatePath();
 
-                    posGraphController.setBGImg();
+                    //posGraphController.setBGImg();
 
                     settings.saveSettings();
-            }
+                }
                 catch( IOException e )
                 {
                     Alert alert = AlertFactory.createExceptionAlert( e );
@@ -243,6 +237,7 @@ public class MainUIController
                 catch( Generator.PathGenerationException | Generator.NotEnoughPointsException e )
                 {
                     // Don't do anything.
+                    // TODO: Probably should do something here
                 }
             }
         });
@@ -352,18 +347,7 @@ public class MainUIController
                 workingDirectory = result.getParentFile();
                 backend.loadProject( result );
 
-                backend.generatePath();
-
                 mnuFileSave.setDisable( false );
-            }
-            catch( Generator.PathGenerationException e )
-            {
-                Alert alert = new Alert( Alert.AlertType.INFORMATION );
-                alert.setTitle( "Path Problem" );
-                alert.setHeaderText( "Invalid points" );
-                alert.setContentText( "Path could not be generated with the points that were loaded in.\n" +
-                                      "Please delete the invalid point." );
-                alert.showAndWait();
             }
             catch( Exception e )
             {
@@ -376,8 +360,6 @@ public class MainUIController
     @FXML
     private void save()
     {
-        //updateBackend();
-
         try
         {
             backend.saveWorkingProject();
@@ -413,7 +395,7 @@ public class MainUIController
                 backend.clearWorkingFiles();
                 backend.clearPoints();
 
-                settings.getGeneratorVars().setDefaultValues( Units.FEET );
+                settings.getGeneratorVars().setDefaultValues();
 
                 mnuFileSave.setDisable( true );
             }
@@ -429,33 +411,10 @@ public class MainUIController
         // Wait for the result
         result = waypointDialog.showAndWait();
 
-        result.ifPresent( (Waypoint w) -> backend.addPoint( w ) );
-
-        // Generate a path
-        try
+        result.ifPresent( (Waypoint w) ->
         {
-            // Generate path with new point.
-            if( backend.getNumWaypoints() > 1 )
-                backend.generatePath();
-        }
-        catch( Generator.PathGenerationException e )
-        {
-            // Remove problem point.
-            backend.removeLastPoint();
-
-            Alert alert = new Alert( Alert.AlertType.INFORMATION );
-            alert.setTitle( "Invalid point" );
-            alert.setHeaderText( "Invalid point" );
-            alert.setContentText("The point you entered was invalid.");
-            alert.showAndWait();
-
-        }
-        catch( Generator.NotEnoughPointsException e )
-        {
-            // It is imposable for this exception to be thrown since we check
-            //  the number of waypoints first.
-            e.printStackTrace();
-        }
+            backend.addPoint( w );
+        } );
 
     } /* showAddPointDialog() */
     

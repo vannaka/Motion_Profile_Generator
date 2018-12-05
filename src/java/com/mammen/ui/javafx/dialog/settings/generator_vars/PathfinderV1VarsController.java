@@ -1,4 +1,4 @@
-package com.mammen.ui.javafx.settings.generator_vars;
+package com.mammen.ui.javafx.dialog.settings.generator_vars;
 
 import com.mammen.settings.DriveBase;
 import com.mammen.settings.SettingsModel;

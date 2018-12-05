@@ -1,4 +1,4 @@
-package com.mammen.ui.javafx.settings;
+package com.mammen.ui.javafx.dialog.settings;
 
 import com.mammen.generator.Generator;
 import com.mammen.path.Path;

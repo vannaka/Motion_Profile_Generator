@@ -23,6 +23,7 @@ public class SettingsModel implements Serializable
     private static final String DIR_NAME = ".motion-profile-generator";
     private static final String SETTINGS_DIR = System.getProperty("user.home") + File.separator + DIR_NAME;
     private static final String SETTINGS_FILE_PATH = SETTINGS_DIR + File.separator + FILE_NAME;
+    private Boolean settingsDirExist = false;
 
 
     /******************************************************
@@ -56,6 +57,17 @@ public class SettingsModel implements Serializable
     // Prevent instantiation of this class
     private SettingsModel()
     {
+        // Create settings dir if it does not exist yet
+        File settingsDir = new File( SettingsModel.getSettingsDir() );
+        if( !settingsDir.exists() )
+        {
+            settingsDirExist = settingsDir.mkdirs();
+        }
+        else
+        {
+            settingsDirExist = true;
+        }
+
         initialize();
 
         chosenCSVElements.add( Path.Elements.DELTA_TIME );
@@ -128,7 +140,8 @@ public class SettingsModel implements Serializable
      *************************************************************************/
     public void saveSettings() throws IOException
     {
-        ObjectSerializer.saveObject( this, SETTINGS_FILE_PATH );
+        if( settingsDirExist )
+            ObjectSerializer.saveObject( this, SETTINGS_FILE_PATH );
     }
 
 

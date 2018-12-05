@@ -49,7 +49,7 @@ public class DialogFactory
 
         try
         {
-            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/settings/SettingsDialog.fxml") );
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/settings/SettingsDialog.fxml") );
 
             dialog.setDialogPane( loader.load() );
 
@@ -57,10 +57,10 @@ public class DialogFactory
             ((Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL)).setDefaultButton(false);
 
             // Some header stuff
-            dialog.setTitle("SettingsModel");
+            dialog.setTitle("Settings");
             dialog.setHeaderText("Manage settings");
 
-            dialog.setResultConverter((ButtonType buttonType) -> buttonType.getButtonData() == ButtonBar.ButtonData.APPLY );
+            dialog.setResultConverter( (ButtonType buttonType) -> buttonType.getButtonData() == ButtonBar.ButtonData.APPLY );
         }
         catch( Exception e )
         {

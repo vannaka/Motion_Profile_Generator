@@ -1,7 +1,5 @@
 package com.mammen.ui.javafx.graphs;
 
-import com.mammen.generator.*;
-import com.mammen.settings.DriveBase;
 import com.mammen.settings.Units;
 import com.mammen.settings.generator_vars.GeneratorVars;
 import com.mammen.path.Path;
@@ -20,11 +18,11 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public class PosGraphController
@@ -40,9 +38,12 @@ public class PosGraphController
     private MainUIModel backend;
     private GeneratorVars vars;
 
-    XYChart.Series<Double, Double> waypointSeries;
+    // Graph display data
+    private XYChart.Series<Double, Double> waypointSeries;
+    private XYChart.Series<Double, Double> sourceSeries;
+    private XYChart.Series<Double, Double> flSeries, frSeries, blSeries, brSeries;
 
-    SettingsModel settings;
+    private SettingsModel settings;
 
 
     /**************************************************************************
@@ -57,12 +58,19 @@ public class PosGraphController
 
         setBGImg();
 
+        settings.graphBGImagePathProperty().addListener( (o, oldValue, newValue) ->
+        {
+            setBGImg();
+        });
+
         // Watch this to know when a new path has been generated
         backend.pathProperty().addListener( ( o, oldValue, newValue ) ->
         {
-            // Update graph when the path changes
+            // Build path series'
+            buildPathSeries( newValue );
+
+            // Display series'.
             refresh();
-            refreshPoints();
         });
 
         vars.unitProperty().addListener( ( o, oldValue, newValue ) ->
@@ -73,9 +81,19 @@ public class PosGraphController
 
         backend.waypointListProperty().addListener( ( o, oldValue, newValue ) ->
         {
-            //refresh();
-            posGraph.getData().clear();
-            refreshPoints();
+            buildWaypointSeries( newValue );
+
+            // Display series.
+            refresh();
+        });
+
+        settings.sourcePathDisplayTypeProperty().addListener( (o, oldValue, newValue) ->
+        {
+            buildWaypointSeries( backend.getWaypointList() );
+            buildPathSeries( backend.getPath() );
+
+            // Display series.
+            refresh();
         });
     }
 
@@ -122,7 +140,7 @@ public class PosGraphController
                                                                     "-fx-background-repeat: no-repeat;" );
     }
 
-    public void updateAxis( Units unit )
+    private void updateAxis( Units unit )
     {
         switch( unit )
         {
@@ -161,120 +179,123 @@ public class PosGraphController
     /**
      * Populates the graph with the newest path data.
      */
-    public void refresh()
+    private void refresh()
     {
-        XYChart.Series<Double, Double> flSeries, frSeries, blSeries, brSeries;
-
         // Clear data from position graph
         posGraph.getData().clear();
 
-        // Start by drawing drive train trajectories
-        if( backend.getNumWaypoints() > 1 )
+        if( null != sourceSeries )
         {
-            flSeries = buildSeries( backend.getPath().getFrontLeft() );
-            frSeries = buildSeries( backend.getPath().getFrontRight() );
-
-            if( vars.getDriveBase() == DriveBase.SWERVE )
-            {
-                blSeries = buildSeries( backend.getPath().getBackLeft() );
-                brSeries = buildSeries( backend.getPath().getBackRight() );
-
-                posGraph.getData().addAll( blSeries, brSeries, flSeries, frSeries );
-                flSeries.getNode().setStyle("-fx-stroke: red");
-                frSeries.getNode().setStyle("-fx-stroke: red");
-                blSeries.getNode().setStyle("-fx-stroke: blue");
-                brSeries.getNode().setStyle("-fx-stroke: blue");
-
-                for( XYChart.Data<Double, Double> data : blSeries.getData() )
-                    data.getNode().setVisible(false);
-
-                for( XYChart.Data<Double, Double> data : brSeries.getData() )
-                    data.getNode().setVisible(false);
-            }
-            else
-            {
-                posGraph.getData().addAll( flSeries, frSeries );
-
-                flSeries.getNode().setStyle("-fx-stroke: magenta");
-                frSeries.getNode().setStyle("-fx-stroke: magenta");
-            }
-
-            for (XYChart.Data<Double, Double> data : flSeries.getData())
-                data.getNode().setVisible(false);
-
-            for (XYChart.Data<Double, Double> data : frSeries.getData())
-                data.getNode().setVisible(false);
-        }
-
-        // Display center path
-        if( ( settings.getSourcePathDisplayType() == SourcePathDisplayType.WP_PLUS_PATH )
-         && ( backend.getNumWaypoints() > 1                                             ) )
-        {
-            XYChart.Series<Double, Double> sourceSeries = buildSeries( backend.getPath().getCenter() );
             posGraph.getData().add( sourceSeries );
-            sourceSeries.getNode().setStyle("-fx-stroke: orange");
-
-            for( XYChart.Data<Double, Double> data : sourceSeries.getData() )
-            {
-                data.getNode().setVisible( false );
-            }
+            setSeriesVisuals( sourceSeries, "orange" );
         }
 
-//        Thread.dumpStack();
-    }
-
-    public void refreshPoints()
-    {
-        int counter = 0;
-
-        // Remove old Points
-        posGraph.getData().remove( waypointSeries );
-
-        if( ( ( settings.getSourcePathDisplayType() == SourcePathDisplayType.WP_PLUS_PATH )
-           || ( settings.getSourcePathDisplayType() == SourcePathDisplayType.WP_ONLY      ) )
-         && ( !backend.isWaypointListEmpty()                                                ) )
+        if( null != flSeries )
         {
-            // Display waypoints
-            waypointSeries = buildSeries( backend.getWaypointList().toArray( new Waypoint[1] ) );
-            posGraph.getData().add( waypointSeries );
-            waypointSeries.getNode().setStyle("-fx-stroke: transparent");
+            posGraph.getData().add( flSeries );
+            setSeriesVisuals( flSeries, "red" );
+        }
 
+        if( null != frSeries )
+        {
+            posGraph.getData().add( frSeries );
+            setSeriesVisuals( frSeries, "red" );
+        }
+
+        if( null != blSeries )
+        {
+            posGraph.getData().add( blSeries );
+            setSeriesVisuals( blSeries, "blue" );
+        }
+
+        if( null != brSeries )
+        {
+            posGraph.getData().add( brSeries );
+            setSeriesVisuals( brSeries, "blue" );
+        }
+
+        if( null != waypointSeries )
+        {
+            posGraph.getData().add( waypointSeries );
+
+            int counter = 0;
             for( XYChart.Data<Double, Double> data : waypointSeries.getData() )
             {
+                // Add event handlers to each Point
+                data.getNode().setId( String.valueOf( counter ) );
+                setOnPointEvent( data );
+
+                // Set Point color
                 data.getNode().setStyle( "-fx-background-color: orange, white" );
 
-                Node node = data.getNode();
+                // Increment counter
                 counter += 1;
-                node.setId( String.valueOf( counter ) );
-                setOnPointEvent( node, data );
             }
+
+            waypointSeries.getNode().setStyle("-fx-stroke: transparent");
         }
     }
 
+    private void setSeriesVisuals( XYChart.Series<Double, Double> series, String color )
+    {
+        // Set line color
+        series.getNode().setStyle("-fx-stroke: " + color );
+
+        // We only want to display the line connecting the points
+        //  not the points themselves.
+        for(  XYChart.Data<Double, Double> data : series.getData() )
+        {
+            data.getNode().setVisible(false);
+        }
+    }
+
+    private void buildPathSeries( Path path )
+    {
+        sourceSeries = null;
+        flSeries = null;
+        frSeries = null;
+        blSeries = null;
+        brSeries = null;
+
+        if( null == path )
+            return;
+
+        flSeries = buildSegmentsSeries( path.getFrontLeft() );
+        frSeries = buildSegmentsSeries( path.getFrontRight() );
+        blSeries = buildSegmentsSeries( path.getBackLeft() );
+        brSeries = buildSegmentsSeries( path.getBackRight() );
+
+        if( SourcePathDisplayType.WP_PLUS_PATH == settings.getSourcePathDisplayType() )
+            sourceSeries = buildSegmentsSeries( path.getCenter() );
+
+    }
 
     /**
      * Builds a series from the given trajectory that is ready to display on a LineChart.
-     * @param segments Trajectory to build a series for.
+     * @param segments Collection of Segments to build a series for.
      * @return The created series to display.
      */
-    private static XYChart.Series<Double, Double> buildSeries( Path.Segment[] segments )
+    private static XYChart.Series<Double, Double> buildSegmentsSeries( Path.Segment[] segments )
     {
+        if( ( null == segments     )
+         || ( 0 == segments.length ) )
+        {
+            return null;
+        }
+
         XYChart.Series<Double, Double> series = new XYChart.Series<>();
 
-        if( segments != null )
+        for( Path.Segment segment : segments )
         {
-            for( Path.Segment segment : segments )
-            {
-                // Holds x, y data for a single entry in the series.
-                XYChart.Data<Double, Double> data = new XYChart.Data<>();
+            // Holds x, y data for a single entry in the series.
+            XYChart.Data<Double, Double> data = new XYChart.Data<>();
 
-                // Set the x, y data.
-                data.setXValue( segment.x );
-                data.setYValue( segment.y );
+            // Set the x, y data.
+            data.setXValue( segment.x );
+            data.setYValue( segment.y );
 
-                // Add the data to the series.
-                series.getData().add( data );
-            }
+            // Add the data to the series.
+            series.getData().add( data );
         }
 
         return series;
@@ -283,11 +304,18 @@ public class PosGraphController
     /**
      * Builds a series from the given Waypoints array that is ready to be displayed on a LineChart.
      * @param waypoints Array of waypoints to build a series for.
-     * @return The created series to display.
      */
-    private static XYChart.Series<Double, Double> buildSeries( Waypoint[] waypoints )
+    private void buildWaypointSeries( List<Waypoint> waypoints )
     {
-        XYChart.Series<Double, Double> series = new XYChart.Series<>();
+        if( ( null == waypoints                                                 )
+         || ( 0 == waypoints.size()                                             )
+         || ( SourcePathDisplayType.NONE == settings.getSourcePathDisplayType() ) )
+        {
+            waypointSeries = null;
+            return;
+        }
+
+        waypointSeries = new XYChart.Series<>();
 
         for( Waypoint w : waypoints )
         {
@@ -299,14 +327,14 @@ public class PosGraphController
             data.setYValue( w.getY() );
 
             // Add the data to the series.
-            series.getData().add( data );
+            waypointSeries.getData().add( data );
         }
-
-        return series;
     }
 
-    private void setOnPointEvent( Node node, XYChart.Data data )
+    private void setOnPointEvent( XYChart.Data data )
     {
+        Node node = data.getNode();
+
         node.setOnMouseEntered( event ->
         {
             node.setCursor( Cursor.HAND );
@@ -361,7 +389,7 @@ public class PosGraphController
         {
             int index = Integer.parseInt( node.getId() );
 
-            Waypoint tmp = backend.getWaypoint( index - 1 );
+            Waypoint tmp = backend.getWaypoint( index  );
             tmp.setX( (Double) data.getXValue() );
             tmp.setY( (Double) data.getYValue() );
         });
@@ -424,32 +452,6 @@ public class PosGraphController
                     {
                         backend.addPoint( rnd_x, rnd_y, 0.0 );
                     }
-
-                    // Generate a path
-//                    try
-//                    {
-//                        // Generate path with new point.
-//                        if( backend.getNumWaypoints() > 1 )
-//                            backend.generatePath();
-//                    }
-//                    catch( Generator.PathGenerationException e )
-//                    {
-//                        // Remove problem point.
-//                        backend.removeLastPoint();
-//
-//                        Alert alert = new Alert( Alert.AlertType.INFORMATION );
-//                        alert.setTitle( "Invalid point" );
-//                        alert.setHeaderText( "Invalid point" );
-//                        alert.setContentText( "The point you entered was invalid.");
-//                        alert.showAndWait();
-//
-//                    }
-//                    catch( Generator.NotEnoughPointsException e )
-//                    {
-//                        // It is imposable for this exception to be thrown since we check
-//                        //  the number of waypoints first.
-//                        e.printStackTrace();
-//                    }
                 }
             }
             else

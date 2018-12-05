@@ -79,13 +79,12 @@ public class PfV1GeneratorVars extends GeneratorVars
      * Resets configuration to default values for the given unit.
      */
     @Override
-    public void setDefaultValues( Units newUnit )
+    public void setDefaultValues()
     {
         fitMethod.setValue( FitMethod.HERMITE_CUBIC );
         driveBase.setValue( DriveBase.TANK );
-        unit.setValue( newUnit );
 
-        switch( newUnit )
+        switch( unit.getValue() )
         {
             case FEET:
                 timeStep.set( 0.05 );

@@ -130,7 +130,7 @@ public class MainUIModel
      * @param old_unit The current Unit.
      * @param new_unit The Unit to convert to.
      **************************************************************************/
-    private void updateVarUnits(Units old_unit, Units new_unit )
+    private void updateVarUnits( Units old_unit, Units new_unit )
     {
         // TODO: Find a better way of doing this!!!
         //          Maybe storing the values in the backend in feet
@@ -166,16 +166,10 @@ public class MainUIModel
             switch( new_unit )
             {
                 case FEET:
-//                    wp.setX( tmp_x );
-//                    wp.setY( tmp_y );
-
                     tmpList.add( new Waypoint( tmp_x, tmp_y, wp.getAngle() ) );
                     break;
 
                 case INCHES:
-//                    wp.setX( Mathf.feetToInches( tmp_x ) );
-//                    wp.setY( Mathf.feetToInches( tmp_y ) );
-
                     tmpList.add( new Waypoint( Mathf.feetToInches( tmp_x ),
                                                Mathf.feetToInches( tmp_y ),
                                                wp.getAngle() ) );
@@ -183,21 +177,15 @@ public class MainUIModel
                     break;
 
                 case METERS:
-//                    wp.setX( Mathf.feetToMeter( tmp_x ) );
-//                    wp.setY( Mathf.feetToMeter( tmp_y ) );
-
                     tmpList.add( new Waypoint( Mathf.feetToMeter( tmp_x ),
                                                Mathf.feetToMeter( tmp_y ),
                                                wp.getAngle() ) );
                     break;
             }
-
-            waypointList.clear();
-            waypointList.addAll( tmpList );
-
         }
 
-//        settings.getGeneratorVars().changeUnit( new_unit );
+        waypointList.clear();
+        waypointList.addAll( tmpList );
 
     }   /* updateVarUnits() */
 

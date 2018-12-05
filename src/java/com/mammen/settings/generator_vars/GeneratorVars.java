@@ -34,7 +34,7 @@ public abstract class GeneratorVars
     public abstract void writeXMLAttributes( Element element );
     public abstract  void readXMLAttributes( Element element );
 
-    public abstract void setDefaultValues( Units newUnits );
+    public abstract void setDefaultValues();
     protected abstract void changeUnit( Units oldUnit, Units newUnit );
 
 
