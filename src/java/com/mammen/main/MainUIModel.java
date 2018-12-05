@@ -74,16 +74,15 @@ public class MainUIModel
     /**************************************************************************
      *   Constructor
      *************************************************************************/
-    public MainUIModel()
+    private MainUIModel()
     {
         settings = SettingsModel.getInstance();
 
     	dbFactory = DocumentBuilderFactory.newInstance();
 
     	settings.getGeneratorVars().unitProperty().addListener( (o, oldValue, newValue) ->
-        {
-            updateVarUnits( oldValue, newValue );
-        });
+            updateVarUnits( oldValue, newValue )
+        );
 
     }   /* MainUIModel() */
 
@@ -272,7 +271,7 @@ public class MainUIModel
                 pathElement.appendChild( waypointEle );
             }
 
-            FileOutputStream fos = null;
+            FileOutputStream fos;
             try
             {
                 fos = new FileOutputStream( workingProject );
@@ -368,7 +367,7 @@ public class MainUIModel
         waypointList.add( wp );
     }
     
-    public void removePoint( int index )
+    private void removePoint( int index )
     {
         waypointList.remove( index );
     }

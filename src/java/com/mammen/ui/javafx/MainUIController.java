@@ -9,8 +9,6 @@ import com.mammen.generator.Generator;
 import com.mammen.path.Waypoint;
 import com.mammen.settings.SettingsModel;
 import com.mammen.ui.javafx.dialog.factory.AlertFactory;
-import com.mammen.ui.javafx.graphs.PosGraphController;
-import com.mammen.ui.javafx.graphs.VelGraphController;
 import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.main.MainUIModel;
 import com.mammen.util.Mathf;
@@ -47,27 +45,20 @@ public class MainUIController
     
     @FXML
     private MenuItem
-        mnuOpen,
-        mnuFileNew,
-        mnuFileSave,
-        mnuFileSaveAs,
-        mnuFileExport,
-        mnuFileExit,
-        mnuHelpAbout;
+        mnuFileSave;
 
     @FXML
     private Button
-        btnAddPoint,
         btnClearPoints,
         btnDelete;
 
     // Reference to the PosGraphController object that JavaFX creates when it loads the fxml file.
     // This has to be named exactly like this
-    @FXML
-    private PosGraphController posGraphController;
-
-    @FXML
-    private VelGraphController velGraphController;
+//    @FXML
+//    private PosGraphController posGraphController;
+//
+//    @FXML
+//    private VelGraphController velGraphController;
 
     private SettingsModel settings;
 
@@ -188,9 +179,8 @@ public class MainUIController
 
         tblWaypoints.getSelectionModel().setSelectionMode( SelectionMode.MULTIPLE );
         tblWaypoints.getSelectionModel().selectedIndexProperty().addListener( (observable, oldValue, newValue) ->
-        {
-            btnDelete.setDisable( tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1 );
-        });
+            btnDelete.setDisable( tblWaypoints.getSelectionModel().getSelectedIndices().get(0) == -1 )
+        );
         
         Runtime.getRuntime().addShutdownHook( new Thread( () ->
         {
@@ -211,7 +201,7 @@ public class MainUIController
     private void showSettingsDialog()
     {
         Dialog<Boolean> settingsDialog = DialogFactory.createSettingsDialog();
-        Optional<Boolean> result = null;
+        Optional<Boolean> result;
 
         // Wait for the result
         result = settingsDialog.showAndWait();
@@ -406,15 +396,14 @@ public class MainUIController
     private void showAddPointDialog() 
     {
         Dialog<Waypoint> waypointDialog = DialogFactory.createWaypointDialog();
-        Optional<Waypoint> result = null;
+        Optional<Waypoint> result;
 
         // Wait for the result
         result = waypointDialog.showAndWait();
 
         result.ifPresent( (Waypoint w) ->
-        {
-            backend.addPoint( w );
-        } );
+            backend.addPoint( w )
+        );
 
     } /* showAddPointDialog() */
     
