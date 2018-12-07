@@ -26,7 +26,7 @@ public class DialogFactory
 
         try
         {
-            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/AboutDialog.fxml" ) );
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/about/AboutDialog.fxml") );
 
             dialog.setDialogPane( loader.load() );
 
@@ -76,7 +76,7 @@ public class DialogFactory
 
         try
         {
-            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/AddWaypointDialog.fxml" ) );
+            FXMLLoader loader = new FXMLLoader( ResourceLoader.getResource("/com/mammen/ui/javafx/dialog/add_waypoint/AddWaypointDialog.fxml") );
             ButtonType add = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE );
             DialogPane root = loader.load();
 

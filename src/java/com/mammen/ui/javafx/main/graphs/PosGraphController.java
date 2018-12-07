@@ -113,7 +113,7 @@ public class PosGraphController
             {
                 try
                 {
-                    ResourceLoader.resourceToFile( "/images/FRC2018.jpg", imgFile );
+                    ResourceLoader.resourceToFile("/images/FRC2018.jpg", imgFile );
                 }
                 catch( IOException e )
                 {

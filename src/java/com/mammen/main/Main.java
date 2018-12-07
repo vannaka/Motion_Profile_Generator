@@ -14,10 +14,10 @@ public class Main extends Application
 	{
 		try
 		{
-			Pane root = FXMLLoader.load( getClass().getResource("/com/mammen/ui/javafx/MainUI.fxml") );
+			Pane root = FXMLLoader.load( getClass().getResource("/com/mammen/ui/javafx/main/MainUI.fxml") );
 	        root.autosize();
 
-	        FXMLLoader loader = new FXMLLoader( getClass().getResource("/com/mammen/ui/javafx/graphs/PosGraphController.fxml") );
+	        FXMLLoader loader = new FXMLLoader( getClass().getResource("/com/mammen/ui/javafx/main/graphs/PosGraphController.fxml") );
 
 			primaryStage.setScene( new Scene( root ) );
 			primaryStage.sizeToScene();

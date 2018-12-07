@@ -1,4 +1,4 @@
-package com.mammen.ui.javafx;
+package com.mammen.ui.javafx.main;
 
 import java.io.File;
 import java.io.FileNotFoundException;
