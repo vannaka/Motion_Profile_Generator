@@ -1,4 +1,7 @@
 # Motion Profile Generator
+
+[![Build Status](https://dev.azure.com/Mammen-Robotics/Motion%20Profile%20Generator/_apis/build/status/vannaka.Motion_Profile_Generator)](https://dev.azure.com/Mammen-Robotics/Motion%20Profile%20Generator/_build/latest?definitionId=10)
+
 Generate Motion Profiles to follow with a Talon SRX.
  
 ![alt text][logo]
