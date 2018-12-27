@@ -11,7 +11,7 @@ import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.modifiers.SwerveModifier;
 import jaci.pathfinder.modifiers.TankModifier;
 import javafx.scene.control.Alert;
-import org.scijava.nativelib.NativeLoader;
+//import org.scijava.nativelib.NativeLoader;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,18 +20,6 @@ public class PfV1Generator implements Generator
 {
     public PfV1Generator()
     {
-        // Load Pathfinder native lib
-        try
-        {
-            NativeLoader.loadLibrary("pathfinderjava" );
-        }
-        catch( IOException e )
-        {
-            e.printStackTrace();
-            Alert alert = AlertFactory.createExceptionAlert(e, "Failed to load Pathfinder V1 lib!" );
-
-            alert.showAndWait();
-        }
     }
 
     public Path generate( List<Waypoint> waypointList ) throws PathGenerationException, NotEnoughPointsException

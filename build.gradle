@@ -3,21 +3,54 @@ plugins {
     id 'java'
     id 'idea'
     id 'eclipse'
+
+    id 'org.openjfx.javafxplugin' version '0.0.5'
+    id "com.github.johnrengelman.shadow" version "4.0.3"
 }
 
 mainClassName = 'com.mammen.main.Main'
 version = 'v3.0.0'
 
+project.sourceCompatibility = 11.0
+project.targetCompatibility = 11.0
+
 repositories {
     mavenCentral()
+    jcenter()
+    maven {
+        url = uri( "https://dev.imjac.in/maven/" )
+    }
 }
 
 dependencies {
-    // Used to load native libs
-    compile 'org.scijava:native-lib-loader:2.3.0'
+    // JavaFX cross platform packages
+    compile( "org.openjfx:javafx-graphics:11:win" )
+    compile( "org.openjfx:javafx-graphics:11:linux" )
+    compile( "org.openjfx:javafx-graphics:11:mac" )
 
-    // Add compile time libs
-    compile files( 'src/resources/lib/Pathfinder/Pathfinder-Java-1.8.jar', 'src/resources/lib/Icons/fontawesomefx-8.9.jar' )
+    // FontAwesome Icons
+    compile 'de.jensd:fontawesomefx-commons:9.1.2'
+    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
+
+    // Pathfinder V1
+    compile( "jaci.jniloader:JNILoader:1.0.1" )
+    compile( "jaci.pathfinder:Pathfinder-Java:2019.1.10" )
+
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:windowsx86" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:windowsx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:osxx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:linuxx86" )
+    compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:linuxx86-64" )
+
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:windowsx86" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:windowsx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:osxx86-64" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:linuxx86" )
+    compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:linuxx86-64" )
+}
+
+javafx {
+    modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
 }
 
 sourceSets {
@@ -35,31 +68,14 @@ sourceSets {
 }
 
 jar {
-    // Set up manifest to point the Main-Class attribute to the right class.
     manifest {
-        attributes 'Main-Class': mainClassName
-        attributes 'Version': version
-    }
-
-    // Copy contents of jar libs into final jar
-    from( configurations.compile.collect( { it.isDirectory() ? it : zipTree(it) } ) ) {
-        into( '' )
-    }
-
-    // Copy native libs into final jar
-    from( 'src/resources/lib/Pathfinder/native_libs' ) {
-        exclude( '*.jar' )
-        into( 'natives' )
+        attributes( "Main-Class": mainClassName,
+                    "Version": version )
     }
 }
 
-// Run our application
-task runApp(type:Exec) {
-    commandLine 'java', '-jar', "build/libs/Motion_Profile_Generator-${version}.jar"
-    dependsOn build
-}
 
 wrapper {
     // Set the version of our gradle wrapper
-    gradleVersion = '4.9'
+    gradleVersion = '5.0'
 }
