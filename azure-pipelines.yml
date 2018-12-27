@@ -35,7 +35,7 @@ steps:
 
 - task: CopyFiles@2
   inputs:
-    sourceFolder: 'build/lib/'
+    sourceFolder: 'build/libs/'
     contents: '*.jar'
     targetFolder: $(Build.ArtifactStagingDirectory)
 
