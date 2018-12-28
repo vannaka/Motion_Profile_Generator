@@ -9,7 +9,7 @@ plugins {
 }
 
 mainClassName = 'com.mammen.main.Main'
-version = 'v3.0.0'
+version = "3.0.0-SNAPSHOT"
 
 project.sourceCompatibility = 11.0
 project.targetCompatibility = 11.0
