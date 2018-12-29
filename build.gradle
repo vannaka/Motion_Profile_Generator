@@ -29,8 +29,8 @@ dependencies {
     compile( "org.openjfx:javafx-graphics:11:mac" )
 
     // FontAwesome Icons
-    compile 'de.jensd:fontawesomefx-commons:9.1.2'
-    compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
+    compile( 'de.jensd:fontawesomefx-commons:9.1.2' )
+    compile( 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2' )
 
     // For loading native libs
     compile( "jaci.jniloader:JNILoader:1.0.1" )

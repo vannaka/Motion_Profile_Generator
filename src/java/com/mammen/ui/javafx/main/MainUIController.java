@@ -17,6 +17,7 @@ import javafx.beans.value.ObservableValueBase;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
@@ -51,6 +52,12 @@ public class MainUIController
     private Button
         btnClearPoints,
         btnDelete;
+
+    @FXML
+    private LineChart<Double, Double> posGraph;
+
+    @FXML
+    private TabPane graphTabs;
 
     // Reference to the PosGraphController object that JavaFX creates when it loads the fxml file.
     // This has to be named exactly like this
@@ -195,6 +202,52 @@ public class MainUIController
                 e.printStackTrace();
             }
         }));
+
+        // Maintains the aspect ratio of the position graph
+        graphTabs.widthProperty().addListener( (o, oldValue, newValue) ->
+        {
+            double tabWidth = graphTabs.getWidth();
+            double tabHeight = graphTabs.getHeight();
+            double graphWidth = posGraph.getWidth();
+            double graphHeight = posGraph.getHeight();
+
+            double newHeight = tabWidth / 2;
+
+            if( newHeight > tabHeight )
+            {
+                posGraph.setPrefHeight( tabHeight );
+                posGraph.setPrefWidth( tabHeight * 2 );
+            }
+            else
+            {
+                posGraph.setPrefHeight( newHeight );
+                posGraph.setPrefWidth( tabWidth );
+            }
+
+        });
+
+        graphTabs.heightProperty().addListener( (o, oldValue, newValue) ->
+        {
+            double tabWidth = graphTabs.getWidth();
+            double tabHeight = graphTabs.getHeight();
+            double graphWidth = posGraph.getWidth();
+            double graphHeight = posGraph.getHeight();
+
+            double newWidth = tabHeight * 2;
+
+            if( newWidth > tabWidth )
+            {
+                posGraph.setPrefHeight( tabWidth / 2 );
+                posGraph.setPrefWidth( tabWidth );
+            }
+            else
+            {
+                posGraph.setPrefHeight( tabHeight );
+                posGraph.setPrefWidth( newWidth );
+            }
+        });
+
+
     } /* initialize() */
     
     @FXML

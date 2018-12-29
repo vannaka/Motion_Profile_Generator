@@ -95,8 +95,8 @@ public class PosGraphController
             // Display series.
             refresh();
         });
-    }
 
+    }
 
     /**
      * Displays the given image behind the graph.
