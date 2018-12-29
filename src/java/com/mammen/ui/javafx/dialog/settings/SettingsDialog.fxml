@@ -19,11 +19,15 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<DialogPane fx:id="root" maxHeight="641.0" minHeight="200.0" prefHeight="641.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.SettingsDialogController">
-   <content>
-      <AnchorPane prefHeight="500.0" prefWidth="675.0">
+<DialogPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.settings.SettingsDialogController">
+   <buttonTypes>
+      <ButtonType fx:constant="APPLY" />
+      <ButtonType fx:constant="CANCEL" />
+   </buttonTypes>
+   <header>
+      <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" spacing="20.0">
          <children>
-            <AnchorPane layoutX="20.0" layoutY="20.0" prefWidth="191.0" style="-fx-background-color: #f0f7ff;" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="10.0">
+            <AnchorPane prefWidth="191.0" style="-fx-background-color: #f0f7ff;" HBox.hgrow="NEVER">
                <children>
                   <Button fx:id="btn_general" accessibleText="General" graphicTextGap="45.0" layoutY="21.0" mnemonicParsing="false" onAction="#showGeneralSettings" onMouseClicked="#btn_gen_styles" prefHeight="25.0" style="-fx-background-color: #80000000;" text="General" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                   <Button fx:id="btn_csv" accessibleText="General" graphicTextGap="45.0" layoutY="46.0" mnemonicParsing="false" onAction="#showCSVSettings" onMouseClicked="#btn_csv_styles" prefHeight="25.0" style="-fx-background-color: #40000000;" text="CSV" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
@@ -36,9 +40,9 @@
                   <DropShadow />
                </effect>
             </AnchorPane>
-            <AnchorPane layoutX="231.0" layoutY="30.0" prefWidth="424.0" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="10.0">
+            <AnchorPane HBox.hgrow="ALWAYS">
                <children>
-                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" prefWidth="424.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <Pane fx:id="pnl_csv" layoutX="1.0" layoutY="1.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                            <children>
@@ -77,7 +81,7 @@
                         </VBox>
                      </children>
                   </Pane>
-                  <Pane fx:id="pnl_general" prefWidth="424.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <Pane fx:id="pnl_general" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <GridPane alignment="BASELINE_RIGHT" hgap="10.0" maxHeight="1.7976931348623157E308" prefHeight="150.0" prefWidth="455.0" vgap="10.0">
                           <columnConstraints>
@@ -94,7 +98,7 @@
                            <children>
                               <Label text="Position Chart Background:" />
                               <TextField fx:id="txtOverlayDir" editable="false" GridPane.columnIndex="1" />
-                              <Button fx:id="btnChooseOverlay" mnemonicParsing="false" onAction="#showChooseOverlayDialog" text="Find image..." GridPane.columnIndex="2" />
+                              <Button fx:id="btnChooseOverlay" mnemonicParsing="false" onAction="#showChooseOverlayDialog" text="Load image..." GridPane.columnIndex="2" />
                               <ChoiceBox fx:id="choSourceDisplayType" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                               <Label layoutX="38.0" layoutY="31.0" text="Source Trajectory Display:" GridPane.rowIndex="1" />
                               <CheckBox fx:id="chkAddWaypointOnClick" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Add waypoints on click" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -102,7 +106,7 @@
                         </GridPane>
                      </children>
                   </Pane>
-                  <Pane fx:id="pnl_generator" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <Pane fx:id="pnl_generator" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <VBox spacing="20.0">
                            <children>
@@ -130,10 +134,9 @@
                </children>
             </AnchorPane>
          </children>
-      </AnchorPane>
-   </content>
-   <buttonTypes>
-      <ButtonType fx:constant="APPLY" />
-      <ButtonType fx:constant="CANCEL" />
-   </buttonTypes>
+         <padding>
+            <Insets left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+   </header>
 </DialogPane>

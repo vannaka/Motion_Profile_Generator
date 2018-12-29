@@ -96,6 +96,9 @@ public class PosGraphController
             refresh();
         });
 
+        posGraph.lookup(".chart-vertical-grid-lines").setStyle( "-fx-stroke: rgba( 150, 153, 158, 0.5 );" );
+        posGraph.lookup(".chart-horizontal-grid-lines").setStyle( "-fx-stroke: rgba( 150, 153, 158, 0.5 );" );
+
     }
 
     /**
