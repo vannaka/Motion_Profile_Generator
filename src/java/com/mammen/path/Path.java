@@ -1,6 +1,6 @@
 package com.mammen.path;
 
-import com.mammen.settings.DriveBase;
+import com.mammen.generator.generator_vars.DriveBase;
 
 public class Path
 {

@@ -2,7 +2,7 @@ package com.mammen.main;
 
 import com.mammen.file_io.FileIO;
 import com.mammen.generator.*;
-import com.mammen.settings.Units;
+import com.mammen.generator.generator_vars.Units;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
 import com.mammen.settings.SettingsModel;
@@ -80,7 +80,7 @@ public class MainUIModel
 
     	dbFactory = DocumentBuilderFactory.newInstance();
 
-    	settings.getGeneratorVars().unitProperty().addListener( (o, oldValue, newValue) ->
+    	settings.getSharedGeneratorVars().unitProperty().addListener( (o, oldValue, newValue) ->
             updateVarUnits( oldValue, newValue )
         );
 
@@ -124,7 +124,7 @@ public class MainUIModel
 
     /**************************************************************************
      *  updateVarUnits
-     *      Converts the generator_vars from one Unit to another.
+     *      Converts the waypoints list from one Unit to another.
      *
      * @param old_unit The current Unit.
      * @param new_unit The Unit to convert to.
@@ -245,6 +245,9 @@ public class MainUIModel
             // Save generator type
             pathElement.setAttribute( "GeneratorType", settings.getGeneratorType().name() );
 
+            // Save shared vars
+            settings.getSharedGeneratorVars().writeXMLAttributes( pathElement );
+
             // Write generator vars to xml file
             settings.getGeneratorVars().writeXMLAttributes( pathElement );
             dom.appendChild( pathElement );
@@ -311,8 +314,12 @@ public class MainUIModel
             // Get generator type
             settings.setGeneratorType( Generator.Type.valueOf( docEle.getAttribute( "GeneratorType" ) ));
 
-            // TODO: Does the settings.generatorType change listener get call before the next line?
+            // Get shared vars from xml file
+            settings.getSharedGeneratorVars().readXMLAttributes( docEle );
+
+            // TODO: Does the settings.generatorType change listener get called before the next line?
             //  If not, the settings.generatorVars variable will potentially be the wrong one.
+            //  I suspect that it does.
 
             // Get generator vars from xml file.
             settings.getGeneratorVars().readXMLAttributes( docEle );

@@ -1,7 +1,7 @@
-package com.mammen.ui.javafx.graphs;
+package com.mammen.ui.javafx.main.graphs;
 
-import com.mammen.settings.Units;
-import com.mammen.settings.generator_vars.GeneratorVars;
+import com.mammen.generator.generator_vars.SharedGeneratorVars;
+import com.mammen.generator.generator_vars.Units;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
 import com.mammen.main.MainUIModel;
@@ -36,7 +36,7 @@ public class PosGraphController
     private LineChart<Double, Double> posGraph;
 
     private MainUIModel backend;
-    private GeneratorVars vars;
+    private SharedGeneratorVars vars;
 
     // Graph display data
     private XYChart.Series<Double, Double> waypointSeries;
@@ -54,7 +54,7 @@ public class PosGraphController
     {
         backend = MainUIModel.getInstance();
         settings = SettingsModel.getInstance();
-        vars = settings.getGeneratorVars();
+        vars = settings.getSharedGeneratorVars();
 
         setBGImg();
 

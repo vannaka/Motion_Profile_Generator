@@ -1,4 +1,4 @@
-package com.mammen.settings;
+package com.mammen.generator.generator_vars;
 
 // Types of drive bases
 public enum DriveBase

@@ -1,19 +1,16 @@
 package com.mammen.generator;
 
-import com.mammen.settings.DriveBase;
-import com.mammen.settings.SettingsModel;
-import com.mammen.settings.generator_vars.PfV1GeneratorVars;
+import com.mammen.generator.generator_vars.SharedGeneratorVars;
+import com.mammen.generator.generator_vars.DriveBase;
+import com.mammen.generator.generator_vars.PfV1GeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.path.Waypoint;
-import com.mammen.ui.javafx.dialog.factory.AlertFactory;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.modifiers.SwerveModifier;
 import jaci.pathfinder.modifiers.TankModifier;
-import javafx.scene.control.Alert;
 //import org.scijava.nativelib.NativeLoader;
 
-import java.io.IOException;
 import java.util.List;
 
 public class PfV1Generator implements Generator
@@ -24,13 +21,14 @@ public class PfV1Generator implements Generator
 
     public Path generate( List<Waypoint> waypointList ) throws PathGenerationException, NotEnoughPointsException
     {
-        PfV1GeneratorVars vars = (PfV1GeneratorVars) SettingsModel.getInstance().getGeneratorVars();
+        PfV1GeneratorVars vars = PfV1GeneratorVars.getInstance();
+        SharedGeneratorVars sharedVars = SharedGeneratorVars.getInstance();
         Trajectory source, fr, fl, br, bl;
 
         // We need at least 2 points to generate a trajectory.
         if( waypointList.size() > 1 )
         {
-            Trajectory.Config config = new Trajectory.Config( vars.getFitMethod().pfFitMethod(), Trajectory.Config.SAMPLES_HIGH, vars.getTimeStep(), vars.getVelocity(), vars.getAccel(), vars.getJerk() );
+            Trajectory.Config config = new Trajectory.Config( vars.getFitMethod().pfFitMethod(), Trajectory.Config.SAMPLES_HIGH, sharedVars.getTimeStep(), vars.getVelocity(), vars.getAccel(), vars.getJerk() );
 
             try
             {
@@ -41,10 +39,10 @@ public class PfV1Generator implements Generator
                 throw new PathGenerationException( "Pathfinder V1 failed to generate the path." );
             }
 
-            if( vars.getDriveBase() == DriveBase.SWERVE )
+            if( sharedVars.getDriveBase() == DriveBase.SWERVE )
             {
                 SwerveModifier swerve = new SwerveModifier( source );
-                swerve.modify( vars.getWheelBaseW(), vars.getWheelBaseD(), SwerveModifier.Mode.SWERVE_DEFAULT );
+                swerve.modify( sharedVars.getWheelBaseW(), sharedVars.getWheelBaseD(), SwerveModifier.Mode.SWERVE_DEFAULT );
 
                 fr = swerve.getFrontRightTrajectory();
                 fl = swerve.getFrontLeftTrajectory();
@@ -54,7 +52,7 @@ public class PfV1Generator implements Generator
             else  // DriveBase.Tank
             {
                 TankModifier tank = new TankModifier( source );
-                tank.modify( vars.getWheelBaseW() );
+                tank.modify( sharedVars.getWheelBaseW() );
 
                 fr = tank.getRightTrajectory();
                 fl = tank.getLeftTrajectory();
@@ -62,7 +60,7 @@ public class PfV1Generator implements Generator
                 bl = null;
             }
 
-            return new Path( vars.getDriveBase(), traj2Path( fl ), traj2Path( fr ), traj2Path( bl ), traj2Path( br ), traj2Path( source ) );
+            return new Path( sharedVars.getDriveBase(), traj2Path( fl ), traj2Path( fr ), traj2Path( bl ), traj2Path( br ), traj2Path( source ) );
         }
 
         throw new NotEnoughPointsException( "There are not enough points to generate a Path." );

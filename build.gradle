@@ -9,7 +9,7 @@ plugins {
 }
 
 mainClassName = 'com.mammen.main.Main'
-version = "3.0.0-SNAPSHOT"
+version = "4.0.0-SNAPSHOT"
 
 project.sourceCompatibility = 11.0
 project.targetCompatibility = 11.0
@@ -32,8 +32,10 @@ dependencies {
     compile 'de.jensd:fontawesomefx-commons:9.1.2'
     compile 'de.jensd:fontawesomefx-fontawesome:4.7.0-9.1.2'
 
-    // Pathfinder V1
+    // For loading native libs
     compile( "jaci.jniloader:JNILoader:1.0.1" )
+
+    // Pathfinder V1
     compile( "jaci.pathfinder:Pathfinder-Java:2019.1.10" )
 
     compile( "jaci.pathfinder:Pathfinder-JNI:2019.1.10:windowsx86" )
@@ -47,6 +49,15 @@ dependencies {
     compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:osxx86-64" )
     compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:linuxx86" )
     compile( "jaci.pathfinder:Pathfinder-CoreJNI:2019.1.10:linuxx86-64" )
+
+    // Pathfinder V2
+//    compile( "grpl.pathfinder:Pathfinder-Java:2.0.0-prealpha" )
+//
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:windowsx86" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:windowsx86-64" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:osxx86-64" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:linuxx86" )
+//    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:linuxx86-64" )
 }
 
 javafx {

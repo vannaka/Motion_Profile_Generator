@@ -1,4 +1,4 @@
-package com.mammen.settings;
+package com.mammen.generator.generator_vars;
 
 // Units of every value
 public enum Units

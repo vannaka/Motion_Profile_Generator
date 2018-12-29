@@ -1,11 +1,10 @@
-package com.mammen.ui.javafx.graphs;
+package com.mammen.ui.javafx.main.graphs;
 
-import com.mammen.settings.DriveBase;
+import com.mammen.generator.generator_vars.SharedGeneratorVars;
+import com.mammen.generator.generator_vars.DriveBase;
 import com.mammen.main.MainUIModel;
 import com.mammen.path.Path;
-import com.mammen.settings.generator_vars.GeneratorVars;
-import com.mammen.settings.SettingsModel;
-import com.mammen.settings.Units;
+import com.mammen.generator.generator_vars.Units;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -20,7 +19,7 @@ public class VelGraphController
     private NumberAxis axisTime, axisVel;
 
     private MainUIModel backend;
-    private GeneratorVars vars;
+    private SharedGeneratorVars sharedVars;
 
 
     /**************************************************************************
@@ -30,7 +29,7 @@ public class VelGraphController
     @FXML public void initialize()
     {
         backend = MainUIModel.getInstance();
-        vars = SettingsModel.getInstance().getGeneratorVars();
+        sharedVars = SharedGeneratorVars.getInstance();
 
         // Watch this to know when a new path has been generated
         backend.pathProperty().addListener( ( o, oldValue, newValue ) ->
@@ -40,14 +39,14 @@ public class VelGraphController
         });
 
         // Update axis to reflect the new unit
-        vars.unitProperty().addListener( ( o, oldValue, newValue ) ->
+        sharedVars.unitProperty().addListener( ( o, oldValue, newValue ) ->
         {
             updateAxis( newValue );
         });
     }
 
 
-    public void updateAxis( Units units )
+    private void updateAxis( Units units )
     {
         switch( units )
         {
@@ -69,7 +68,7 @@ public class VelGraphController
     /**
      * Populates the graph with the newest path data.
      */
-    public void refresh()
+    private void refresh()
     {
         XYChart.Series<Double, Double> flSeries, frSeries, blSeries, brSeries;
 
@@ -83,7 +82,7 @@ public class VelGraphController
 
             velGraph.getData().addAll( flSeries, frSeries );
 
-            if( vars.getDriveBase() == DriveBase.SWERVE )
+            if( sharedVars.getDriveBase() == DriveBase.SWERVE )
             {
                 blSeries = buildSeries( backend.getPath().getBackLeft() );
                 brSeries = buildSeries( backend.getPath().getBackRight() );

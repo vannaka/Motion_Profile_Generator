@@ -1,9 +1,9 @@
 package com.mammen.ui.javafx.dialog.settings.generator_vars;
 
-import com.mammen.settings.DriveBase;
-import com.mammen.settings.SettingsModel;
-import com.mammen.settings.Units;
-import com.mammen.settings.generator_vars.PfV1GeneratorVars;
+import com.mammen.generator.generator_vars.SharedGeneratorVars;
+import com.mammen.generator.generator_vars.DriveBase;
+import com.mammen.generator.generator_vars.Units;
+import com.mammen.generator.generator_vars.PfV1GeneratorVars;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
@@ -38,6 +38,7 @@ public class PathfinderV1VarsController
     private ChoiceBox<Units> choUnits;
 
     private PfV1GeneratorVars vars;
+    private SharedGeneratorVars sharedVars;
 
 
     /**************************************************************************
@@ -46,7 +47,8 @@ public class PathfinderV1VarsController
      *************************************************************************/
     @FXML private void initialize()
     {
-        this.vars = SettingsModel.getInstance().getPfV1Vars();
+        sharedVars = SharedGeneratorVars.getInstance();
+        vars = PfV1GeneratorVars.getInstance();
 
         // Populate ChoiceBox's
         choDriveBase.getItems().setAll( DriveBase.values() );
@@ -106,18 +108,19 @@ public class PathfinderV1VarsController
 
         // Setup Bindings
         choFitMethod    .valueProperty().bindBidirectional( vars.fitMethodProperty() );
-        choDriveBase    .valueProperty().bindBidirectional( vars.driveBaseProperty() );
-        choUnits        .valueProperty().bindBidirectional( vars.unitProperty()      );
+        choDriveBase    .valueProperty().bindBidirectional( sharedVars.driveBaseProperty() );
+        choUnits        .valueProperty().bindBidirectional( sharedVars.unitProperty()      );
 
-        txtTimeStep     .textProperty().bindBidirectional( vars.timeStepProperty(),   converter );
+        txtTimeStep     .textProperty().bindBidirectional( sharedVars.timeStepProperty(),   converter );
+        txtWheelBaseW   .textProperty().bindBidirectional( sharedVars.wheelBaseWProperty(), converter );
+        txtWheelBaseD   .textProperty().bindBidirectional( sharedVars.wheelBaseDProperty(), converter );
         txtVelocity     .textProperty().bindBidirectional( vars.velocityProperty(),   converter );
         txtAcceleration .textProperty().bindBidirectional( vars.accelProperty(),      converter );
         txtJerk         .textProperty().bindBidirectional( vars.jerkProperty(),       converter );
-        txtWheelBaseW   .textProperty().bindBidirectional( vars.wheelBaseWProperty(), converter );
-        txtWheelBaseD   .textProperty().bindBidirectional( vars.wheelBaseDProperty(), converter );
+
 
         // Disable WheelBaseD for Tank DriveBase
-        vars.driveBaseProperty().addListener( ( o, oldValue, newValue ) ->
+        sharedVars.driveBaseProperty().addListener( ( o, oldValue, newValue ) ->
         {
             boolean dis = newValue == DriveBase.TANK;
             lblWheelBaseD.disableProperty().setValue( dis );

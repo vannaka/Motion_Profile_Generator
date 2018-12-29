@@ -2,8 +2,9 @@ package com.mammen.settings;
 
 import com.mammen.generator.Generator;
 import com.mammen.generator.PfV1Generator;
-import com.mammen.settings.generator_vars.GeneratorVars;
-import com.mammen.settings.generator_vars.PfV1GeneratorVars;
+import com.mammen.generator.generator_vars.GeneratorVars;
+import com.mammen.generator.generator_vars.PfV1GeneratorVars;
+import com.mammen.generator.generator_vars.SharedGeneratorVars;
 import com.mammen.path.Path;
 import com.mammen.util.SerializeHelpers.ObjectSerializer;
 import com.mammen.util.SerializeHelpers.ReadObjectsHelper;
@@ -45,11 +46,14 @@ public class SettingsModel implements Serializable
     private transient Property<GeneratorVars> generatorVars;
     private transient Property<Generator> generator;
 
+
     /******************************************************
-     *   Instance of each generator vars type.
+     *   Instance of each generator and vars type.
      ******************************************************/
+    private transient SharedGeneratorVars sharedVars;
     private transient PfV1GeneratorVars pfV1Vars;
     private transient PfV1Generator pfV1Generator;
+
 
     /******************************************************
      *   Constructors
@@ -80,7 +84,8 @@ public class SettingsModel implements Serializable
         availableCSVElements.add( Path.Elements.JERK );
         availableCSVElements.add( Path.Elements.HEADING );
 
-        generatorTypeProperty().addListener( (O, oldValue, newValue) ->
+        // Update model references when the uses selects a new generator
+        generatorType.addListener( (O, oldValue, newValue) ->
         {
             switch( newValue )
             {
@@ -97,7 +102,8 @@ public class SettingsModel implements Serializable
 
     private void initialize()
     {
-        pfV1Vars = new PfV1GeneratorVars();
+        sharedVars = SharedGeneratorVars.getInstance();
+        pfV1Vars = PfV1GeneratorVars.getInstance();
         pfV1Generator = new PfV1Generator();
 
         graphBGImagePath        = new SimpleStringProperty();
@@ -290,9 +296,14 @@ public class SettingsModel implements Serializable
         return generator;
     }
 
-    public PfV1GeneratorVars getPfV1Vars()
+    public SharedGeneratorVars getSharedGeneratorVars()
     {
-        return pfV1Vars;
+        return sharedVars;
+    }
+
+    public void setSharedGeneratorVars( SharedGeneratorVars sharedVars )
+    {
+        this.sharedVars = sharedVars;
     }
 
     /**************************************************************************
