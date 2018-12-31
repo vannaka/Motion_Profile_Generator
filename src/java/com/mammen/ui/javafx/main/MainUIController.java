@@ -13,6 +13,7 @@ import com.mammen.ui.javafx.dialog.factory.DialogFactory;
 import com.mammen.main.MainUIModel;
 import com.mammen.util.Mathf;
 
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValueBase;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
@@ -159,6 +160,8 @@ public class MainUIController
          *************************************************/
         backend.waypointListProperty().addListener( ( ListChangeListener<Waypoint> ) c ->
         {
+            System.out.println( "List changed! " + backend.getNumWaypoints() );
+
             // Disable btn if no points exist
             btnClearPoints.setDisable( backend.isWaypointListEmpty() );
             tblWaypoints.refresh();
@@ -171,14 +174,18 @@ public class MainUIController
             }
             catch( Generator.PathGenerationException | Generator.NotEnoughPointsException e )
             {
-                // Remove problem point.
-                backend.removeLastPoint();
-
                 Alert alert = new Alert( Alert.AlertType.INFORMATION );
                 alert.setTitle( "Invalid point" );
                 alert.setHeaderText( "Invalid point" );
                 alert.setContentText( "The point you entered was invalid.");
                 alert.showAndWait();
+
+                // Run later because we don't want to modify a list inside it's own change listener.
+                Platform.runLater( () ->
+                {
+                    // Remove problem point.
+                    backend.removeLastPoint();
+                });
             }
         });
 

@@ -81,6 +81,8 @@ public class PosGraphController
 
         backend.waypointListProperty().addListener( ( o, oldValue, newValue ) ->
         {
+//            System.out.println( "List changed!" );
+
             buildWaypointSeries( newValue );
 
             // Display series.
