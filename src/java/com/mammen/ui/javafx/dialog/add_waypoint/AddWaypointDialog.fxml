@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 
 
-<DialogPane xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.AddWaypointDialogController">
+<DialogPane xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mammen.ui.javafx.dialog.add_waypoint.AddWaypointDialogController">
    <content>
       <GridPane hgap="10.0" prefHeight="130.0" prefWidth="259.0" vgap="10.0">
         <columnConstraints>

@@ -4,7 +4,7 @@ import java.awt.Toolkit;
 
 import com.mammen.path.Waypoint;
 import com.mammen.util.ResourceLoader;
-import com.mammen.ui.javafx.dialog.AddWaypointDialogController;
+import com.mammen.ui.javafx.dialog.add_waypoint.AddWaypointDialogController;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;

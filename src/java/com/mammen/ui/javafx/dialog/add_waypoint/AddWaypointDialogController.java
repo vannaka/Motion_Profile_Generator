@@ -1,4 +1,4 @@
-package com.mammen.ui.javafx.dialog;
+package com.mammen.ui.javafx.dialog.add_waypoint;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;

@@ -81,8 +81,6 @@ public class PosGraphController
 
         backend.waypointListProperty().addListener( ( o, oldValue, newValue ) ->
         {
-//            System.out.println( "List changed!" );
-
             buildWaypointSeries( newValue );
 
             // Display series.
@@ -106,7 +104,7 @@ public class PosGraphController
     /**
      * Displays the given image behind the graph.
      */
-    public void setBGImg()
+    private void setBGImg()
     {
         String path;
 

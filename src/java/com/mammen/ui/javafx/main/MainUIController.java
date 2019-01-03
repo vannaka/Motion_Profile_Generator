@@ -160,8 +160,6 @@ public class MainUIController
          *************************************************/
         backend.waypointListProperty().addListener( ( ListChangeListener<Waypoint> ) c ->
         {
-            System.out.println( "List changed! " + backend.getNumWaypoints() );
-
             // Disable btn if no points exist
             btnClearPoints.setDisable( backend.isWaypointListEmpty() );
             tblWaypoints.refresh();
@@ -215,8 +213,6 @@ public class MainUIController
         {
             double tabWidth = graphTabs.getWidth();
             double tabHeight = graphTabs.getHeight();
-            double graphWidth = posGraph.getWidth();
-            double graphHeight = posGraph.getHeight();
 
             double newHeight = tabWidth / 2;
 
@@ -237,8 +233,6 @@ public class MainUIController
         {
             double tabWidth = graphTabs.getWidth();
             double tabHeight = graphTabs.getHeight();
-            double graphWidth = posGraph.getWidth();
-            double graphHeight = posGraph.getHeight();
 
             double newWidth = tabHeight * 2;
 

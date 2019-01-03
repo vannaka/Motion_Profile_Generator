@@ -1,4 +1,4 @@
-package com.mammen.ui.javafx.dialog;
+package com.mammen.ui.javafx.dialog.about;
 
 import com.mammen.util.ResourceLoader;
 import javafx.event.ActionEvent;
@@ -25,7 +25,6 @@ public class AboutDialogController {
             hlLukeGithub,
             hlBlakeGithub,
             hlPathfinder,
-            hlNativeLibLoader,
             hlMITLicense;
 
     @FXML
@@ -34,7 +33,7 @@ public class AboutDialogController {
     @FXML
     private void initialize() {
         Manifest manifest = ResourceLoader.getManifest();
-        String versionNum = "3.0.0";
+        String versionNum = "4.0.0";
 
         if (manifest != null) {
             Attributes mfAttr = manifest.getMainAttributes();
@@ -49,7 +48,6 @@ public class AboutDialogController {
         hlLukeGithub.setOnAction((ActionEvent e) -> openLink("https://github.com/vannaka"));
         hlBlakeGithub.setOnAction((ActionEvent e) -> openLink("https://github.com/blake1029384756"));
         hlPathfinder.setOnAction((ActionEvent e) -> openLink("https://github.com/JacisNonsense/Pathfinder"));
-        hlNativeLibLoader.setOnAction((ActionEvent e) -> openLink("https://github.com/scijava/native-lib-loader"));
         hlMITLicense.setOnAction((ActionEvent e) -> openLink("https://opensource.org/licenses/MIT"));
 
         btnViewRepo.setOnAction((ActionEvent e) -> openLink("https://github.com/vannaka/Motion_Profile_Generator"));

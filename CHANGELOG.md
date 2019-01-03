@@ -4,16 +4,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2019-1-2
+### Added
+- Waypoints can now be repositioned by clicking and dragging.
+- Now select what data you want exported in the csv and in what order.
+- Select which generator you want to use ( Only Pathfinder V1 for now ).
+- Graph maintains aspect ratio when resized.
+- Field image loaded from jar.
+- Now supports Windows, Mac and Linux.
+
+### Changed
+- MOVED TO JAVA 11
+- Moved generator (Pathfinder) variables into the settings window.
+- Added a slight transparency to the grid lines on the position graph.
+- Misc. UI changes.
+
+### Removed
+- "CSV Type" setting.
+- Support for .bot files (project settings).
+- Support for .traj export file type (binary path file).
+
 ## [3.0.0] - 2018-4-29
 ### Added
-- Completly rewritten using JavaFX for the GUI
+- Completely rewritten using JavaFX for the GUI
 - Added a settings menu with settings that will persist across runs
 - Settings now saved in xml in home directory
 - Added new unit (Inches)
-- Changable background image for position graph.
+- Changeable background image for position graph.
 - Export CSV type; Talon SRX or Jaci
 - Show waypoints on position graph.
-- Auto regenerage trajectory when any value is changed.
+- Auto regenerate trajectory when any value is changed.
 - Other misc changes. Easter eggs?
 
 

@@ -8,11 +8,13 @@ plugins {
     id "com.github.johnrengelman.shadow" version "4.0.3"
 }
 
+
 mainClassName = 'com.mammen.main.Main'
-version = "4.0.0-SNAPSHOT"
+version = "4.0.0"
 
 project.sourceCompatibility = 11.0
 project.targetCompatibility = 11.0
+
 
 repositories {
     mavenCentral()
@@ -21,6 +23,7 @@ repositories {
         url = uri( "https://dev.imjac.in/maven/" )
     }
 }
+
 
 dependencies {
     // JavaFX cross platform packages
@@ -60,9 +63,11 @@ dependencies {
 //    compile( "grpl.pathfinder:Pathfinder-JNI:2.0.0-prealpha:linuxx86-64" )
 }
 
+
 javafx {
     modules = [ 'javafx.base', 'javafx.controls', 'javafx.fxml', 'javafx.graphics' ]
 }
+
 
 sourceSets {
     // Set top level dir of the java code
@@ -77,6 +82,7 @@ sourceSets {
         exclude '**/*.java', 'lib'
     }
 }
+
 
 jar {
     manifest {
