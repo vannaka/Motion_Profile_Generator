@@ -6,7 +6,7 @@ Generate paths to follow with a robot.
  
 ![alt text][logo]
 
-[logo]: https://github.com/vannaka/Motion_Profile_Generator/blob/develop/images/ProgramWindow.PNG
+[logo]: https://github.com/vannaka/Motion_Profile_Generator/blob/master/images/ProgramWindow.PNG
 
 ## Get the App
 - [Here](https://github.com/vannaka/Motion_Profile_Generator/releases)
