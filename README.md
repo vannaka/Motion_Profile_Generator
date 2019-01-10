@@ -9,7 +9,7 @@ Generate paths to follow with a robot.
 [logo]: https://github.com/vannaka/Motion_Profile_Generator/blob/develop/images/ProgramWindow.PNG
 
 ## Get the App
-- ###[Here](https://github.com/vannaka/Motion_Profile_Generator/releases)
+- [Here](https://github.com/vannaka/Motion_Profile_Generator/releases)
 
 ## Running the App
 - You will need java 11 to run this app. Download it [here](https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html).
