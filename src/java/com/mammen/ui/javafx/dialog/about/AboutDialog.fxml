@@ -21,7 +21,7 @@
                   <Insets right="10.0" />
                </FlowPane.margin>
             </Label>
-            <Label fx:id="lblVersion" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" text="v4.0.0" textAlignment="CENTER" />
+            <Label fx:id="lblVersion" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" text="v4.0.1" textAlignment="CENTER" />
          </children>
          <padding>
             <Insets left="30.0" right="30.0" />

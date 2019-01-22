@@ -33,7 +33,7 @@ public class AboutDialogController {
     @FXML
     private void initialize() {
         Manifest manifest = ResourceLoader.getManifest();
-        String versionNum = "4.0.0";
+        String versionNum = "4.0.1";
 
         if (manifest != null) {
             Attributes mfAttr = manifest.getMainAttributes();

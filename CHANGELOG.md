@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2019-1-22
+### Changed
+- Fix bug where the x-axis was labeled incorrectly on the position graph when the units were changed.
+
 ## [4.0.0] - 2019-1-2
 ### Added
 - Waypoints can now be repositioned by clicking and dragging.
