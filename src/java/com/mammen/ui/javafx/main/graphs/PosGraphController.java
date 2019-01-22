@@ -148,7 +148,7 @@ public class PosGraphController
         switch( unit )
         {
             case FEET:
-                axisPosX.setUpperBound(32);
+                axisPosX.setUpperBound(54);
                 axisPosX.setTickUnit(1);
                 axisPosX.setLabel("X-Position (ft)");
 
@@ -158,7 +158,7 @@ public class PosGraphController
                 break;
 
             case METERS:
-                axisPosX.setUpperBound(10);
+                axisPosX.setUpperBound(16.5);
                 axisPosX.setTickUnit(0.5);
                 axisPosX.setLabel("X-Position (m)");
 
@@ -168,7 +168,7 @@ public class PosGraphController
                 break;
 
             case INCHES:
-                axisPosX.setUpperBound(384);
+                axisPosX.setUpperBound(648);
                 axisPosX.setTickUnit(12);
                 axisPosX.setLabel("X-Position (in)");
 
