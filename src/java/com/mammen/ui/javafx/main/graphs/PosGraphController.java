@@ -110,13 +110,13 @@ public class PosGraphController
 
         if( settings.getGraphBGImagePath() == null )
         {
-            File imgFile = new File( SettingsModel.getSettingsDir() + "/FRC2018.jpg" );
+            File imgFile = new File( SettingsModel.getSettingsDir() + "/FRC2019.jpg" );
 
             if( !imgFile.exists() )
             {
                 try
                 {
-                    ResourceLoader.resourceToFile("/images/FRC2018.jpg", imgFile );
+                    ResourceLoader.resourceToFile("/images/FRC2019.jpg", imgFile );
                 }
                 catch( IOException e )
                 {
@@ -128,7 +128,7 @@ public class PosGraphController
             path = imgFile.toURI().toString();
 
             // Update settings with new path
-            settings.setGraphBGImagePath( SettingsModel.getSettingsDir() + "/FRC2018.jpg" );
+            settings.setGraphBGImagePath( SettingsModel.getSettingsDir() + "/FRC2019.jpg" );
         }
         else
         {
