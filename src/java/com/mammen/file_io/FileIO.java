@@ -46,8 +46,20 @@ public final class FileIO
         for( Path.Elements e : elements )
         {
             flPw.print( e.toString() + ", " );
+            frPw.print( e.toString() + ", " );
+            if( blPw != null ) 
+            {
+                blPw.print( e.toString() + ", " );
+                brPw.print( e.toString() + ", " );
+            }
         }
         flPw.println();
+        frPw.println();
+        if( blPw != null )
+        {
+            blPw.println();
+            brPw.println();
+        }
 
 
         // Loop over every segment in the path.
